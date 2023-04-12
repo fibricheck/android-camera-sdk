@@ -18,6 +18,8 @@ import com.qompium.fibricheckexample.databinding.ActivityMainBinding;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.qompium.fibricheck_camera_sdk.FibriChecker;
+
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
