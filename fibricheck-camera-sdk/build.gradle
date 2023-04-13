@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.qompium'
-version '0.0.2'
+version '0.1.0'
 
 android {
     namespace 'com.qompium.fibricheck_camera_sdk'
