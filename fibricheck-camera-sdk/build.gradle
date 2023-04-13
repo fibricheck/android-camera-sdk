@@ -43,8 +43,8 @@ afterEvaluate{
                 name = "GitHubPackages"
                 url = uri("https://maven.pkg.github.com/fibricheck/android-native-camera-sdk")
                 credentials {
-                    username = gprUser
-                    password = gprKey
+                    username = gprUser  ?: System.getenv("GH_USERNAME")
+                    password = gprKey  ?: System.getenv("GH_TOKEN")
                 }
             }
         }
