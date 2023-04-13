@@ -3,6 +3,9 @@ plugins {
     id 'maven-publish'
 }
 
+group 'com.qompium'
+version '0.0.2'
+
 android {
     namespace 'com.qompium.fibricheck_camera_sdk'
     compileSdk 33
@@ -25,26 +28,13 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    publishing {
-        singleVariant('release') {
-            withSourcesJar()
-        }
-    }
 }
 
-
-afterEvaluate {
+afterEvaluate{
     publishing {
         publications {
             release(MavenPublication) {
                 from components.release
-
-                // Replace with your own group ID.
-                groupId 'com.qompium'
-
-                // Replace with the name of your library
-                artifactId 'fibricheck_camera_sdk'
-                version '0.0.1'
             }
         }
 
@@ -60,3 +50,4 @@ afterEvaluate {
         }
     }
 }
+
