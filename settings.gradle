@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Fibricheck Example"
-include ':app'
+include ':example'
 include ':fibricheck-camera-sdk'
