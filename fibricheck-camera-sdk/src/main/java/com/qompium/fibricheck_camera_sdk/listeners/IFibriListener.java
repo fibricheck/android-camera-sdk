@@ -18,7 +18,7 @@ public interface IFibriListener {
 
   void onMeasurementFinished ();
 
-  void timeRemaining (int seconds);
+  void onTimeRemaining (int seconds);
 
   void onMeasurementProcessed (MeasurementData measurementData);
 

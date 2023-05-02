@@ -449,7 +449,7 @@ public abstract class FibriChecker implements CameraListener {
 
     if (timeRemaining != previousTime) {
       previousTime = timeRemaining;
-      fibriListener.timeRemaining(timeRemaining);
+      fibriListener.onTimeRemaining(timeRemaining);
     }
 
     return tms;
