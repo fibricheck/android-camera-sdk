@@ -1,5 +1,7 @@
 # Fibricheck Android Camera SDK
+The Android Camera SDK allows developers to integrate FibriCheck's heart rhythm analysis technology into their own application. The SDK interfaces with the smartphone's camera and generates a raw PPG signal and a rough heartrate estimation in beats per minute.
 
+**Important Compliance Notice!** This is an alpha release of the standalone FibriCheck Camera SDK for Android. This repository is not yet certified within our quality management systems to be used in production environments. It can currently only be used for development/testing purposes.
 
 ## How to include
 
@@ -24,11 +26,13 @@ repositories {
 
 The dependency can then be added:
 
+<!-- x-release-please-version-start -->
 ```groovy
 dependencies {
     implementation 'com.qompium:fibricheck-camera-sdk:0.0.2'
 }
 ```
+<!-- x-release-please-end -->
 
 ### In your code
 Once the dependency is correctly added, the SDK is available in your code.

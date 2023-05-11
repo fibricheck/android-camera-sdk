@@ -1,0 +1,21 @@
+on:
+    push:
+      branches:
+        - main
+
+permissions:
+    contents: write
+    pull-requests: write
+
+name: Release
+
+jobs:
+    release-new-version:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: google-github-actions/release-please-action@v3
+          with:
+            release-type: simple
+            extra-files: |
+              README.md
+              FibriCheckCameraSDK.podspec
