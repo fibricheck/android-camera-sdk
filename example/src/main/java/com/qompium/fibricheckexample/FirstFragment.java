@@ -78,8 +78,8 @@ public class FirstFragment extends Fragment {
                 Log.i(TAG, "Callback: onHeartBeat: " + value);
             }
 
-            @Override public void timeRemaining(int seconds) {
-                Log.i(TAG, "Callback: timeRemaining");
+            @Override public void onTimeRemaining(int seconds) {
+                Log.i(TAG, "Callback: onTimeRemaining");
 
             }
 

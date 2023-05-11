@@ -32,7 +32,7 @@ public class FibriListener implements IFibriListener {
 
   }
 
-  @Override public void timeRemaining (int seconds) {
+  @Override public void onTimeRemaining (int seconds) {
 
   }
 
