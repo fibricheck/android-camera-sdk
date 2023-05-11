@@ -29,7 +29,7 @@ The dependency can then be added:
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'com.qompium:fibricheck-camera-sdk:0.2.1'
+    implementation 'com.qompium:fibricheck-camera-sdk:0.3.0'
 }
 ```
 <!-- x-release-please-end -->
