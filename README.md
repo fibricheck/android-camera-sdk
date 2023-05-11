@@ -26,10 +26,10 @@ repositories {
 
 The dependency can then be added:
 
-<!-- x-release-please-version-start -->
+<!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'com.qompium:fibricheck-camera-sdk:0.0.2'
+    implementation 'com.qompium:fibricheck-camera-sdk:0.1.2'
 }
 ```
 <!-- x-release-please-end -->
