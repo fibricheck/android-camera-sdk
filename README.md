@@ -40,3 +40,6 @@ Once the dependency is correctly added, the SDK is available in your code.
 ```java
 import com.qompium.fibricheck_camera_sdk.*;
 ```
+
+## License
+This SDK is proprietary. See `LICENCE` for more information.
