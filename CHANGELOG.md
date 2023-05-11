@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/fibricheck/android-camera-sdk/compare/v0.1.3...v0.2.0) (2023-05-11)
+
+
+### Features
+
+* change timeRemaining to onTimeRemaining ([a12c101](https://github.com/fibricheck/android-camera-sdk/commit/a12c101c0476ab34ce6202059d3841466e1dc6c7))
+
+
+### Bug Fixes
+
+* fix typo in ci/cd that prevented package to be build ([1deadfb](https://github.com/fibricheck/android-camera-sdk/commit/1deadfb01da4854fd2d959299f208211465d304d))
+
 ## [0.1.3](https://github.com/fibricheck/android-camera-sdk/compare/v0.1.2...v0.1.3) (2023-05-11)
 
 
