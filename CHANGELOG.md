@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/fibricheck/android-camera-sdk/compare/v0.2.0...v0.2.1) (2023-05-11)
+
+
+### Bug Fixes
+
+* fix bug in ci/cd that caused the package to not be published ([64959f9](https://github.com/fibricheck/android-camera-sdk/commit/64959f91373336633f7d994e0f6a953350d47c46))
+
 ## [0.2.0](https://github.com/fibricheck/android-camera-sdk/compare/v0.1.3...v0.2.0) (2023-05-11)
 
 
