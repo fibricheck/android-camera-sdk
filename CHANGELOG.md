@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.3](https://github.com/fibricheck/android-camera-sdk/compare/v0.1.2...v0.1.3) (2023-05-11)
+
+
+### Bug Fixes
+
+* enable automatic publishing of packages using release please ([cb3ef38](https://github.com/fibricheck/android-camera-sdk/commit/cb3ef38b77414aa7f977192e33f90ca91b126ccb))
+* Typo in annotations for release please to detect versions in README.md ([5a9545b](https://github.com/fibricheck/android-camera-sdk/commit/5a9545bed0826589ee90c5baa782e26eba7bf8b6))
+
 ## 0.1.2 (2023-05-11)
 
 
