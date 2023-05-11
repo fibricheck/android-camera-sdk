@@ -20,6 +20,7 @@ jobs:
             extra-files: |
               README.md
               FibriCheckCameraSDK.podspec
+              fibricheck-camera-sdk/build.gradle
         outputs:
           release_created: ${{ steps.release.outputs.release_created }}
     publish-package:
