@@ -490,8 +490,13 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   protected void destroyListeners() {
-
-    sensorListener.destroyListener();
+    try {
+      if (sensorListener != null) {
+        sensorListener.destroyListener();
+      }
+    } catch (Exception e) {
+      Log.e(TAG, e.toString());
+    }
   }
 
   private void finishMeasurement() {
