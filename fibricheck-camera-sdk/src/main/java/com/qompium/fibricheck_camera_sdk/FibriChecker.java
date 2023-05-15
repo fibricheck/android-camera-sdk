@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.view.ViewGroup;
+import android.util.Log;
 import com.qompium.fibricheck_camera_sdk.filters.FirFilter;
 import com.qompium.fibricheck_camera_sdk.filters.SGFilter;
 import com.qompium.fibricheck_camera_sdk.listeners.BeatListener;
