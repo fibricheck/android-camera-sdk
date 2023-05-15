@@ -1,0 +1,13 @@
+{
+  "id": "RJMZH",
+  "name": "Provide Camera permissions",
+  "description": "camera Permissons can be provided by following these steps: https://pub.dev/packages/permission_handler",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "Q4VAU"
+  ],
+  "updatedTime": 1683028605632
+}

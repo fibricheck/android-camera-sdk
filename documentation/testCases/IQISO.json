@@ -1,0 +1,20 @@
+{
+  "id": "IQISO",
+  "name": "fzefezfze",
+  "type": "manual",
+  "tier": "Unit test",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "fezfezfz"
+  ],
+  "expectedResult": "fzefzefzef",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Data exchange",
+    "Active listeners during the recording"
+  ],
+  "updatedTime": 1645088601325
+}

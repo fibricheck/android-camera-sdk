@@ -1,0 +1,13 @@
+{
+  "id": "F1LHR",
+  "name": "[Measurement initialization] onCalibrationReady - onMeasurementStart",
+  "description": "When performing a measurement, a baseline needs to be calculated. When this baseline has been calculated, the calibration is ready and the sdk will throw the *onCalibrationReady* event.\n\nThe *onMeasurementStart* event will fire when the recording of the measurement has been initiated.\n",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "ZQGP1"
+  ],
+  "updatedTime": 1645605762916
+}

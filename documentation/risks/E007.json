@@ -1,0 +1,30 @@
+{
+  "keyValues": [],
+  "detectionMitigation": 3,
+  "detection": 10,
+  "origin": "Test subject environment",
+  "name": "8.01 Too much ambient noise to perform a high quality measurement",
+  "potentialCause": "Too much ambient noise to perform a high quality measurement",
+  "detectionMethods": "None",
+  "potentialEffect": "Poor quality of measurements",
+  "occurrenceMitigation": 3,
+  "occurrence": 3,
+  "riskDetails": [
+    "protective_measures_in_the_manufacturing_process",
+    "inherent_safety_by_design"
+  ],
+  "remarks": "",
+  "mitigationMethods": [
+    {
+      "method": "Movement detector integrated",
+      "specifications": [
+        "WWSHM",
+        "F2EEG"
+      ]
+    }
+  ],
+  "alap": "Currently no other method is known to further reduce this risk",
+  "id": "E007",
+  "severity": 1,
+  "potentialFailureMode": "Errors related to environment of use"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "COWJ5",
+  "name": "- onFingerDetectionTimeExpired - onFingerDetected - onPulseDetected - onPulseDetectionTimeExpired - onCalibrationReady - onMeasurementStartcan be fired before measuring",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Take a measurement",
+    "Move your finger slightly on the camera",
+    "Place your finger correctly on the camera",
+    "Wait till the measurement starts"
+  ],
+  "expectedResult": "- `onFingerDetectionTimeExpired`\n- `onFingerDetected`\n- `onPulseDetected`\n- `onPulseDetectionTimeExpired`\n- `onCalibrationReady`\n- `onMeasurementStart`\n\nAre all fired correctly",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Data exchange",
+    "Active listeners before the recording"
+  ],
+  "updatedTime": 1684145244811
+}

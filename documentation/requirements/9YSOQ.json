@@ -1,0 +1,11 @@
+{
+  "id": "9YSOQ",
+  "name": "Data exchange",
+  "description": "Various Data points are provided, according to the provided properties, to the components via callback functions.",
+  "type": "requirement",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [],
+  "updatedTime": 1645063582103
+}

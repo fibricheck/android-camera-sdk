@@ -1,0 +1,11 @@
+{
+  "id": "IOQMB",
+  "name": "Provide callback functions to event listeners",
+  "description": "The Camera SDK exposes multiple event listeners. The host application can provide callback functions to the SDK for these events. It's recommended that the host application implements all callback functions.",
+  "type": "requirement",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [],
+  "updatedTime": 1684140652096
+}

@@ -1,0 +1,22 @@
+{
+  "id": "KBSVP",
+  "name": "Check if the component rerenders correctly after navigating",
+  "type": "manual",
+  "tier": "None",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Execute the test TST-6NSVH",
+    "Navigate to another screen",
+    "Execute the test TST-6NSHV again"
+  ],
+  "expectedResult": "Both executions of the test TST-6NSHV succeeded ",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Initialize a measurement",
+    "Import SDK "
+  ],
+  "updatedTime": 1684144015129
+}

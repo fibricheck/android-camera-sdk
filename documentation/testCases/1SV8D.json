@@ -1,0 +1,21 @@
+{
+  "id": "1SV8D",
+  "name": "Check if the Finger is detected on different camera types",
+  "type": "manual",
+  "tier": "Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Start a measurement w/ a Wide Angle camera\n\n**assertion**\n\nThe finger is detected",
+    "Start a measurement with an Ultra Wide Angle camera (for example on the Samsung S21)"
+  ],
+  "expectedResult": "The finger is detected and the measurement starts the recording process",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Initialize a measurement",
+    "The measurement will detect a finger on both Wide Angle as Ultra Wide angle cameras"
+  ],
+  "updatedTime": 1684145104606
+}

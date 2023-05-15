@@ -1,0 +1,20 @@
+{
+  "id": "M3G9R",
+  "name": "Check if the measurement settings can be provided as properties",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Initialise the SDK with custom values, different from the default, for the following properties:\n\n- `sampleTime`\n- `flashEnabled`\n- `waitForStartRecordingSignal` \n- `fingerDetectionExpiryTime`"
+  ],
+  "expectedResult": "SDK is set to the configured properties for `sampleTime`, `flashEnabled`, `waitForStartRecordingSignal` and `fingerDetectionExpiryTime`. The non-changed values correspond to the default values. ",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Initialize the camera sdk",
+    "Provide properties",
+    "[Measurement settings] sampleTime - flashEnabled - waitForStartRecordingSignal - fingerDetectionExpiryTime"
+  ],
+  "updatedTime": 1684143302991
+}

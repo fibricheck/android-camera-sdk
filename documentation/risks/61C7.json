@@ -1,0 +1,29 @@
+{
+  "keyValues": [],
+  "detectionMitigation": 3,
+  "detection": 10,
+  "origin": "Measurement",
+  "name": "9.04 Wet or damp fingers",
+  "potentialCause": "Wet or damp fingers",
+  "detectionMethods": "None",
+  "potentialEffect": "No measurement possible",
+  "occurrenceMitigation": 3,
+  "occurrence": 3,
+  "riskDetails": [
+    "inherent_safety_by_design",
+    "protective_measures_in_the_manufacturing_process"
+  ],
+  "remarks": "",
+  "mitigationMethods": [
+    {
+      "method": "Finger detection",
+      "specifications": [
+        "Z2CL9"
+      ]
+    }
+  ],
+  "alap": "Currently no other method is known to further reduce this risk",
+  "id": "61C7",
+  "severity": 1,
+  "potentialFailureMode": "User error"
+}

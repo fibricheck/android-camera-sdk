@@ -1,0 +1,29 @@
+{
+  "keyValues": [],
+  "detectionMitigation": 3,
+  "detection": 10,
+  "origin": "Measurement",
+  "name": "9.06 Deposits are present on the camera lens, flash or screen",
+  "potentialCause": "Deposits are present on the camera lens, flash or screen",
+  "detectionMethods": "None",
+  "potentialEffect": "No measurement possible",
+  "occurrenceMitigation": 5,
+  "occurrence": 5,
+  "riskDetails": [
+    "protective_measures_in_the_manufacturing_process",
+    "inherent_safety_by_design"
+  ],
+  "remarks": "",
+  "mitigationMethods": [
+    {
+      "method": "Finger detection",
+      "specifications": [
+        "Z2CL9"
+      ]
+    }
+  ],
+  "alap": "Currently no other method is known to further reduce this risk",
+  "id": "34F2",
+  "severity": 1,
+  "potentialFailureMode": "User error"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "4ANG9",
+  "name": "Import SDK ",
+  "description": "The SDK needs to be imported into the host application to perform a measurement.",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "6NSVH",
+    "KBSVP"
+  ],
+  "updatedTime": 1684144850133
+}

@@ -1,0 +1,11 @@
+{
+  "id": "4ILQF",
+  "name": "Initialise the Camera SDK",
+  "description": "The SDK is always integrated within another mobile application - the host application. \nAfter including the Camera SDK in a software project, the SDK must expose an interface that enables the host application to control the Camera SDK.",
+  "type": "user_need",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [],
+  "updatedTime": 1684139758491
+}

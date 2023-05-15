@@ -1,0 +1,13 @@
+{
+  "id": "D86A3",
+  "name": "The provided sensor data is attached to the measurement",
+  "description": "Sensor data that can be attached:\n\n- grav\n- gyro\n- accEnabled \n- rotationEnabled ",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "EG61Z"
+  ],
+  "updatedTime": 1645604880843
+}

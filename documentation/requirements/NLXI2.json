@@ -1,0 +1,13 @@
+{
+  "id": "NLXI2",
+  "name": "[Measurement finalisation] onMeasurementFinished - onMeasurementProcessed",
+  "description": "The *onMeasurementFinished* event will fire when the recording is complete. The Post Processing will begin now.\nWhen the post processing is ready, the *onMeasurementProcessed* will fire.\n",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "8T3JL"
+  ],
+  "updatedTime": 1645605766694
+}

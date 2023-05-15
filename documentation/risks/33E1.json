@@ -1,0 +1,41 @@
+{
+  "keyValues": [],
+  "detectionMitigation": 3,
+  "detection": 10,
+  "origin": "Measurement",
+  "name": "9.02 Movements during measurement",
+  "potentialCause": "Movements during measurement",
+  "detectionMethods": "None",
+  "potentialEffect": "No measurement possible",
+  "occurrenceMitigation": 5,
+  "occurrence": 5,
+  "riskDetails": [
+    "inherent_safety_by_design",
+    "protective_measures_in_the_manufacturing_process"
+  ],
+  "remarks": "",
+  "mitigationMethods": [
+    {
+      "method": "Finger detection",
+      "specifications": [
+        "Z2CL9"
+      ]
+    },
+    {
+      "method": "Active listeners before recording",
+      "specifications": [
+        "SF9KV"
+      ]
+    },
+    {
+      "method": "Active listeners during recording",
+      "specifications": [
+        "F5FGX"
+      ]
+    }
+  ],
+  "alap": "Currently no other method is known to further reduce this risk",
+  "id": "33E1",
+  "severity": 1,
+  "potentialFailureMode": "User error"
+}

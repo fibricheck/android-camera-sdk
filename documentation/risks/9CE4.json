@@ -1,0 +1,30 @@
+{
+  "keyValues": [],
+  "detectionMitigation": 3,
+  "detection": 10,
+  "origin": "Test subject environment",
+  "name": "8.02 The Camera SDK is used during activities that require undivided attention (e.g. driving, flying..)",
+  "potentialCause": "The Camera SDK is used during activities that require undivided attention (e.g. driving, flying..)",
+  "detectionMethods": "None",
+  "potentialEffect": "Poor quality of measurements",
+  "occurrenceMitigation": 3,
+  "occurrence": 3,
+  "riskDetails": [
+    "protective_measures_in_the_manufacturing_process",
+    "inherent_safety_by_design"
+  ],
+  "remarks": "",
+  "mitigationMethods": [
+    {
+      "method": "Motion detector in place",
+      "specifications": [
+        "WWSHM",
+        "F2EEG"
+      ]
+    }
+  ],
+  "alap": " Currently no other method is known to reduce this risk",
+  "id": "9CE4",
+  "severity": 1,
+  "potentialFailureMode": "Errors related to environment of use"
+}

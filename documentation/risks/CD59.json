@@ -1,0 +1,35 @@
+{
+  "keyValues": [],
+  "detectionMitigation": 3,
+  "detection": 10,
+  "origin": "Measurement",
+  "name": "9.08 SUT is speaking during measurement",
+  "potentialCause": "SUT is speaking during measurement",
+  "detectionMethods": "None",
+  "potentialEffect": "Poor quality of measurements",
+  "occurrenceMitigation": 5,
+  "occurrence": 5,
+  "riskDetails": [
+    "protective_measures_in_the_manufacturing_process",
+    "inherent_safety_by_design"
+  ],
+  "remarks": "",
+  "mitigationMethods": [
+    {
+      "method": "Active listeners before recording",
+      "specifications": [
+        "SF9KV"
+      ]
+    },
+    {
+      "method": "Active listeners during recording",
+      "specifications": [
+        "F5FGX"
+      ]
+    }
+  ],
+  "alap": "Currently no other method is known to further reduce this risk",
+  "id": "CD59",
+  "severity": 1,
+  "potentialFailureMode": "User error"
+}

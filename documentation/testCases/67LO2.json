@@ -1,0 +1,22 @@
+{
+  "id": "67LO2",
+  "name": "onMeasurementError is fired on a measurement error",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Start a measurement w/ a broken ACC sensor (only happened on iPhones so far)\n- Very hard to reproduce, so maybe the easiest thing to do is ask for a debug version where this is simulated",
+    "Wait until the measurement starts",
+    "The `onMeasurementError` will fire and the measurement will stop"
+  ],
+  "expectedResult": "`onMeasurementError` is fired correctly",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Data exchange",
+    "Active listeners during the recording"
+  ],
+  "updatedTime": 1684145340437
+}
