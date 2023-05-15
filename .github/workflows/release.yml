@@ -16,11 +16,7 @@ jobs:
         - uses: google-github-actions/release-please-action@v3
           id: release
           with:
-            release-type: simple
-            extra-files: |
-              README.md
-              FibriCheckCameraSDK.podspec
-              fibricheck-camera-sdk/build.gradle
+            command: manifest
         outputs:
           release_created: ${{ steps.release.outputs.release_created }}
     publish-package:
