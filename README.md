@@ -7,7 +7,7 @@ This SDK should be used in conjunction with the FibriCheck Cloud. It only implem
 
 ## How to include
 
-### Add the dependency
+### Add the dependency using the GitHub Package Registry
 
 The Android Camera SDK package is hosted on GPR (GitHub Package Registry). You need to authenticate using a GitHub username and personal access token to access the package in your project. For more information, see ("Creating a personal access token")[https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token] in the GitHub documentation.
 
@@ -31,7 +31,28 @@ The dependency can then be added:
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'com.qompium:fibricheck-camera-sdk:0.3.0'
+    implementation 'com.qompium:fibricheck-camera-sdk:0.3.1'
+}
+```
+<!-- x-release-please-end -->
+
+### Add the dependency using JitPack
+[JitPack](https://jitpack.io) is a package repository for Git and allows to add dependencies without having to authenticate (as with the GitHub package registry):
+
+Include the following configuration in your `build.gradle` file:
+```groovy
+allprojects {
+    repositories {
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+Add the dependency in the following way:
+<!-- x-release-please-start-version -->
+```groovy
+dependencies {
+        implementation 'com.github.fibricheck:android-camera-sdk:v0.3.1'
 }
 ```
 <!-- x-release-please-end -->
