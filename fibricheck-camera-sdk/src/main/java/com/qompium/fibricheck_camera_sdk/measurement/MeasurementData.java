@@ -1,5 +1,7 @@
 package com.qompium.fibricheck_camera_sdk.measurement;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,30 +12,43 @@ import static com.qompium.fibricheck_camera_sdk.measurement.Quadrant.QUADRANT_RO
 
 public class MeasurementData implements Serializable {
 
+  @SerializedName("heartrate")
   public double heartrate;
 
+  @SerializedName("attempts")
   public int attempts;
 
+  @SerializedName("quadrants")
   public List<List<YuvList>> quadrants;
 
+  @SerializedName("technical_details")
   public HashMap<String, Object> technical_details;
 
+  @SerializedName("time")
   public List<Integer> time;
 
+  @SerializedName("acc")
   public MotionData acc;
 
+  @SerializedName("rotation")
   public MotionData rotation;
 
+  @SerializedName("grav")
   public MotionData grav;
 
+  @SerializedName("gyro")
   public MotionData gyro;
 
+  @SerializedName("skippedPulseDetection")
   public boolean skippedPulseDetection = false;
 
+  @SerializedName("skippedFingerDetection")
   public boolean skippedFingerDetection = false;
 
+  @SerializedName("skippedMovementDetection")
   public boolean skippedMovementDetection = false;
 
+  @SerializedName("measurement_timestamp")
   public Number measurementTimestamp;
 
   public MeasurementData () {
@@ -95,10 +110,13 @@ public class MeasurementData implements Serializable {
 
   public class MotionData implements Serializable {
 
+    @SerializedName("x")
     public List<Float> x;
 
+    @SerializedName("y")
     public List<Float> y;
 
+    @SerializedName("z")
     public List<Float> z;
 
     public MotionData () {
