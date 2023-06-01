@@ -1,0 +1,22 @@
+{
+  "id": "EYBDT",
+  "name": "- onHeartBeat - onSampleReady - onMovementDetected - onTimeRemaining - onMeasurementFinished can be fired during a recording",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Start a measurement",
+    "Move a bit with your hand",
+    "Stay still for the rest of the recording"
+  ],
+  "expectedResult": "- `onHeartBeat`\n- `onSampleReady`\n- `onMovementDetected`\n- `onTimeRemaining`\n- `onMeasurementFinished`\n\nAre fired correctly",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Data exchange",
+    "Active listeners during the recording"
+  ],
+  "updatedTime": 1684145290999
+}

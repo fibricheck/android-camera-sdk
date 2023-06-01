@@ -1,0 +1,20 @@
+{
+  "id": "QKDVS",
+  "name": "Check if a processed measurement contains all the required data ",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Perform a default measurement"
+  ],
+  "expectedResult": "The processed measurement contains: \n\n- `attempts`\n- `skippedPulseDetection`\n- `skippedFingerDetection`\n- `skippedMovementDetection`\n- `technical_details`\n- `heartrate`\n- `quadrants`\n- `time vector`\n- `measurement_timestamp`",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Post Processing",
+    "The Processed measurement contains all the requested data"
+  ],
+  "updatedTime": 1684145525557
+}

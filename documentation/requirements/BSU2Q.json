@@ -1,0 +1,11 @@
+{
+  "id": "BSU2Q",
+  "name": "Initialize a measurement",
+  "description": "To start a measurement, the FibriCheck Camera SDK needs to be imported and initialized in the host application.",
+  "type": "requirement",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [],
+  "updatedTime": 1684144047301
+}

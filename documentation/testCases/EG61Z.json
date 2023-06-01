@@ -1,0 +1,21 @@
+{
+  "id": "EG61Z",
+  "name": "Check if the enabled sensor are providing data to the measurement",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Create a component with these values:\n\n- `gravEnabled = true`\n- `gyroEnabled = true`\n- `accEnabled = true`\n- `rotationEnabled = true`",
+    "Perform a measurement"
+  ],
+  "expectedResult": "The completed measurement should have data from all the provided sensors attached",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Data exchange",
+    "The provided sensor data is attached to the measurement"
+  ],
+  "updatedTime": 1684145392367
+}

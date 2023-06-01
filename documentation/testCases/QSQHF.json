@@ -1,0 +1,21 @@
+{
+  "id": "QSQHF",
+  "name": "Component renders successfully when the permissions are given",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Give the correct camera permissions",
+    "Load the camera component"
+  ],
+  "expectedResult": "Camera component is successfully rendered",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Initialize the camera sdk",
+    "Provide permissions",
+    "Provide Camera permissions"
+  ],
+  "updatedTime": 1645581962671
+}

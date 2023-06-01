@@ -1,0 +1,21 @@
+{
+  "id": "6NSVH",
+  "name": "Validate that the SDK can be imported in the host application",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Import the FibriCheck Camera SDK into the host application.",
+    "Build the host application by executing the build pipeline."
+  ],
+  "expectedResult": "The host application can be compiled, built and executed.",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Initialize a measurement",
+    "Import SDK "
+  ],
+  "updatedTime": 1684145051759
+}

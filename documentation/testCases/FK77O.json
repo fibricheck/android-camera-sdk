@@ -1,0 +1,20 @@
+{
+  "id": "FK77O",
+  "name": "Check if the measurement sensors can be provided as properties",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Initialise the SDK with custom values, different from the default, for the following properties:\n\n- `gravEnabled`\n- `gyroEnabled`\n- `accEnabled`\n- `rotationEnabled`\n- `movementDetectionEnabled`"
+  ],
+  "expectedResult": "SDK is set to the configured properties for `gravEnabled`, `gyroEnabled`, `accEnabled`, `rotationEnabled` and `movementDetectionEnabled`. The non-changed values correspond to the default values. ",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Initialize the camera sdk",
+    "Provide properties",
+    "[Measurement sensors] gravEnabled - gyroEnabled - accEnabled - rotationEnabled - movementDetectionEnabled"
+  ],
+  "updatedTime": 1684143350802
+}

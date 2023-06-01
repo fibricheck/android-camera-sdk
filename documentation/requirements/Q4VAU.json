@@ -1,0 +1,14 @@
+{
+  "id": "RJMZH",
+  "name": "Provide Camera permissions",
+  "description": "camera Permissons can be provided by using these snippets:\n\n## React side:\n\n```javascript\nimport {request, PERMISSIONS} from 'react-native-permissions';  \n\nconst [camera, setCamera] = useState(false);\n\nuseEffect(() => {\n    if (Platform.OS === 'ios') {\n      request(PERMISSIONS.IOS.CAMERA).then(result => {\n        setCamera(result === 'granted');\n      });\n    } else {\n      request(PERMISSIONS.ANDROID.CAMERA).then(result => {\n        setCamera(result === 'granted');\n      });\n    }\n  }, []);\n  \n```\n\n## Android side manifest:\n\n```xml\n<uses-permission android:name=\"android.permission.CAMERA\" />\n```\n\n## iOS side info.plist:\n\n```xml\n<key>NSCameraUsageDescription</key>\n<string>Your own description of the purpose</string>\n```\n",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "Q4VAU",
+    "QSQHF"
+  ],
+  "updatedTime": 1645581877174
+}

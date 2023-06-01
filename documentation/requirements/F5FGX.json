@@ -1,0 +1,13 @@
+{
+  "id": "F5FGX",
+  "name": "Active listeners during the whole lifecycle",
+  "description": "These events can be thrown in any stage of the measurement:\n\n- `onFingerDetected`\n- `onFingerRemoved`",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "KH73I"
+  ],
+  "updatedTime": 1684145189634
+}

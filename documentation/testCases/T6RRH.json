@@ -1,0 +1,20 @@
+{
+  "id": "T6RRH",
+  "name": "Test",
+  "type": "manual",
+  "tier": "Integration test",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "# HEllo What are yoi"
+  ],
+  "expectedResult": "# Hi!",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Initialize a measurement",
+    "Render component"
+  ],
+  "updatedTime": 1645093074955
+}

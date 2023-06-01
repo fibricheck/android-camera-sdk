@@ -1,0 +1,20 @@
+{
+  "id": "8GV76",
+  "name": "Check if default properties are applied when no properties have been provided",
+  "type": "manual",
+  "tier": "System - Sanity",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Initialise the SDK without setting any custom properties."
+  ],
+  "expectedResult": "SDK has default settings applied.",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Initialize the camera sdk",
+    "Provide properties",
+    "Default properties"
+  ],
+  "updatedTime": 1684142431157
+}

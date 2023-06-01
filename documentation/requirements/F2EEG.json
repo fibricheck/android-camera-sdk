@@ -1,0 +1,13 @@
+{
+  "id": "F2EEG",
+  "name": "[Measurement sensors] gravEnabled - gyroEnabled - accEnabled - rotationEnabled - movementDetectionEnabled",
+  "description": "These properties affects the measurement sensors\n\n- `gravEnabled`: When enabled and supported by the device, the measurement result will contain gravitational data.\n- `gyroEnabled`: When enabled and supported by the device, the measurement result will contain gyroscope data.\n- `accEnabled`: When enabled and supported by the device, the measurement result will contain accelerometer data.\n- `rotationEnabled`: When enabled and supported by the device, the measurement result will contain rotational data.\n- `movementDetectionEnabled`: When enabled the `onMovementDetected` event will be thrown when movement is detected.The detection will trigger when the movement vector is lower than 6 or higher than 14.\n\n",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "FK77O"
+  ],
+  "updatedTime": 1684143294628
+}

@@ -1,0 +1,13 @@
+{
+  "id": "HVHOA",
+  "name": "The measurement will detect a finger on both Wide Angle as Ultra Wide angle cameras",
+  "description": "Some newer phones like the Samsung S22/S21 only have an ultra wide angle camera lens. The finger should also be detected on those cameras",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "1SV8D"
+  ],
+  "updatedTime": 1663758720945
+}

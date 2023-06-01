@@ -1,0 +1,14 @@
+{
+  "id": "4ANG9",
+  "name": "Render component",
+  "description": "The component needs to be rendered in order to perform a measurement",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "6NSVH",
+    "T6RRH"
+  ],
+  "updatedTime": 1645093048802
+}

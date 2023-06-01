@@ -1,0 +1,20 @@
+{
+  "id": "Q4VAU",
+  "name": "SDK throws an error when a measurement is started without the correct permissions",
+  "type": "manual",
+  "tier": "Acceptance",
+  "planStatus": "Inherited",
+  "motivation": "",
+  "testSteps": [
+    "Execute the `startMeasurement` function without having requested the correct permissions."
+  ],
+  "expectedResult": "SDK throws an error. The measurement is not started.",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Initialize the camera sdk",
+    "Provide permissions",
+    ""
+  ],
+  "updatedTime": 1684140559476
+}

@@ -1,0 +1,11 @@
+{
+  "id": "0HZK0",
+  "name": "Execute a measurement",
+  "description": "A FibriCheck measurement consists of PPG data. To gather this PPG data, the Camera SDK will natively communicate with the underlying iOS/Android camera layer, process this data, and return an object that is ready to be submitted to the FibriCheck Cloud for analysis.\n\nA FibriCheck Measurement consists of multiple phases:\n\n\n1. Finger detection : \nChecks for the presence of a finger on the camera. A timeout can be set to 0 to skip this phase. By default this is -1 which means that it will keep checking until a finger has been detected.\n2. Pulse detection: \nChecks if a pulse is present. When no pulse has been detected for 10 seconds, the calibration phase will start.\n3. Calibration: \nWhen performing a measurement, a baseline needs to be calculated. When this baseline has been calculated, the calibration is ready and recording can commence.\n4. Recording:\nThe real deal. The recording calculates the PPG data by communicating with the native camera layers. The default length of the recording is 60 seconds, but can be changed by updating the `sampleTime`  \n5. Processing:\nWhen the recording is finished, some additional processing needs to be done on the measurement. When done, a measurement object is presented via the `onMeasurementProcessed` event\n\n\n\n",
+  "type": "user_need",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [],
+  "updatedTime": 1684143651052
+}

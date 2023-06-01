@@ -1,0 +1,13 @@
+{
+  "id": "Z2CL9",
+  "name": "[Finger Detection] onFingerDetected - onFingerRemoved - onFingerDetectionTimeExpired",
+  "description": "The *onFingerDetected* is emitted when a finger is detected.\n\nThe *onFingerRemoved* is emitted when the finger is removed.\n\nIf a `fingerDetectionExpiryTime` is set, the *onFingerDetectionTimeExpired* is emitted when the finger detection time is expired.\n",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "F7Z7P"
+  ],
+  "updatedTime": 1684140702131
+}

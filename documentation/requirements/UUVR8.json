@@ -1,0 +1,14 @@
+{
+  "id": "UUVR8",
+  "name": "Active listeners during the recording",
+  "description": "These events can be thrown while the measurement is recording:\n\n- `onHeartBeat`\n- `onSampleReady`\n- `onMovementDetected`\n- `onTimeRemaining`\n- `onMeasurementFinished`",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "EYBDT",
+    "67LO2"
+  ],
+  "updatedTime": 1684145268218
+}

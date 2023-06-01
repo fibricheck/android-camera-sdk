@@ -1,0 +1,20 @@
+{
+  "id": "ZQGP1",
+  "name": "Check if measurement initialisation callbacks can be provided",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Create a host application includes the SDK and provide following callback functions:\n\n- `onCalibrationReady`\n- `onMeasurementStart`"
+  ],
+  "expectedResult": "Host application can be builded and executed, callback functions are being executed when corresponding events are triggered",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Initialize the camera sdk",
+    "Provide callback functions to event listeners",
+    "[Measurement initialization] onCalibrationReady - onMeasurementStart"
+  ],
+  "updatedTime": 1684141332571
+}

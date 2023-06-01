@@ -1,0 +1,13 @@
+{
+  "id": "Y448I",
+  "name": "Default properties",
+  "description": "When not all Properties are set, default properties will be applied:\n\n* `sampleTime` - `int` - `60`\n* `flashEnabled` - `boolean` - `true`\n* `accEnabled` - `boolean` - `false`\n* `gravEnabled` - `boolean` - `false`\n* `gyroEnabled` - `boolean` - `false`\n* `rotationEnabled` - `boolean` - `false`\n* `movementDetectionEnabled` - `boolean` - `true`\n* `fingerDetectionExpiryTime` - `int` - `-1`\n* `pulseDetectionExpiryTime` - `int` - `10000`\n* `waitForStartRecordingSignal` - `boolean` - `false`",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "8GV76"
+  ],
+  "updatedTime": 1684142061898
+}

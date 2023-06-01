@@ -1,0 +1,13 @@
+{
+  "id": "29PBT",
+  "name": "Active listeners after the recording",
+  "description": "These events can be thrown when the recording phase has ended:\n\n- `onMeasurementProcessed`",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "JX65E"
+  ],
+  "updatedTime": 1684145351280
+}

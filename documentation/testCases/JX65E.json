@@ -1,0 +1,21 @@
+{
+  "id": "JX65E",
+  "name": "onMeasurementProcessed is fired correctly after a recording is finished",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Take a measurement",
+    "Wait until the measurement is finished"
+  ],
+  "expectedResult": "- `onMeasurementProcessed`\n\nIs fired correctly",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Data exchange",
+    "Active listeners after the recording"
+  ],
+  "updatedTime": 1684145361193
+}

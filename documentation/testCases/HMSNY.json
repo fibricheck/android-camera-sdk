@@ -1,0 +1,20 @@
+{
+  "id": "HMSNY",
+  "name": "Check if pulse detection callbacks can be provided",
+  "type": "manual",
+  "tier": "System - Smoke",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Create a host application includes the SDK and provide following callback functions:\n\n- `onPulseDetected`\n- `onPulseDetectionTimeExpired`"
+  ],
+  "expectedResult": "Host application can be builded and executed, callback functions are being executed when corresponding events are triggered",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Initialize the camera sdk",
+    "Provide callback functions to event listeners",
+    "[Pulse detection] onPulseDetected - onPulseDetectionTimeExpired"
+  ],
+  "updatedTime": 1684141341302
+}

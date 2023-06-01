@@ -1,0 +1,13 @@
+{
+  "id": "SF9KV",
+  "name": "Active listeners before the recording",
+  "description": "These events will only be thrown when not recording:\n\n- `onFingerDetectionTimeExpired`\n- `onFingerDetected`\n- `onPulseDetected`\n- `onPulseDetectionTimeExpired`\n- `onCalibrationReady`\n- `onMeasurementStart`",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "COWJ5"
+  ],
+  "updatedTime": 1684145216510
+}
