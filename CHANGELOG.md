@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.2](https://github.com/fibricheck/android-camera-sdk/compare/v0.3.1...v0.3.2) (2023-06-01)
+
+
+### Bug Fixes
+
+* add serialized annotations for Flutter implementations ([#16](https://github.com/fibricheck/android-camera-sdk/issues/16)) ([fe153f0](https://github.com/fibricheck/android-camera-sdk/commit/fe153f07002e79a8d09f0bc4d96387bd22825028))
+* fix nullpointer issue on sensorListener ([#11](https://github.com/fibricheck/android-camera-sdk/issues/11)) ([f5e43e8](https://github.com/fibricheck/android-camera-sdk/commit/f5e43e8b24887eb0f279c3fd2e5dcb2118be6946))
+
 ## [0.3.1](https://github.com/fibricheck/android-camera-sdk/compare/v0.3.0...v0.3.1) (2023-06-01)
 
 
