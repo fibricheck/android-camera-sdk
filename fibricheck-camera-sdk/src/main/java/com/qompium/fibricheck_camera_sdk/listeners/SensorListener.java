@@ -55,7 +55,7 @@ public class SensorListener implements SensorEventListener {
     if (mSensorManager != null) {
       mSensorManager.unregisterListener(this);
     }
-    if (mHandlerThread.isAlive()) {
+    if (mHandlerThread != null && mHandlerThread.isAlive()) {
       mHandlerThread.quit();
     }
   }
