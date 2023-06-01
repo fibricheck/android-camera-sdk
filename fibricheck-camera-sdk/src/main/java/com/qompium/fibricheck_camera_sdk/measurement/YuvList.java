@@ -1,16 +1,22 @@
 package com.qompium.fibricheck_camera_sdk.measurement;
 
 import android.util.Log;
+
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class YuvList implements Serializable {
 
+  @SerializedName("y")
   public List<Double> y;
 
+  @SerializedName("u")
   public List<Double> u;
 
+  @SerializedName("v")
   public List<Double> v;
 
   public YuvList () {
