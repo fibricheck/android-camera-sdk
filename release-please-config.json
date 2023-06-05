@@ -4,7 +4,7 @@
             "release-type": "simple",
             "extra-files": [
                 "README.md",
-                "fibricheck-camera-sdk/build.gradle",
+                "camerasdk/build.gradle",
                 {
                     "type": "json",
                     "path": "documentation/project_info.json",
