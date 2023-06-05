@@ -1,6 +1,6 @@
-package com.qompium.fibricheck_camera_sdk.listeners;
+package com.qompium.fibricheck.camerasdk.listeners;
 
-import com.qompium.fibricheck_camera_sdk.measurement.MeasurementData;
+import com.qompium.fibricheck.camerasdk.measurement.MeasurementData;
 
 public class FibriListener implements IFibriListener {
 

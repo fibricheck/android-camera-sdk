@@ -1,4 +1,4 @@
-package com.qompium.fibricheck_camera_sdk.filters;
+package com.qompium.fibricheck.camerasdk.filters;
 
 public class SGFilter {
 

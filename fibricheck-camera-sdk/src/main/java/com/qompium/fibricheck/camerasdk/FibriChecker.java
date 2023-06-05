@@ -1,4 +1,4 @@
-package com.qompium.fibricheck_camera_sdk;
+package com.qompium.fibricheck.camerasdk;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -6,24 +6,24 @@ import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.view.ViewGroup;
 import android.util.Log;
-import com.qompium.fibricheck_camera_sdk.filters.FirFilter;
-import com.qompium.fibricheck_camera_sdk.filters.SGFilter;
-import com.qompium.fibricheck_camera_sdk.listeners.BeatListener;
-import com.qompium.fibricheck_camera_sdk.listeners.CameraListener;
-import com.qompium.fibricheck_camera_sdk.listeners.FibriListener;
-import com.qompium.fibricheck_camera_sdk.listeners.IFibriListener;
-import com.qompium.fibricheck_camera_sdk.listeners.OnBeatEventListener;
-import com.qompium.fibricheck_camera_sdk.listeners.SensorListener;
-import com.qompium.fibricheck_camera_sdk.measurement.MeasurementData;
-import com.qompium.fibricheck_camera_sdk.measurement.MeasurementRaw;
-import com.qompium.fibricheck_camera_sdk.measurement.Quadrant;
+import com.qompium.fibricheck.camerasdk.filters.FirFilter;
+import com.qompium.fibricheck.camerasdk.filters.SGFilter;
+import com.qompium.fibricheck.camerasdk.listeners.BeatListener;
+import com.qompium.fibricheck.camerasdk.listeners.CameraListener;
+import com.qompium.fibricheck.camerasdk.listeners.FibriListener;
+import com.qompium.fibricheck.camerasdk.listeners.IFibriListener;
+import com.qompium.fibricheck.camerasdk.listeners.OnBeatEventListener;
+import com.qompium.fibricheck.camerasdk.listeners.SensorListener;
+import com.qompium.fibricheck.camerasdk.measurement.MeasurementData;
+import com.qompium.fibricheck.camerasdk.measurement.MeasurementRaw;
+import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static com.qompium.fibricheck_camera_sdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ACC;
-import static com.qompium.fibricheck_camera_sdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GRAV;
-import static com.qompium.fibricheck_camera_sdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GYRO;
-import static com.qompium.fibricheck_camera_sdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ROTATION;
+import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ACC;
+import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GRAV;
+import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GYRO;
+import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ROTATION;
 
 public abstract class FibriChecker implements CameraListener {
 

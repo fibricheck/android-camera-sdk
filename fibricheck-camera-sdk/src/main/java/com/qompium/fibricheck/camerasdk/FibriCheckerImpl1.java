@@ -1,4 +1,4 @@
-package com.qompium.fibricheck_camera_sdk;
+package com.qompium.fibricheck.camerasdk;
 
 import android.app.Activity;
 import android.app.Application;
@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import com.qompium.fibricheck_camera_sdk.measurement.Quadrant;
+import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
 
 public class FibriCheckerImpl1 extends FibriChecker {
 

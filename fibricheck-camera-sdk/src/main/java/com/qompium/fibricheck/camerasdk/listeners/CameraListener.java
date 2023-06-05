@@ -1,6 +1,6 @@
-package com.qompium.fibricheck_camera_sdk.listeners;
+package com.qompium.fibricheck.camerasdk.listeners;
 
-import com.qompium.fibricheck_camera_sdk.measurement.Quadrant;
+import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
 
 public interface CameraListener {
 

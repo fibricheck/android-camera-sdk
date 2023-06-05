@@ -3,11 +3,11 @@ plugins {
     id 'maven-publish'
 }
 
-group 'com.qompium'
+group 'com.qompium.fibricheck'
 version '0.3.2' // x-release-please-version
 
 android {
-    namespace 'com.qompium.fibricheck_camera_sdk'
+    namespace 'com.qompium.fibricheck.camerasdk'
     compileSdk 33
 
     defaultConfig {

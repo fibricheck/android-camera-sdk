@@ -1,4 +1,4 @@
-package com.qompium.fibricheck_camera_sdk.measurement;
+package com.qompium.fibricheck.camerasdk.measurement;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.qompium.fibricheck_camera_sdk.measurement.Quadrant.QUADRANT_COLS;
-import static com.qompium.fibricheck_camera_sdk.measurement.Quadrant.QUADRANT_ROWS;
+import static com.qompium.fibricheck.camerasdk.measurement.Quadrant.QUADRANT_COLS;
+import static com.qompium.fibricheck.camerasdk.measurement.Quadrant.QUADRANT_ROWS;
 
 public class MeasurementData implements Serializable {
 
