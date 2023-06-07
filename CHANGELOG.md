@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/fibricheck/android-camera-sdk/compare/v0.3.2...v0.4.0) (2023-06-07)
+
+
+### Features
+
+* Change package naming to comply with Android guidelines ([#19](https://github.com/fibricheck/android-camera-sdk/issues/19)) ([ad7ff32](https://github.com/fibricheck/android-camera-sdk/commit/ad7ff3240177680f064143a6a8e9fcab90cb448d))
+
 ## [0.3.2](https://github.com/fibricheck/android-camera-sdk/compare/v0.3.1...v0.3.2) (2023-06-01)
 
 
