@@ -10,8 +10,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/camerasdk" />
             <option value="$PROJECT_DIR$/example" />
-            <option value="$PROJECT_DIR$/fibricheck-camera-sdk" />
           </set>
         </option>
       </GradleProjectSettings>

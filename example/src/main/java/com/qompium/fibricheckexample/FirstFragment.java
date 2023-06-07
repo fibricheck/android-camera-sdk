@@ -12,9 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.qompium.fibricheck_camera_sdk.FibriChecker;
-import com.qompium.fibricheck_camera_sdk.listeners.FibriListener;
-import com.qompium.fibricheck_camera_sdk.measurement.MeasurementData;
+import com.qompium.fibricheck.camerasdk.FibriChecker;
+import com.qompium.fibricheck.camerasdk.listeners.FibriListener;
+import com.qompium.fibricheck.camerasdk.measurement.MeasurementData;
 import com.qompium.fibricheckexample.databinding.FragmentFirstBinding;
 
 public class FirstFragment extends Fragment {

@@ -1,4 +1,4 @@
-package com.qompium.fibricheck_camera_sdk;
+package com.qompium.fibricheck.camerasdk;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -10,9 +10,9 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import com.qompium.fibricheck_camera_sdk.listeners.CameraListener;
-import com.qompium.fibricheck_camera_sdk.measurement.Quadrant;
-import com.qompium.fibricheck_camera_sdk.measurement.QuadrantColor;
+import com.qompium.fibricheck.camerasdk.listeners.CameraListener;
+import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
+import com.qompium.fibricheck.camerasdk.measurement.QuadrantColor;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;

@@ -1,4 +1,4 @@
-package com.qompium.fibricheck_camera_sdk.measurement;
+package com.qompium.fibricheck.camerasdk.measurement;
 
 public class Yuv {
 

@@ -1,4 +1,4 @@
-package com.qompium.fibricheck_camera_sdk;
+package com.qompium.fibricheck.camerasdk;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -30,8 +30,8 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
-import com.qompium.fibricheck_camera_sdk.measurement.Quadrant;
-import com.qompium.fibricheck_camera_sdk.measurement.QuadrantColor;
+import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
+import com.qompium.fibricheck.camerasdk.measurement.QuadrantColor;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;

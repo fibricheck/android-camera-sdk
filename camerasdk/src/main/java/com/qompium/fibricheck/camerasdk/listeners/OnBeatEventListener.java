@@ -1,4 +1,4 @@
-package com.qompium.fibricheck_camera_sdk.listeners;
+package com.qompium.fibricheck.camerasdk.listeners;
 
 public interface OnBeatEventListener {
 
