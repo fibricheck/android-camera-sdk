@@ -175,10 +175,12 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
 
   @Override public void onPreviewFrame (final byte[] data, Camera camera) {
 
+    // Use uptimeMillis as timestamp because it's monotonic.
+    long frameTimestamp = SystemClock.uptimeMillis();
     mCamera.addCallbackBuffer(data);
     QuadrantColor quadrantColor = calculateAverageYUV(data);
 
-    cameraListener.onFrameReceived(quadrantColor.quadrant, quadrantColor.yuvData, SystemClock.uptimeMillis());
+    cameraListener.onFrameReceived(quadrantColor.quadrant, quadrantColor.yuvData, frameTimestamp);
   }
 
   private QuadrantColor calculateAverageYUV (byte[] yuv420sp) {
