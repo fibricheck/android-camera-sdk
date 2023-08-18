@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/fibricheck/android-camera-sdk/compare/v0.4.0...v0.4.1) (2023-08-18)
+
+
+### Bug Fixes
+
+* make timing more accurate for received frames ([b557104](https://github.com/fibricheck/android-camera-sdk/commit/b557104ace2a2b430377400016859a36a8f18512))
+
 ## [0.4.0](https://github.com/fibricheck/android-camera-sdk/compare/v0.3.2...v0.4.0) (2023-06-07)
 
 
