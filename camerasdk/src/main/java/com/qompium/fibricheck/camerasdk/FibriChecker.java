@@ -79,6 +79,7 @@ public abstract class FibriChecker implements CameraListener {
 
   private int previousTime;
 
+  // Measurement start time using SystemClock.uptimeMillis() to have a monotonic source
   private long measurementStartTime;
 
   private long calibrationStartTime;

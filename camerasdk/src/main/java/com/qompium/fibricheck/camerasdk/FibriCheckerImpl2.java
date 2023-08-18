@@ -178,9 +178,12 @@ public class FibriCheckerImpl2 extends FibriChecker {
 
       @Override public void onImageAvailable (ImageReader reader) {
 
+        // Use uptimeMillis as timestamp because it's monotonic.
+        long frameTimestamp = SystemClock.uptimeMillis();
+
         QuadrantColor quadrantColor = calculateAverageYUV(reader.acquireLatestImage());
         if (quadrantColor != null) {
-          onFrameReceived(quadrantColor.quadrant, quadrantColor.yuvData, SystemClock.uptimeMillis());
+          onFrameReceived(quadrantColor.quadrant, quadrantColor.yuvData, frameTimestamp);
         }
       }
     };

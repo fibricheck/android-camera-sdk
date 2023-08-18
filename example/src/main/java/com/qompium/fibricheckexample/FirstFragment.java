@@ -53,10 +53,11 @@ public class FirstFragment extends Fragment {
 
         fibriChecker = new FibriChecker.FibriBuilder(viewGroup.getContext(), viewGroup).build();
 
+        fibriChecker.sampleTime = 10;
+
         fibriChecker.setFibriListener(new FibriListener() {
 
             @Override public void onSampleReady(final double ppg, double raw) {
-                Log.i(TAG, "Callback: onSampleReady");
 
             }
 
@@ -79,7 +80,7 @@ public class FirstFragment extends Fragment {
             }
 
             @Override public void onTimeRemaining(int seconds) {
-                Log.i(TAG, "Callback: onTimeRemaining");
+                Log.i(TAG, "Callback: onTimeRemaining" + seconds);
 
             }
 
