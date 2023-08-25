@@ -1,7 +1,7 @@
 {
   "id": "N44MW",
   "name": "[Pulse detection] onPulseDetected - onPulseDetectionTimeExpired",
-  "description": "The *onPulseDetected* will fire when a pulse has been detected. The pulse detection is only active after the finger detection has been completed.\n\nThe *onPulseDetectionTimeExpired* will fire when no pulse has been detected after 10 seconds.",
+  "description": "The *onPulseDetected* will fire when a pulse has been detected. The pulse detection is only active after the finger detection has been completed.\n\nThe *onPulseDetectionTimeExpired* will fire when no pulse has been detected after the timeout defined by `pulseDetectionExpiryTime` .",
   "type": "specification",
   "origin": "user_need",
   "keyValues": [],
@@ -9,5 +9,5 @@
   "testIds": [
     "HMSNY"
   ],
-  "updatedTime": 1645605761417
+  "updatedTime": 1692861260454
 }
