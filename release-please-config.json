@@ -5,11 +5,7 @@
             "extra-files": [
                 "README.md",
                 "camerasdk/build.gradle",
-                {
-                    "type": "json",
-                    "path": "documentation/project_info.json",
-                    "jsonpath": "$.version"
-                }
+                "documentation/project_info.json"
             ]
         }
     }

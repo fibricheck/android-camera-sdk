@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -17,11 +18,31 @@ import com.qompium.fibricheck.camerasdk.listeners.FibriListener;
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementData;
 import com.qompium.fibricheckexample.databinding.FragmentFirstBinding;
 
+import org.json.JSONObject;
+import org.w3c.dom.Text;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import com.google.gson.Gson;
+
+
 public class FirstFragment extends Fragment {
 
     private final String TAG = "FC-Example";
     private FragmentFirstBinding binding;
     private FibriChecker fibriChecker;
+
+    private SimpleDateFormat formatter;
+
+
+    private TextView eventOverview;
+    private TextView eventLog;
+
+
+    private HashMap<String, Boolean> triggeredEvents;
 
     @Override
     public View onCreateView(
@@ -30,6 +51,26 @@ public class FirstFragment extends Fragment {
     ) {
 
         binding = FragmentFirstBinding.inflate(inflater, container, false);
+
+
+        triggeredEvents = new HashMap<String, Boolean>();
+
+        // Set Events to false
+        triggeredEvents.put("onFingerDetected",false);
+        triggeredEvents.put("onFingerRemoved",false);
+        triggeredEvents.put("onHeartBeat",false);
+        triggeredEvents.put("onPulseDetected",false);
+        triggeredEvents.put("onCalibrationReady",false);
+        triggeredEvents.put("onPulseDetectionTimeExpired",false);
+        triggeredEvents.put("onFingerDetectionTimeExpired",false);
+        triggeredEvents.put("onMovementDetected",false);
+        triggeredEvents.put("onMeasurementStart",false);
+        triggeredEvents.put("onMeasurementFinished",false);
+        triggeredEvents.put("onMeasurementError",false);
+        triggeredEvents.put("onMeasurementProcessed",false);
+        triggeredEvents.put("onSampleReady",false);
+        triggeredEvents.put("onTimeRemaining",false);
+
 
         // Request Camera Permissions
         registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -47,77 +88,141 @@ public class FirstFragment extends Fragment {
 
     }
 
+    private void updateEventUI(){
+
+        String newText = "";
+
+        Iterator it = triggeredEvents.entrySet().iterator();
+
+        while(it.hasNext()){
+            HashMap.Entry el = (HashMap.Entry)it.next();
+
+            if((boolean) el.getValue()){
+                newText += "✅ " + (String) el.getKey() + "\n";
+            } else {
+                newText += "❌ " + (String) el.getKey() + "\n";
+            }
+        }
+
+        eventOverview.setText(newText);
+    }
+
+    private void logEvent(String event, boolean doLog) {
+        triggeredEvents.put(event, true);
+        updateEventUI();
+
+        if(doLog){
+            addLog(event);
+        }
+
+    }
+    private void addLog(String txt) {
+        String currText = (String) eventLog.getText();
+
+        currText += "\n" + formatter.format(new Date())  +txt;
+        eventLog.setText(currText);
+    }
+
+    private void validateMeasurement(MeasurementData measurementData){
+
+        try {
+            Gson gson = new Gson();
+            JSONObject jsonObject = new JSONObject(gson.toJson(measurementData));
+
+            if(jsonObject.has("heartrate")
+                    && jsonObject.has("attempts")
+                    && jsonObject.has("skippedMovementDetection")
+                    && jsonObject.has("skippedPulseDetection")
+                    && jsonObject.has("skippedFingerDetection")
+                    && jsonObject.has("quadrants")
+                    && jsonObject.has("technical_details")
+                    && jsonObject.has("time")
+                    && jsonObject.has("measurement_timestamp")
+            ){
+                addLog("VALID measurement");
+            } else {
+                addLog("FAILED to validate measurement");
+            }
+
+
+        } catch(Exception e){
+
+            addLog("FAILED to parse measurement");
+
+        }
+
+
+
+    }
+
     private void initialiseMeasurement(){
 
         ViewGroup viewGroup = binding.getRoot();
 
         fibriChecker = new FibriChecker.FibriBuilder(viewGroup.getContext(), viewGroup).build();
 
-        fibriChecker.sampleTime = 10;
+        fibriChecker.sampleTime = 20;
+        fibriChecker.fingerDetectionExpiryTime = 10000;
+        fibriChecker.pulseDetectionExpiryTime = 10000;
 
         fibriChecker.setFibriListener(new FibriListener() {
 
             @Override public void onSampleReady(final double ppg, double raw) {
-
+                logEvent("onSampleReady", false);
             }
 
             @Override public void onFingerDetected() {
-                Log.i(TAG, "Callback: onFingerDetected");
+                logEvent("onFingerDetected", true);
             }
 
             @Override public void onFingerRemoved(double y, double v, double stdDevY) {
-                Log.i(TAG, "Callback: onFingerRemoved");
-
+                logEvent("onFingerRemoved", true);
             }
 
             @Override public void onCalibrationReady() {
-                Log.i(TAG, "Callback: onCalibrationReady");
-
+                logEvent("onCalibrationReady", true);
             }
 
             @Override public void onHeartBeat(int value) {
-                Log.i(TAG, "Callback: onHeartBeat: " + value);
+                logEvent("onHeartBeat", false);
             }
 
             @Override public void onTimeRemaining(int seconds) {
-                Log.i(TAG, "Callback: onTimeRemaining" + seconds);
-
+                logEvent("onTimeRemaining", false);
             }
 
             @Override public void onMeasurementFinished() {
-                Log.i(TAG, "Callback: onMeasurementFinished");
-
+                logEvent("onMeasurementFinished", true);
             }
 
             @Override public void onMeasurementStart() {
-                Log.i(TAG, "Callback: onMeasurementStart");
-
+                logEvent("onMeasurementStart", true);
             }
 
             @Override public void onFingerDetectionTimeExpired() {
-                Log.i(TAG, "Callback: onFingerDetectionTimeExpired");
-
+                logEvent("onFingerDetectionTimeExpired", true);
             }
 
             @Override public void onPulseDetected() {
-                Log.i(TAG, "Callback: onPulseDetected");
+                logEvent("onPulseDetected", true);
             }
 
             @Override public void onPulseDetectionTimeExpired() {
-                Log.i(TAG, "Callback: onPulseDetectionTimeExpired");
+                logEvent("onPulseDetectionTimeExpired", true);
 
             }
 
             @Override public void onMovementDetected() {
-                Log.i(TAG, "Callback: onMovementDetected");
+                logEvent("onMovementDetected", true);
             }
 
             @Override public void onMeasurementProcessed(MeasurementData measurementData) {
-                Log.i(TAG, "Callback: onMeasurementProcessed");
+                logEvent("onMeasurementProcessed", true);
+                validateMeasurement(measurementData);
             }
 
             @Override public void onMeasurementError(String message) {
-                Log.i("FC", "onMeasurementError");
+                logEvent("onMeasurementError", true);
             }
         });
 
@@ -126,6 +231,7 @@ public class FirstFragment extends Fragment {
     }
 
     private void startMeasurement(){
+        addLog("START MEASUREMENT BUTTON-PRESS");
         fibriChecker.start();
         Log.i(TAG, "Start FibriCheck Measurement");
     }
@@ -135,6 +241,11 @@ public class FirstFragment extends Fragment {
 
         initialiseMeasurement();
 
+        formatter = new SimpleDateFormat("mm:ss:SSS");
+        eventOverview = (TextView) view.findViewById(R.id.textView_overview2);
+        eventLog = (TextView) view.findViewById(R.id.textView_overview);
+
+
         binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -142,6 +253,9 @@ public class FirstFragment extends Fragment {
                 startMeasurement();
             }
         });
+
+        updateEventUI();
+
     }
 
     @Override

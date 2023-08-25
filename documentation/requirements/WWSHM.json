@@ -1,7 +1,7 @@
 {
   "id": "WWSHM",
   "name": "[Measurement recording] onHeartBeat - onSampleReady - onMovementDetected - onTimeRemaining",
-  "description": "These events will fire only while a measurement recording has been started\n\n- *onHeartBeat* will fire when a heartbeat has been detected. It will return the heart rate as a number.\n- *onSampleReady* will fire when a new sample is ready. It can be used the draw a graph or analyze data. For now, it's best to leave this event as is, because the JS bridge is not fast enough to handle this amount of data.\n- *onMovementDetected* event will fire when movement has been detected. Note that this event will only fire when the movementDetectionEnabled property is enabled. This value is true by default. \n- *onTimeRemaining* will fire every second while recording. It returns the time in seconds that are left for completing the measurement. This is to make sure that no external timers are used, as they can become out of sync with the internal measurement timer.\n",
+  "description": "These events will fire only while a measurement recording has been started\n\n- *onHeartBeat* will fire when a heartbeat has been detected. It will return the heart rate as a number.\n- *onSampleReady* will fire when a new sample is ready. It can be used the draw a graph or analyze data.\n- *onMovementDetected* event will fire when movement has been detected. Note that this event will only fire when the `movementDetectionEnabled` property is enabled. This value is `true` by default. \n- *onTimeRemaining* will fire every second while recording. It returns the time in seconds that are left for completing the measurement. This is to make sure that no external timers are used, as they can become out of sync with the internal measurement timer.\n",
   "type": "specification",
   "origin": "user_need",
   "keyValues": [],
@@ -9,5 +9,5 @@
   "testIds": [
     "MRQMZ"
   ],
-  "updatedTime": 1645605764769
+  "updatedTime": 1692861321669
 }

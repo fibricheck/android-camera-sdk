@@ -1,7 +1,7 @@
 {
   "id": "RJMZH",
   "name": "Provide Camera permissions",
-  "description": "camera Permissons can be provided by following these steps: https://pub.dev/packages/permission_handler",
+  "description": "Android camera permissions can be provided by following these steps: https://developer.android.com/training/permissions/declaring",
   "type": "specification",
   "origin": "user_need",
   "keyValues": [],
@@ -9,5 +9,5 @@
   "testIds": [
     "Q4VAU"
   ],
-  "updatedTime": 1683028605632
+  "updatedTime": 1692861126811
 }

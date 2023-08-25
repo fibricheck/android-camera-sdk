@@ -1,7 +1,7 @@
 {
   "id": "RMD8X",
   "name": "[Measurement settings] sampleTime - flashEnabled - waitForStartRecordingSignal - fingerDetectionExpiryTime",
-  "description": "These properties affects the measurement settings\n\n- *sampleTime*: The duration of the measurement in seconds. Default is set to 1 minute.\n- *flashEnabled*: When enabled and supported by the device, the SDK will turn on the camera flashlight while measuring.\n- *waitForStartRecordingSignal*: Normally, when the calibration is ready, the measurement will start recording. When this flag is enabled, the measurement will wait until the startRecording() command has been given.\n- *fingerDetectionExpiryTime*: The time until the finger detection will trigger the onFingerDetectionTimeExpired() event.",
+  "description": "These properties affects the measurement settings\n\n- *sampleTime*: The duration of the measurement in seconds. Default is set to 60 seconds.\n- *flashEnabled*: When enabled and supported by the device, the SDK will turn on the camera flashlight while measuring.\n- *waitForStartRecordingSignal*: Normally, when the calibration is ready, the measurement will start recording. When this flag is enabled, the measurement will wait until the startRecording() command has been given.\n- *fingerDetectionExpiryTime*: The time until the finger detection will trigger the onFingerDetectionTimeExpired() event.",
   "type": "specification",
   "origin": "user_need",
   "keyValues": [],
@@ -9,5 +9,5 @@
   "testIds": [
     "M3G9R"
   ],
-  "updatedTime": 1645605309898
+  "updatedTime": 1692861385734
 }
