@@ -4,8 +4,8 @@
             "release-type": "simple",
             "extra-files": [
                 "README.md",
-                "camerasdk/build.gradle",
-                "documentation/project_info.json"
+                "documentation/project_info.json",
+                "camerasdk/build.gradle"
             ]
         }
     }
