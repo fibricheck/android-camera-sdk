@@ -1,5 +1,5 @@
 {
-  "description": "FibriCheck Camera SDK for Android applications. \nThe Android Camera SDK allows developers to integrate FibriCheck's heart rhythm analysis technology into their own application. The SDK interfaces with the smartphone's camera and generates a raw PPG signal and a rough heart rate estimation in beats per minute.\nThis SDK should be used in conjunction with the FibriCheck Cloud. It only implements data acquisition and does not offer any stand-alone rate or rhythm diagnostic capabilities. \n",
+  "description": "FibriCheck Camera SDK for Android applications. \nThe Android Camera SDK allows developers to integrate FibriCheck's heart rhythm analysis technology in their own application. The SDK interfaces with the smartphone's camera and generates a raw PPG signal and a rough heart rate estimation in beats per minute.\nThis SDK should be used in conjunction with the FibriCheck Cloud. It only implements data acquisition and does not offer any stand-alone rate or rhythm diagnostic capabilities. \n",
   "extra": [],
   "name": "android-camera-sdk",
   "safetyClass": "A",
