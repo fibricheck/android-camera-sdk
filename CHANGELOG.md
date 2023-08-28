@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0](https://github.com/fibricheck/android-camera-sdk/compare/v0.4.1...v1.0.0) (2023-08-28)
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([2fe1bb0](https://github.com/fibricheck/android-camera-sdk/commit/2fe1bb0606e9795e040e55bc5c51d900f69e3c9b))
+
 ## [0.4.1](https://github.com/fibricheck/android-camera-sdk/compare/v0.4.0...v0.4.1) (2023-08-18)
 
 

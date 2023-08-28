@@ -31,7 +31,7 @@ The dependency can then be added:
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'com.qompium.fibricheck:camerasdk:0.4.1'
+    implementation 'com.qompium.fibricheck:camerasdk:1.0.0'
 }
 ```
 <!-- x-release-please-end -->
@@ -52,7 +52,7 @@ Add the dependency in the following way:
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-        implementation 'com.github.fibricheck:android-camera-sdk:v0.4.1'
+        implementation 'com.github.fibricheck:android-camera-sdk:v1.0.0'
 }
 ```
 <!-- x-release-please-end -->
