@@ -18,10 +18,6 @@ jobs:
           with:
             command: manifest
             release-type: simple
-            extra-files: |
-              README.md
-              camerasdk/build.gradle
-              documentation/project_info.json
         outputs:
           release_created: ${{ steps.release.outputs.release_created }}
     publish-package-github:
