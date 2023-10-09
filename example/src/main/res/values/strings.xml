@@ -4,5 +4,6 @@
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">FibriCheck Demo</string>
     <string name="next">Start</string>
+    <string name="stopButton">Stop</string>
     <string name="hello_first_fragment">Measurement</string>
 </resources>

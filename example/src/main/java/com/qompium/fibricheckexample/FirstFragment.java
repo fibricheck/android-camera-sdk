@@ -236,6 +236,11 @@ public class FirstFragment extends Fragment {
         Log.i(TAG, "Start FibriCheck Measurement");
     }
 
+    private void stopMeasurement(){
+        addLog("STOP MEASUREMENT BUTTON-PRESS");
+        fibriChecker.stop();
+    }
+
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
@@ -253,6 +258,14 @@ public class FirstFragment extends Fragment {
                 startMeasurement();
             }
         });
+
+        binding.buttonSecond.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopMeasurement();
+            }
+        });
+
 
         updateEventUI();
 
