@@ -34,6 +34,7 @@ import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
 import com.qompium.fibricheck.camerasdk.measurement.QuadrantColor;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -224,7 +225,9 @@ public class FibriCheckerImpl2 extends FibriChecker {
 
   @TargetApi (21) private static Size chooseVideoSize (Size[] choices) {
 
-    return choices[choices.length - 1];
+    Arrays.sort(choices, (s1, s2) -> Long.compare(s1.getWidth() * (long) s1.getHeight(), s2.getWidth() * (long) s2.getHeight()));
+
+    return choices [0];
   }
 
   private QuadrantColor calculateAverageYUV (Image yuvImage) {
