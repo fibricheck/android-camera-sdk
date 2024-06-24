@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/fibricheck/android-camera-sdk/compare/v1.0.0...v1.0.1) (2024-06-24)
+
+
+### Bug Fixes
+
+* camera resolution sorting ([bfd1f69](https://github.com/fibricheck/android-camera-sdk/commit/bfd1f69cc2f183174907425fc7b631cf8dc2f9a3))
+
 ## [1.0.0](https://github.com/fibricheck/android-camera-sdk/compare/v0.4.1...v1.0.0) (2023-08-28)
 
 
