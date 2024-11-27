@@ -1,0 +1,13 @@
+{
+  "id": "ZUMMS",
+  "name": "The SDK uses the lowest available resolution",
+  "description": "The SDK uses the lowest available resolution to minimize the processing power needed.\nFrom the array of resolutions, the lowest available resolution will be detected.",
+  "type": "specification",
+  "origin": "user_need",
+  "keyValues": [],
+  "attachments": [],
+  "testIds": [
+    "0HN8C"
+  ],
+  "updatedTime": 1724166762863
+}
