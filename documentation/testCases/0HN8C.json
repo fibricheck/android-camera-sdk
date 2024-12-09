@@ -1,0 +1,20 @@
+{
+  "id": "0HN8C",
+  "name": "Ability to perform measurement on Smartphones where resolution array is not sorted",
+  "type": "manual",
+  "tier": "None",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Perform a measurement using a smartphone (e.g. Google Pixel 8) that is known to have a sorting of resolutions where the first item is not the lowest resolution."
+  ],
+  "expectedResult": "Able to perform measurement",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Execute a measurement",
+    "Initialize a measurement",
+    "The SDK uses the lowest available resolution"
+  ],
+  "updatedTime": 1724166965859
+}
