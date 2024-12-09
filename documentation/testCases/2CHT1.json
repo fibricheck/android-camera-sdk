@@ -1,0 +1,20 @@
+{
+  "id": "2CHT1",
+  "name": "Accelerometer data recording is not impacted by setting movementDetectionEnabled to false",
+  "type": "manual",
+  "tier": "None",
+  "planStatus": "Planned",
+  "motivation": "",
+  "testSteps": [
+    "Perform a recording with the movementDetectionEnabled set to false"
+  ],
+  "expectedResult": "The data in the `onMeasurementProcessed` event contains accelerometer data.",
+  "requiredTestEnvironmentIds": [],
+  "keyValues": [],
+  "parentNames": [
+    "Initialise the Camera SDK",
+    "Ability to change the properties in the Camera SDK",
+    "[Measurement sensors] gravEnabled - gyroEnabled - accEnabled - rotationEnabled - movementDetectionEnabled"
+  ],
+  "updatedTime": 1733745245234
+}

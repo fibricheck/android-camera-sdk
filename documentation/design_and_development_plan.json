@@ -1,7 +1,7 @@
 {
-  "createdTime": 1669039061561,
-  "updatedTime": 1669039061561,
-  "initiatingDate": "2022-11-21T13:57:41.561Z",
+  "createdTime": 1733741688555,
+  "updatedTime": 1733741688555,
+  "initiatingDate": "2024-12-09T10:54:48.555Z",
   "projectTeam": {},
   "initialRiskAnalysis": {},
   "validationPlanning": {
@@ -66,5 +66,7 @@
   "gf169": {
     "isPresent": false
   },
-  "projectScope": ""
+  "gf167": {
+    "isPresent": false
+  }
 }
