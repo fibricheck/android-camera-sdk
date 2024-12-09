@@ -418,13 +418,12 @@ public abstract class FibriChecker implements CameraListener {
 
   private void checkForMovements() {
 
-    if (!movementDetectionEnabled) {
-      return;
-    }
     double vector = calculateVector(sensorListener.getData()[SENSOR_LISTENER_DATA_ACC]);
     if (vector > upperMovementLimit || vector < lowerMovementLimit) {
       fibriListener.onMovementDetected();
-      state = State.DETECTING_FINGER;
+      if (movementDetectionEnabled) {
+        state = State.DETECTING_FINGER;
+      }
     }
   }
 
