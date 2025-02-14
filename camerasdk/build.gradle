@@ -8,13 +8,17 @@ version '1.0.2' // x-release-please-version
 
 android {
     namespace 'com.qompium.fibricheck.camerasdk'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         minSdk 19
         targetSdk 33
 
         consumerProguardFiles "consumer-rules.pro"
+
+        aarMetadata {
+            minCompileSdk = 19
+        }
     }
 
     buildTypes {
@@ -28,24 +32,29 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
 }
 
-afterEvaluate{
-    publishing {
-        publications {
-            release(MavenPublication) {
+publishing {
+    publications {
+        release(MavenPublication) {
+            afterEvaluate {
                 from components.release
             }
         }
+    }
 
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/fibricheck/android-camera-sdk")
-                credentials {
-                    username = project.findProperty("gpr.user")  ?: System.getenv("GH_USERNAME")
-                    password = project.findProperty("gpr.key")  ?: System.getenv("GH_TOKEN")
-                }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/fibricheck/android-camera-sdk")
+            credentials {
+                username = project.findProperty("gpr.user")  ?: System.getenv("GH_USERNAME")
+                password = project.findProperty("gpr.key")  ?: System.getenv("GH_TOKEN")
             }
         }
     }
