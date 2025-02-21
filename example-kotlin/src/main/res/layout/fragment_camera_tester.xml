@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.camera_tester.FragmentCameraTester"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+
+        <LinearLayout
+            android:id="@+id/cameraFinder"
+            android:layout_width="0dp"
+            android:layout_height="375dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"></LinearLayout>
+
+        <Switch
+            android:id="@+id/switchManualWhiteBalance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:text="Manual White Balance"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cameraFinder" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sliderWhiteBalance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:stepSize="500"
+            android:tooltipText="Manual White Balance Slider"
+            android:value="5000"
+            android:valueFrom="1000"
+            android:valueTo="15000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switchManualWhiteBalance" />
+
+        <Switch
+            android:id="@+id/switchManualFocus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Manual Focus"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sliderWhiteBalance" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sliderFocus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:tooltipText="Manual Focus Slider"
+            android:value="0"
+            android:valueFrom="0"
+            android:valueTo="12.5"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switchManualFocus" />
+
+        <Switch
+            android:id="@+id/switchManualExposure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:text="Manual Exposure"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sliderFocus" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/groupManualExposure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="sliderExposureTime,sliderIso,textExposureTime,textIso" />
+
+        <TextView
+            android:id="@+id/textIso"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:text="ISO: 100"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/switchManualExposure" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sliderIso"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:stepSize="100"
+            android:value="100"
+            android:valueFrom="100"
+            android:valueTo="800"
+            app:layout_constraintTop_toBottomOf="@id/textIso" />
+
+        <TextView
+            android:id="@+id/textExposureTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="14dp"
+            android:text="Exposure Time: 1/1000"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sliderIso" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sliderExposureTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:stepSize="20"
+            android:value="1000"
+            android:valueFrom="60"
+            android:valueTo="2000"
+            app:layout_constraintTop_toBottomOf="@id/textExposureTime" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
