@@ -145,7 +145,6 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   private void initBeatListener() {
-
     this.beatListener = new BeatListener(minYValue, maxYValue, maxStdDevYValue, minVValue);
     beatListener.setBeatEventListener(new OnBeatEventListener() {
 
@@ -228,7 +227,6 @@ public abstract class FibriChecker implements CameraListener {
   public abstract void start();
 
   public void startRecording() {
-
     if (!calibrationReadyDispatched) {
       throw new IllegalStateException("Measurement must be calibrated to start a recording");
     }
@@ -236,7 +234,6 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   public void stop() {
-
     if (state == State.RECORDING) {
       state = State.FINISHED;
     } else {
@@ -274,7 +271,6 @@ public abstract class FibriChecker implements CameraListener {
 
   protected void handleStates(final Quadrant quadrantData, final double[] yuvData,
                               final float[][] motionData, final long timestamp) {
-
     double dataPoint;
 
     switch (state) {
@@ -387,6 +383,7 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   public void initializeListeners() {
+    destroyListeners();
 
     sensorListener = new SensorListener(context);
     sensorListener.addListener(Sensor.TYPE_ACCELEROMETER);
@@ -402,7 +399,6 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   private double processData(double[] yuvData) {
-
     final double yValue = yuvData[0];
     final double value_diff = previousDataValue - yValue;
     final double value_filtered = firFilter.calculateOutput(value_diff);
@@ -417,7 +413,6 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   private void checkForMovements() {
-
     double vector = calculateVector(sensorListener.getData()[SENSOR_LISTENER_DATA_ACC]);
     if (vector > upperMovementLimit || vector < lowerMovementLimit) {
       fibriListener.onMovementDetected();
@@ -428,12 +423,10 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   protected float[][] getMotionData() {
-
     return sensorListener.getData();
   }
 
   private double calculateVector(float[] data) {
-
     double sum = 0;
 
     for (int i = 0; i < data.length; i++) {
@@ -501,7 +494,6 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   private void finishMeasurement() {
-
     destroyListeners();
     new ProcessRawMeasurementTask(measurementData, measurementRawList).execute();
   }
