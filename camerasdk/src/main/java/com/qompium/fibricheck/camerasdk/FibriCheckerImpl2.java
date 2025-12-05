@@ -20,6 +20,7 @@ import android.media.ImageReader;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.SystemClock;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -29,18 +30,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import com.qompium.fibricheck.camerasdk.extensions.ImageKt;
-import com.qompium.fibricheck.camerasdk.extensions.TotalCaptureResultKt;
 import com.qompium.fibricheck.camerasdk.listeners.EmptyActivityLifecycleCallbacks;
 import com.qompium.fibricheck.camerasdk.listeners.EmptySurfaceTextureListener;
-import com.qompium.fibricheck.camerasdk.listeners.RawDataListener;
 import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
 import com.qompium.fibricheck.camerasdk.measurement.QuadrantColor;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -80,7 +77,6 @@ public class FibriCheckerImpl2 extends FibriChecker {
   private final ImageReader.OnImageAvailableListener mOnImageAvailableListener;
   private CaptureRequest.Builder mCaptureRequest;
   private ImageReader mImageReader;
-  private Map<String, String> mLastCameraData;
 
   private final CameraCaptureSession.CaptureCallback mCaptureCallback;
 
@@ -376,13 +372,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
       return;
     }
 
-    try {
-      setAutoExposureTime(result.get(CaptureResult.SENSOR_EXPOSURE_TIME));
-      setAutoIso(result.get(CaptureResult.SENSOR_SENSITIVITY));
-    }
-    catch (NullPointerException e) {
-      Log.e(TAG, e.toString());
-    }
+    cameraSettings.onSettingsChanged(result);
   }
 
   @Override
@@ -401,53 +391,53 @@ public class FibriCheckerImpl2 extends FibriChecker {
   private void applyExposure() {
     if (cameraSettings.isAutoExposure()) {
       mCaptureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
+      mCaptureRequest.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
       mCaptureRequest.set(CaptureRequest.SENSOR_SENSITIVITY, null);
       mCaptureRequest.set(CaptureRequest.SENSOR_EXPOSURE_TIME, null);
-      mCaptureRequest.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
-      Log.i(TAG, "[applyExposure] Exposure unlocked");
-      return;
-    }
-
-    if (!isAdvancedCamera2Implementation) {
-      mCaptureRequest.set(CaptureRequest.CONTROL_AE_LOCK, true);
-      Log.i(TAG, "[applyExposure] Exposure locked simple");
+      Log.d(TAG, "Exposure Auto");
       return;
     }
 
     mCaptureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);
+    if (!isAdvancedCamera2Implementation) {
+      mCaptureRequest.set(CaptureRequest.CONTROL_AE_LOCK, true);
+      return;
+    }
+
+    Log.d(TAG, "Exposure Locked ISO: " + cameraSettings.getIso() + ", Time: " + cameraSettings.getExposureTime());
     mCaptureRequest.set(CaptureRequest.SENSOR_SENSITIVITY, cameraSettings.getIso());
     mCaptureRequest.set(CaptureRequest.SENSOR_EXPOSURE_TIME, cameraSettings.getExposureTime());
     mCaptureRequest.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE);
   }
 
   private void applyWhiteBalance() {
-    if (cameraSettings.isManualWhiteBalanceEnabled()) {
-      mCaptureRequest.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_OFF);
-      mCaptureRequest.set(CaptureRequest.COLOR_CORRECTION_MODE, CaptureRequest.COLOR_CORRECTION_MODE_TRANSFORM_MATRIX);
-      mCaptureRequest.set(CaptureRequest.COLOR_CORRECTION_GAINS, cameraSettings.getWhileBalanceVector());
-      Log.i(TAG, "[applyWhiteBalance] White balance locked");
+    if (cameraSettings.isAutoWhiteBalance()) {
+      mCaptureRequest.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_AUTO);
+      mCaptureRequest.set(CaptureRequest.COLOR_CORRECTION_MODE, CaptureRequest.COLOR_CORRECTION_MODE_HIGH_QUALITY);
+      mCaptureRequest.set(CaptureRequest.COLOR_CORRECTION_GAINS, null);
+      Log.d(TAG, "White Balance Auto");
       return;
     }
 
-    mCaptureRequest.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_AUTO);
-    mCaptureRequest.set(CaptureRequest.COLOR_CORRECTION_MODE, CaptureRequest.COLOR_CORRECTION_MODE_HIGH_QUALITY);
-    mCaptureRequest.set(CaptureRequest.COLOR_CORRECTION_GAINS, null);
-    Log.i(TAG, "[applyWhiteBalance] White balance unlocked");
+    Log.d(TAG, "White Balance Locked: " + cameraSettings.getWhiteBalance());
+    mCaptureRequest.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_OFF);
+    mCaptureRequest.set(CaptureRequest.COLOR_CORRECTION_MODE, CaptureRequest.COLOR_CORRECTION_MODE_TRANSFORM_MATRIX);
+    mCaptureRequest.set(CaptureRequest.COLOR_CORRECTION_GAINS, cameraSettings.getWhiteBalanceRggb());
   }
 
   private void applyFocus() {
-    if (cameraSettings.isManualFocusEnabled()) {
-      mCaptureRequest.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF);
-      mCaptureRequest.set(CaptureRequest.LENS_FOCUS_DISTANCE, cameraSettings.getManualFocus());
-      mCaptureRequest.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE);
-      Log.i(TAG, "[applyFocus] Focus locked");
+    if (cameraSettings.isAutoFocus()) {
+      mCaptureRequest.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
+      mCaptureRequest.set(CaptureRequest.LENS_FOCUS_DISTANCE, null);
+      mCaptureRequest.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START);
+      Log.d(TAG, "Focus Auto");
       return;
     }
 
-    mCaptureRequest.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
-    mCaptureRequest.set(CaptureRequest.LENS_FOCUS_DISTANCE, null);
-    mCaptureRequest.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START);
-    Log.i(TAG, "[applyFocus] Focus unlocked");
+    mCaptureRequest.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF);
+    mCaptureRequest.set(CaptureRequest.LENS_FOCUS_DISTANCE, cameraSettings.getFocus());
+    mCaptureRequest.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE);
+    Log.d(TAG, "Focus Locked " + cameraSettings.getFocus());
   }
 
   private void applyRequest() {
@@ -471,10 +461,6 @@ public class FibriCheckerImpl2 extends FibriChecker {
     catch (Exception e) {
       return null;
     }
-  }
-
-  public void setRawDataListener(RawDataListener listener) {
-    super.rawDataListener = listener;
   }
 
   private Application.ActivityLifecycleCallbacks createLifecycleListener() {
@@ -524,21 +510,11 @@ public class FibriCheckerImpl2 extends FibriChecker {
   private ImageReader.OnImageAvailableListener createOnImageAvailableListener() {
     return reader -> {
       Image img = reader.acquireLatestImage();
-      long sampleTimestamp = System.currentTimeMillis();
-      byte[] imgData = rawDataListener != null && img != null ? ImageKt.toByteArray(img) : null;
-      if (img != null && mLastCameraData != null) {
-        mLastCameraData.put("image.width", String.valueOf(img.getWidth()));
-        mLastCameraData.put("image.height", String.valueOf(img.getHeight()));
-        mLastCameraData.put("image.cropRect", TotalCaptureResultKt.toCustomString(img.getCropRect()));
-        mLastCameraData.put("measurement.sampleTimestamp", String.valueOf(sampleTimestamp));
-      }
+      long sampleTimestamp = SystemClock.uptimeMillis();
 
       QuadrantColor quadrantColor = calculateAverageYUV(img);
       if (quadrantColor != null) {
         onFrameReceived(quadrantColor.quadrant, quadrantColor.yuvData, sampleTimestamp);
-      }
-      if (mLastCameraData != null && rawDataListener != null && imgData != null) {
-        rawDataListener.onNewData(imgData, mLastCameraData);
       }
     };
   }
@@ -548,7 +524,6 @@ public class FibriCheckerImpl2 extends FibriChecker {
       @Override
       public void onCaptureCompleted (@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
         updateCameraValues(result);
-        mLastCameraData = TotalCaptureResultKt.toMap(result);
       }
     };
   }

@@ -4,6 +4,9 @@ import android.app.Activity
 import android.app.Application.ActivityLifecycleCallbacks
 import android.os.Bundle
 
+/**
+ * Simple wrapper to reduce the boilerplate in FibriCheckerImpl2
+ */
 open class EmptyActivityLifecycleCallbacks: ActivityLifecycleCallbacks {
   /**
    * Called when the Activity calls [super.onCreate()][Activity.onCreate].

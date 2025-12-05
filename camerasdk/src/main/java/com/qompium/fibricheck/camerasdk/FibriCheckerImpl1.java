@@ -11,6 +11,7 @@ import android.util.Range;
 import android.view.View;
 import android.view.ViewGroup;
 import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
+import com.qompium.fibricheck.camerasdk.models.CameraSettingMode;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo;
 
 public class FibriCheckerImpl1 extends FibriChecker {
@@ -87,7 +88,7 @@ public class FibriCheckerImpl1 extends FibriChecker {
 
   @Override
   protected void applyCameraSettings() {
-    camera1SurfaceView.setExposureLock(cameraSettings.isExposureLocked());
+    camera1SurfaceView.setExposureLock(cameraSettings.getExposureMode() == CameraSettingMode.Locked);
   }
 
   @Override public void closeCamera () {

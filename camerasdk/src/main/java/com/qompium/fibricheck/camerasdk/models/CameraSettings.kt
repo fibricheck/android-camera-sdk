@@ -1,98 +1,171 @@
 package com.qompium.fibricheck.camerasdk.models
 
+import android.graphics.Camera
+import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.RggbChannelVector
 import android.os.Build
 import androidx.annotation.RequiresApi
-import kotlin.math.ln
-import kotlin.math.pow
+import com.qompium.fibricheck.camerasdk.extensions.toRgb
+import com.qompium.fibricheck.camerasdk.measurement.MeasurementCameraSettings
+import com.qompium.fibricheck.camerasdk.measurement.Vec3f
+import com.qompium.fibricheck.camerasdk.measurement.WhiteBalanceLog
+import com.qompium.fibricheck.camerasdk.utils.CameraUtils
 
-public data class CameraSettings(
-  var isExposureLocked: Boolean = false,
-  var autoIsoValue: Int = 0,
-  var autoExposureTime: Long = 0,
-
-  var isManualExposureEnabled: Boolean = false,
+open class CameraSettingsInput(
+  var exposureMode: CameraSettingMode = CameraSettingMode.Locked,
   var manualIsoValue: Int = 0,
   var manualExposureTime: Long = 0,
 
-  var isManualWhiteBalanceEnabled: Boolean = false,
-  var manualWhiteBalance: List<Float> = listOf(1f, 1f, 1f, 1f),
+  var whiteBalanceMode: WhiteBalanceMode = WhiteBalanceMode.Auto,
+  var manualWhiteBalanceRgb: Vec3f = Vec3f(),
+  var manualWhiteBalanceKelvin: Int = 6504,
 
-  var isManualFocusEnabled: Boolean = false,
-  var manualFocus: Float = 0f,
+  var focusMode: CameraSettingMode = CameraSettingMode.Auto,
+  var manualFocusValue: Float = 0f,
+
+  var logWhiteBalance: Boolean = false,
+  var logExposure: Boolean = false,
+  var logFocus: Boolean = false
+)
+
+public class CameraSettings(
+  var cameraSettingsState: CameraSettingsState = CameraSettingsState.Calibrating,
+  exposureMode: CameraSettingMode = CameraSettingMode.Locked,
+  var autoIsoValue: Int = 0,
+  var autoExposureTime: Long = 0,
+  manualIsoValue: Int = 0,
+  manualExposureTime: Long = 0,
+
+  whiteBalanceMode: WhiteBalanceMode = WhiteBalanceMode.Auto,
+  var autoWhiteBalanceRgb: Vec3f = Vec3f(),
+  manualWhiteBalanceRgb: Vec3f = Vec3f(),
+  manualWhiteBalanceKelvin: Int = 6504,
+
+  focusMode: CameraSettingMode = CameraSettingMode.Auto,
+  var autoFocusValue: Float = 0f,
+  manualFocusValue: Float = 0f,
+
+  logWhiteBalance: Boolean = false,
+  logExposure: Boolean = false,
+  logFocus: Boolean = false
+): CameraSettingsInput(
+  exposureMode, manualIsoValue, manualExposureTime,
+  whiteBalanceMode, manualWhiteBalanceRgb, manualWhiteBalanceKelvin,
+  focusMode, manualFocusValue,
+  logWhiteBalance, logExposure, logFocus
 ) {
-  companion object {
-    // https://github.com/mohankumar-s/android_camera2_manual/blob/master/Camera2ManualFragment.java
-    fun whiteBalanceToGains(whiteBalance: Int): List<Float> {
-      val temperature = (whiteBalance / 100).toFloat()
-      var red: Float
-      var green: Float
-      var blue: Float
+  val iso get() = if (exposureMode == CameraSettingMode.Manual) manualIsoValue else autoIsoValue
+  val exposureTime get() = if (exposureMode == CameraSettingMode.Manual) manualExposureTime else autoExposureTime
+  val focus get() = if (focusMode == CameraSettingMode.Manual) manualFocusValue else autoFocusValue
+  val whiteBalance get() = when(whiteBalanceMode) {
+    WhiteBalanceMode.ManualRgb -> manualWhiteBalanceRgb
+    WhiteBalanceMode.ManualKelvin -> CameraUtils.whiteBalanceToGains(manualWhiteBalanceKelvin)
+    else -> autoWhiteBalanceRgb
+  }
+  val whiteBalanceRggb @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    get() = RggbChannelVector(whiteBalance.r, whiteBalance.g / 2.0f, whiteBalance.g / 2.0f, whiteBalance.b)
+  val whiteBalanceLog = mutableListOf<Vec3f>()
+  val isoLog = mutableListOf<Int>()
+  val exposureTimeLog = mutableListOf<Long>()
+  val focusLog = mutableListOf<Float>()
 
-      //Calculate red
-      if (temperature <= 66) red = 255f
-      else {
-        red = temperature - 60
-        red = (329.698727446 * (red.toDouble().pow(-0.1332047592))).toFloat()
-        if (red < 0) red = 0f
-        if (red > 255) red = 255f
-      }
+  fun set(settings: CameraSettingsInput) {
+    this.exposureMode = settings.exposureMode
+    this.manualIsoValue = settings.manualIsoValue
+    this.manualExposureTime = settings.manualExposureTime
 
+    this.whiteBalanceMode = settings.whiteBalanceMode
+    this.manualWhiteBalanceRgb = settings.manualWhiteBalanceRgb
+    this.manualWhiteBalanceKelvin = settings.manualWhiteBalanceKelvin
 
-      //Calculate green
-      if (temperature <= 66) {
-        green = temperature
-        green = (99.4708025861 * ln(green.toDouble()) - 161.1195681661).toFloat()
-        if (green < 0) green = 0f
-        if (green > 255) green = 255f
-      } else {
-        green = temperature - 60
-        green = (288.1221695283 * (green.toDouble().pow(-0.0755148492))).toFloat()
-        if (green < 0) green = 0f
-        if (green > 255) green = 255f
-      }
+    this.focusMode = settings.focusMode
+    this.manualFocusValue = settings.manualFocusValue
 
-      //calculate blue
-      if (temperature >= 66) blue = 255f
-      else if (temperature <= 19) blue = 0f
-      else {
-        blue = temperature - 10
-        blue = (138.5177312231 * ln(blue.toDouble()) - 305.0447927307).toFloat()
-        if (blue < 0) blue = 0f
-        if (blue > 255) blue = 255f
-      }
-
-      return listOf((red / 255) * 2, (green / 255), (green / 255), (blue / 255) * 2)
-    }
+    this.logWhiteBalance = settings.logWhiteBalance
+    this.logExposure = settings.logExposure
+    this.logFocus = settings.logFocus
   }
 
-  public fun isAutoExposure(): Boolean {
-    return !isExposureLocked && !isManualExposureEnabled
-  }
-
-  public fun getIso(): Int {
-    return if (isManualExposureEnabled) {
-      manualIsoValue
-    } else {
-      autoIsoValue
-    }
-  }
-
-  public fun getExposureTime(): Long {
-    return if (isManualExposureEnabled) {
-      manualExposureTime
-    } else {
-      autoExposureTime
-    }
+  fun addTo(map: MutableMap<String, Any>) {
+    if (iso != 0 && exposureMode != CameraSettingMode.Auto) map["camera_iso"] = iso
+    if (exposureTime != 0L && exposureMode != CameraSettingMode.Auto) map["camera_exposure_time"] = exposureTime
+    if (whiteBalanceMode != WhiteBalanceMode.Auto) map["camera_white_balance"] = whiteBalance
+    if (focusMode != CameraSettingMode.Auto) map["camera_focus_distance"] = focus
   }
 
   @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-  public fun getWhileBalanceVector(): RggbChannelVector {
-    return RggbChannelVector(
-      manualWhiteBalance[0],
-      manualWhiteBalance[1],
-      manualWhiteBalance[2],
-      manualWhiteBalance[3]
+  fun onSettingsChanged(settings: CaptureResult) {
+      val focusDistance = settings.get(CaptureResult.LENS_FOCUS_DISTANCE)
+      val whiteBalance= settings.get(CaptureResult.COLOR_CORRECTION_GAINS)?.toRgb()
+      val iso = settings.get(CaptureResult.SENSOR_SENSITIVITY)
+      val exposureTime = settings.get(CaptureResult.SENSOR_EXPOSURE_TIME)
+
+      if (focusMode != CameraSettingMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
+        autoFocusValue = focusDistance ?: autoFocusValue
+      }
+      if (whiteBalanceMode != WhiteBalanceMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
+        autoWhiteBalanceRgb = whiteBalance ?: autoWhiteBalanceRgb
+      }
+      if (exposureMode != CameraSettingMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
+        autoExposureTime = exposureTime ?: autoExposureTime
+        autoIsoValue = iso ?: autoIsoValue
+      }
+
+      // We only want to log values when we are recording
+      if (cameraSettingsState != CameraSettingsState.Recording) {
+        return
+      }
+
+      if (logFocus && focusMode == CameraSettingMode.Auto && focusDistance != null) {
+        focusLog.add(focusDistance)
+      }
+      if (logWhiteBalance && whiteBalanceMode == WhiteBalanceMode.Auto && whiteBalance != null) {
+        whiteBalanceLog.add(whiteBalance)
+      }
+      if (logExposure && exposureMode == CameraSettingMode.Auto && exposureTime != null && iso != null) {
+        exposureTimeLog.add(exposureTime)
+        isoLog.add(iso)
+      }
+  }
+
+  fun toOutput(): MeasurementCameraSettings {
+    val whiteBalanceMode = when(whiteBalanceMode) {
+      WhiteBalanceMode.ManualRgb -> "manual"
+      WhiteBalanceMode.ManualKelvin -> "manual"
+      WhiteBalanceMode.Locked -> null
+      else -> "auto"
+    }
+
+    val whiteBalanceOutput = WhiteBalanceLog(
+      whiteBalanceLog.map { it.r },
+      whiteBalanceLog.map { it.g },
+      whiteBalanceLog.map { it.b }
+    )
+
+    return MeasurementCameraSettings(
+      if (exposureMode != CameraSettingMode.Locked) exposureMode.name.lowercase() else null,
+      if (isoLog.size > 0) isoLog else null,
+      if (exposureTimeLog.size > 0) exposureTimeLog else null,
+      whiteBalanceMode,
+      whiteBalanceOutput,
+      if (focusMode != CameraSettingMode.Locked) focusMode.name.lowercase() else null,
+      if (focusLog.size > 0) focusLog else null
     )
   }
+
+  fun clear() {
+    whiteBalanceLog.clear()
+    focusLog.clear()
+    exposureTimeLog.clear()
+    isoLog.clear()
+  }
+
+  val isAutoExposure
+    get() = exposureMode == CameraSettingMode.Auto || (exposureMode == CameraSettingMode.Locked && cameraSettingsState == CameraSettingsState.Calibrating)
+
+  val isAutoFocus
+    get() = focusMode == CameraSettingMode.Auto || (focusMode == CameraSettingMode.Locked && cameraSettingsState == CameraSettingsState.Calibrating)
+
+  val isAutoWhiteBalance
+    get() = whiteBalanceMode == WhiteBalanceMode.Auto || (whiteBalanceMode == WhiteBalanceMode.Locked && cameraSettingsState == CameraSettingsState.Calibrating)
 }

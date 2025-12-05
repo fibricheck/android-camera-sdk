@@ -3,6 +3,9 @@ package com.qompium.fibricheck.camerasdk.listeners
 import android.graphics.SurfaceTexture
 import android.view.TextureView.SurfaceTextureListener
 
+/**
+ * Simple wrapper to reduce the boilerplate in FibriCheckerImpl2
+ */
 open class EmptySurfaceTextureListener: SurfaceTextureListener {
   /**
    * Invoked when a [TextureView]'s SurfaceTexture is ready for use.

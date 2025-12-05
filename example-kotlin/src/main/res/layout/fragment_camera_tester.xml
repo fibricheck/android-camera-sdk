@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         >
 
+
         <LinearLayout
             android:id="@+id/cameraFinder"
             android:layout_width="0dp"
@@ -23,46 +24,129 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"></LinearLayout>
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <Switch
-            android:id="@+id/switchManualWhiteBalance"
+
+        <TextView
+            android:id="@+id/whiteBalanceLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:text="Manual White Balance"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="White Balance"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cameraFinder" />
 
-        <com.google.android.material.slider.Slider
-            android:id="@+id/sliderWhiteBalance"
+        <com.qompium.fibricheckexample_kotlin.StateButton
+            android:id="@+id/whiteBalanceState"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:stepSize="500"
-            android:tooltipText="Manual White Balance Slider"
-            android:value="5000"
-            android:valueFrom="1000"
-            android:valueTo="15000"
+            android:gravity="start"
+            app:items="Auto, Locked, Rgb, Kelvin"
+            app:initialValue="Locked"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/whiteBalanceLabel" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/whiteBalanceSliderR"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:value="1"
+            android:valueFrom="0"
+            android:valueTo="2.0"
+            android:stepSize="0.1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/switchManualWhiteBalance" />
-
-        <Switch
-            android:id="@+id/switchManualFocus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:text="Manual Focus"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sliderWhiteBalance" />
+            app:layout_constraintTop_toBottomOf="@+id/whiteBalanceState" />
 
         <com.google.android.material.slider.Slider
-            android:id="@+id/sliderFocus"
+            android:id="@+id/whiteBalanceSliderG"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:value="1"
+            android:valueFrom="0"
+            android:valueTo="2.0"
+            android:stepSize="0.1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/whiteBalanceSliderR" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/whiteBalanceSliderB"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:value="1"
+            android:valueFrom="0"
+            android:valueTo="2.0"
+            android:stepSize="0.1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/whiteBalanceSliderG" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/whiteBalanceRgb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="whiteBalanceSliderR,whiteBalanceSliderG,whiteBalanceSliderB" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/whiteBalanceSliderKelvin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:value="3500"
+            android:valueFrom="2000"
+            android:valueTo="6500"
+            android:stepSize="100"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/whiteBalanceState" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/whiteBalanceEnd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="whiteBalanceSliderB,whiteBalanceSliderKelvin" />
+
+        <TextView
+            android:id="@+id/focusLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="Focus"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/whiteBalanceEnd" />
+
+        <com.qompium.fibricheckexample_kotlin.StateButton
+            android:id="@+id/focusState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="start"
+            app:items="Auto, Locked, Manual"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/focusLabel" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/focusSlider"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -74,17 +158,29 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/switchManualFocus" />
+            app:layout_constraintTop_toBottomOf="@+id/focusState" />
 
-        <Switch
-            android:id="@+id/switchManualExposure"
+        <TextView
+            android:id="@+id/exposureLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:text="Exposure"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/focusSlider" />
+
+        <com.qompium.fibricheckexample_kotlin.StateButton
+            android:id="@+id/exposureState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
-            android:text="Manual Exposure"
+            android:gravity="start"
+            app:items="Auto, Locked, Manual"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sliderFocus" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/exposureLabel" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/groupManualExposure"
@@ -99,7 +195,7 @@
             android:layout_marginStart="14dp"
             android:text="ISO: 100"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/switchManualExposure" />
+            app:layout_constraintTop_toBottomOf="@id/exposureState" />
 
         <com.google.android.material.slider.Slider
             android:id="@+id/sliderIso"
@@ -133,6 +229,34 @@
             android:valueFrom="60"
             android:valueTo="2000"
             app:layout_constraintTop_toBottomOf="@id/textExposureTime" />
+
+        <Switch
+            android:id="@+id/switchLogExposure"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Log Exposure"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sliderExposureTime" />
+
+        <Switch
+            android:id="@+id/switchLogWhiteBalance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Log White Balance"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/switchLogExposure" />
+
+        <Switch
+            android:id="@+id/switchLogFocus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Log Focus"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/switchLogWhiteBalance" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

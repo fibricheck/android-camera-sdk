@@ -1,20 +1,30 @@
 package com.qompium.fibricheckexample_kotlin.ui.tester
 
 import android.Manifest
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.qompium.fibricheck.camerasdk.FibriChecker
 import com.qompium.fibricheck.camerasdk.FibriChecker.FibriBuilder
 import com.qompium.fibricheck.camerasdk.listeners.FibriListener
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementData
+import com.qompium.fibricheck.camerasdk.measurement.Vec3f
+import com.qompium.fibricheck.camerasdk.models.CameraSettingMode
+import com.qompium.fibricheck.camerasdk.models.CameraSettingsInput
+import com.qompium.fibricheck.camerasdk.models.WhiteBalanceMode
 import com.qompium.fibricheckexample_kotlin.databinding.FragmentTesterBinding
 import org.json.JSONObject
+import java.io.File
+import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -24,11 +34,23 @@ class FragmentTester : Fragment() {
     private lateinit var fibriChecker: FibriChecker
 
     private var formatter = SimpleDateFormat("mm:ss:SSS", Locale.getDefault())
+    private var fileNameFormatter = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
 
     private var triggeredEvents = mutableMapOf<String, Boolean>()
 
     private var _binding: FragmentTesterBinding? = null
     private val binding get() = _binding!!
+
+    private val storagePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Log.i(TAG, "Storage Permission granted")
+        } else {
+            Log.i(TAG, "Storage Permission Denied")
+            Toast.makeText(requireContext(), "Storage permission required to save measurements", Toast.LENGTH_LONG).show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -65,6 +87,14 @@ class FragmentTester : Fragment() {
             }
         }.launch(Manifest.permission.CAMERA)
 
+        // Request Storage Permissions for saving measurements
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Android 10+ doesn't need WRITE_EXTERNAL_STORAGE for app-specific directories
+            Log.i(TAG, "Storage permission not needed on Android 10+")
+        } else {
+            storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+
         return binding.getRoot()
     }
 
@@ -96,6 +126,30 @@ class FragmentTester : Fragment() {
         binding.eventLog.text = currText
     }
 
+    private fun saveMeasurementToFile(measurementData: MeasurementData) {
+        try {
+            val gson = GsonBuilder().setPrettyPrinting().create()
+            val jsonString = gson.toJson(measurementData)
+
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val timestamp = fileNameFormatter.format(Date())
+            val fileName = "fibricheck_measurement_$timestamp.json"
+            val file = File(downloadsDir, fileName)
+
+            FileWriter(file).use { writer ->
+                writer.write(jsonString)
+            }
+
+            addLog("Saved to: ${file.absolutePath}")
+            Log.i(TAG, "Measurement saved to: ${file.absolutePath}")
+            Toast.makeText(requireContext(), "Measurement saved to Downloads/$fileName", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to save measurement to file", e)
+            addLog("FAILED to save measurement: ${e.message}")
+            Toast.makeText(requireContext(), "Failed to save measurement: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun validateMeasurement(measurementData: MeasurementData) {
         try {
             val gson = Gson()
@@ -112,6 +166,7 @@ class FragmentTester : Fragment() {
                 && jsonObject.has("measurement_timestamp")
             ) {
                 addLog("VALID measurement")
+                // Log.d("Measurement", jsonObject.toString(2))
             } else {
                 addLog("FAILED to validate measurement")
             }
@@ -124,11 +179,19 @@ class FragmentTester : Fragment() {
     private fun initialiseMeasurement() {
         val viewGroup: ViewGroup = binding.getRoot()
 
-        fibriChecker = FibriBuilder(viewGroup.context, viewGroup).build()
+        fibriChecker = FibriBuilder(viewGroup.context, binding.cameraFinder).build()
 
         fibriChecker.sampleTime = 20
         fibriChecker.fingerDetectionExpiryTime = 10000
         fibriChecker.pulseDetectionExpiryTime = 10000
+        fibriChecker.setCameraSettings(CameraSettingsInput(
+            CameraSettingMode.Locked, 0, 0,
+            WhiteBalanceMode.Auto, Vec3f(), 6504,
+            CameraSettingMode.Auto, 0f,
+            true,
+            true,
+            true
+        ))
 
         fibriChecker.setFibriListener(object : FibriListener() {
             override fun onSampleReady(ppg: Double, raw: Double) {
@@ -182,6 +245,7 @@ class FragmentTester : Fragment() {
             override fun onMeasurementProcessed(measurementData: MeasurementData) {
                 logEvent("onMeasurementProcessed", true)
                 validateMeasurement(measurementData)
+                saveMeasurementToFile(measurementData)
             }
 
             override fun onMeasurementError(message: String?) {
