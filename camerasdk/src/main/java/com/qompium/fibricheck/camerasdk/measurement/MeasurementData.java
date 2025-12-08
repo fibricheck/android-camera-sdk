@@ -11,7 +11,6 @@ import static com.qompium.fibricheck.camerasdk.measurement.Quadrant.QUADRANT_COL
 import static com.qompium.fibricheck.camerasdk.measurement.Quadrant.QUADRANT_ROWS;
 
 public class MeasurementData implements Serializable {
-
   @SerializedName("heartrate")
   public double heartrate;
 
@@ -50,6 +49,9 @@ public class MeasurementData implements Serializable {
 
   @SerializedName("measurement_timestamp")
   public Number measurementTimestamp;
+
+  @SerializedName("camera_settings")
+  public MeasurementCameraSettings cameraSettings;
 
   public MeasurementData () {
 

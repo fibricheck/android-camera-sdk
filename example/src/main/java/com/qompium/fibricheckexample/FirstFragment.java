@@ -191,11 +191,11 @@ public class FirstFragment extends Fragment {
                 logEvent("onTimeRemaining", false);
             }
 
-            @Override public void onMeasurementFinished() {
+            @Override public void onMeasurementFinished(long timestamp) {
                 logEvent("onMeasurementFinished", true);
             }
 
-            @Override public void onMeasurementStart() {
+            @Override public void onMeasurementStart(long timestamp) {
                 logEvent("onMeasurementStart", true);
             }
 

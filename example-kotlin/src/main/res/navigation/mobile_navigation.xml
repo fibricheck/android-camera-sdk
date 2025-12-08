@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_tester">
+
+    <fragment
+        android:id="@+id/navigation_tester"
+        android:name="com.qompium.fibricheckexample_kotlin.ui.tester.FragmentTester"
+        android:label="@string/title_tester"
+        tools:layout="@layout/fragment_tester" />
+
+    <fragment
+        android:id="@+id/navigation_camera"
+        android:name="com.qompium.fibricheckexample_kotlin.ui.camera_tester.FragmentCameraTester"
+        android:label="@string/title_camera_test"
+        tools:layout="@layout/fragment_camera_tester" />
+</navigation>

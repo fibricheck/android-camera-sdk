@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Fibricheck Example</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">FibriCheck Demo</string>
+    <string name="next">Start</string>
+    <string name="hello_first_fragment">Measurement</string>
+    <string name="title_tester">Tester</string>
+    <string name="title_camera_test">Camera Test</string>
+</resources>

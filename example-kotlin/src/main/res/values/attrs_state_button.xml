@@ -1,0 +1,6 @@
+<resources>
+    <declare-styleable name="StateButton">
+        <attr name="items" format="string" />
+        <attr name="initialValue" format="string" />
+    </declare-styleable>
+</resources>

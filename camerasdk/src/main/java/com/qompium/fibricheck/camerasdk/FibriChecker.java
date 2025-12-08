@@ -17,8 +17,15 @@ import com.qompium.fibricheck.camerasdk.listeners.SensorListener;
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementData;
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementRaw;
 import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
+import com.qompium.fibricheck.camerasdk.measurement.Vec3f;
+import com.qompium.fibricheck.camerasdk.models.CameraSettings;
+import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo;
+import com.qompium.fibricheck.camerasdk.models.CameraSettingsInput;
+import com.qompium.fibricheck.camerasdk.models.CameraSettingsState;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Vector;
 
 import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ACC;
 import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GRAV;
@@ -26,78 +33,57 @@ import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_L
 import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ROTATION;
 
 public abstract class FibriChecker implements CameraListener {
-
   private static final int MOVING_WINDOW_SIZE = 7; //used for Savitzky Golay filter
 
   private static final int CALIBRATION_DELAY = 1000;
+  private static final long ONE_SECOND_NS = 1000000000L;
 
   private static final String TAG = "FibriChecker";
 
   public int sampleTime;
-
   public int pulseDetectionExpiryTime;
-
   public int fingerDetectionExpiryTime;
 
   public int minYValue;
-
   public int maxYValue;
-
   public int minVValue;
 
   public int maxStdDevYValue;
-
   public int upperMovementLimit;
-
   public int lowerMovementLimit;
 
   public boolean flashEnabled;
-
   public boolean gyroEnabled;
-
   public boolean accEnabled;
-
   public boolean gravEnabled;
-
   public boolean rotationEnabled;
-
   public boolean movementDetectionEnabled;
-
   public boolean waitForStartRecordingSignal;
 
   public int quadrantCols;
-
   public int quadrantRows;
 
   private boolean calibrationReadyDispatched = false;
 
   private long pulseDetectionStartTime;
-
   private long fingerDetectionStartTime;
 
   private double previousDataValue = 0;
-
   private int previousTime;
 
   // Measurement start time using SystemClock.uptimeMillis() to have a monotonic source
   private long measurementStartTime;
-
   private long calibrationStartTime;
 
   private FirFilter firFilter;
-
   private SGFilter sgFilter;
 
   private BeatListener beatListener;
-
   private IFibriListener fibriListener = new FibriListener();
-
   private SensorListener sensorListener;
 
   private State previousState = State.DETECTING_FINGER;
-
   private ArrayList<MeasurementRaw> measurementRawList = new ArrayList<>();
-
   private MeasurementData measurementData;
 
   private Event event = Event.INIT;
@@ -105,27 +91,21 @@ public abstract class FibriChecker implements CameraListener {
   private int attempts = 0;
 
   private boolean skippedPulseDetection = false;
-
   private boolean skippedFingerDetection = false;
-
   private boolean skippedMovementDetection = false;
 
   protected String cameraResolution;
 
   int hardwareLevel;
 
-  int currentIso = 0;
-
-  long currentExposureTime = 0;
+  protected CameraSettings cameraSettings = new CameraSettings();
 
   Context context;
-
   ViewGroup viewGroup;
 
   State state = State.DETECTING_FINGER;
 
   FibriChecker(ViewGroup viewGroup, Context context, FibriBuilder builder) {
-
     this.viewGroup = viewGroup;
     this.context = context;
     exportBuilderData(builder);
@@ -133,7 +113,6 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   private void init() {
-
     // Values calculated in MathLab to get a LP/HP/BP/Notch-filter
     firFilter =
       new FirFilter(new double[] { 1.0, 0.0, 0.0, 0.0 }, new double[] { 1.0, 1.0, 1.0, 1.0 });
@@ -149,13 +128,11 @@ public abstract class FibriChecker implements CameraListener {
     beatListener.setBeatEventListener(new OnBeatEventListener() {
 
       @Override public void onFingerDetected() {
-
         event = Event.FINGER_DETECTED;
         fibriListener.onFingerDetected();
       }
 
       @Override public void onFingerRemoved(double y, double v, double stdDevY) {
-
         if (fingerDetectionExpiryTime != 0) {
           event = Event.FINGER_REMOVED;
           fibriListener.onFingerRemoved(y, v, stdDevY);
@@ -163,57 +140,37 @@ public abstract class FibriChecker implements CameraListener {
       }
 
       @Override public void onPulseDetected() {
-
         event = Event.PULSE_DETECTED;
         fibriListener.onPulseDetected();
       }
 
       @Override public void onHeartBeat(int value) {
-
         fibriListener.onHeartBeat(value);
       }
     });
   }
 
   private void exportBuilderData(FibriBuilder builder) {
-
     this.quadrantRows = builder.quadrantRows;
-
     this.quadrantCols = builder.quadrantCols;
-
     this.sampleTime = builder.sampleTime;
-
     this.previousTime = builder.sampleTime;
-
     this.flashEnabled = builder.flashEnabled;
-
     this.gyroEnabled = builder.gyroEnabled;
-
     this.accEnabled = builder.accEnabled;
-
     this.gravEnabled = builder.gravEnabled;
-
     this.rotationEnabled = builder.rotationEnabled;
-
     this.movementDetectionEnabled = builder.movementDetectionEnabled;
-
     this.upperMovementLimit = builder.upperMovementLimit;
-
     this.lowerMovementLimit = builder.lowerMovementLimit;
-
     this.waitForStartRecordingSignal = builder.waitForStartRecordingSignal;
-
     this.pulseDetectionExpiryTime = builder.pulseDetectionExpiryTime;
-
     this.fingerDetectionExpiryTime = builder.fingerDetectionExpiryTime;
-
     this.minYValue = builder.minYValue;
-
     this.maxYValue = builder.maxYValue;
-
     this.maxStdDevYValue = builder.maxStdDevYValue;
-
     this.minVValue = builder.minVValue;
+    this.cameraSettings = builder.manualCameraSettings;
 
     if (builder.fibriListener != null) {
       this.fibriListener = builder.fibriListener;
@@ -245,25 +202,37 @@ public abstract class FibriChecker implements CameraListener {
 
   abstract void closeCamera();
 
-  abstract void lockExposure();
+  protected abstract void applyCameraSettings();
 
-  abstract void unlockExposure();
+  void lockSettings() {
+    this.cameraSettings.setCameraSettingsState(CameraSettingsState.Recording);
+    applyCameraSettings();
+  }
+
+  void unlockSettings() {
+    this.cameraSettings.setCameraSettingsState(CameraSettingsState.Calibrating);
+    applyCameraSettings();
+  }
+
+  public abstract CameraSettingsInfo getCameraInfo();
+  public void setCameraSettings(CameraSettingsInput settings) {
+    this.cameraSettings.set(settings);
+    applyCameraSettings();
+  }
 
   public void setFibriListener(IFibriListener listener) {
-
     fibriListener = listener;
   }
 
-  protected void startMeasurement() {
-
+  protected void startMeasurement(long startTimestamp) {
     measurementData = new MeasurementData();
-    measurementStartTime = SystemClock.uptimeMillis();
+    measurementStartTime = startTimestamp;
     measurementData.measurementTimestamp = System.currentTimeMillis();
     attempts++;
   }
 
   @Override public void onCameraDestroyed() {
-
+    Log.d(TAG, "closing camera reason: camera destroyed");
     closeCamera();
     reset();
     destroyListeners();
@@ -281,14 +250,13 @@ public abstract class FibriChecker implements CameraListener {
         }
 
         if (previousState != State.DETECTING_FINGER) {
-          unlockExposure();
+          unlockSettings();
           reset();
           fingerDetectionStartTime = SystemClock.uptimeMillis();
           previousState = State.DETECTING_FINGER;
         }
 
         checkFingerDetectionTimer();
-
         processData(yuvData);
         break;
       case DETECTING_PULSE:
@@ -320,7 +288,7 @@ public abstract class FibriChecker implements CameraListener {
 
         if (previousState != State.CALIBRATING) {
           calibrationStartTime = SystemClock.uptimeMillis();
-          lockExposure();
+          lockSettings();
           previousState = State.CALIBRATING;
         }
 
@@ -351,24 +319,23 @@ public abstract class FibriChecker implements CameraListener {
         }
 
         if (previousState != State.RECORDING) {
-          fibriListener.onMeasurementStart();
-          startMeasurement();
+          fibriListener.onMeasurementStart(timestamp);
+          startMeasurement(timestamp);
           previousState = State.RECORDING;
         }
-
         checkForMeasurementCompletion();
         checkForMovements();
-        dataPoint = processData(yuvData);
 
         measurementRawList.add(
           new MeasurementRaw(quadrantData, motionData, updateTimer(timestamp)));
+        dataPoint = processData(yuvData);
         fibriListener.onSampleReady(dataPoint, yuvData[0]);
 
         break;
       case FINISHED:
         if (previousState != State.FINISHED) {
           finishMeasurement();
-          fibriListener.onMeasurementFinished();
+          fibriListener.onMeasurementFinished(timestamp);
           previousState = State.FINISHED;
         }
 
@@ -450,7 +417,6 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   private void checkPulseDetectionTimer() {
-
     if (pulseDetectionExpiryTime > 0 && (SystemClock.uptimeMillis() - pulseDetectionStartTime) > pulseDetectionExpiryTime) {
       skippedPulseDetection = true;
       event = Event.PULSE_DETECTION_TIME_EXPIRED;
@@ -459,7 +425,6 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   private void checkFingerDetectionTimer() {
-
     if (fingerDetectionExpiryTime > 0 && (SystemClock.uptimeMillis() - fingerDetectionStartTime) > fingerDetectionExpiryTime) {
       skippedFingerDetection = true;
       event = Event.FINGER_DETECTION_TIME_EXPIRED;
@@ -468,18 +433,20 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   private void checkForMeasurementCompletion() {
+    if (measurementData == null) {
+      return;
+    }
 
-    if (measurementData != null) {
-      if (SystemClock.uptimeMillis() - measurementStartTime > sampleTime * 1000) {
-        event = Event.TIMER_ABOVE_SAMPLE_TIME;
-      }
+    final long measurementDelta = SystemClock.uptimeMillis() - measurementStartTime;
+    if (measurementDelta >= sampleTime * 1000L) {
+      event = Event.TIMER_ABOVE_SAMPLE_TIME;
     }
   }
 
   protected void reset() {
-
     calibrationReadyDispatched = false;
     measurementRawList = new ArrayList<>();
+    cameraSettings.clear();
     beatListener.reset();
   }
 
@@ -499,8 +466,8 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   protected void clearResources() {
-
     reset();
+    Log.d(TAG, "closing camera reason: clearing resources");
     closeCamera();
     destroyListeners();
   }
@@ -522,12 +489,12 @@ public abstract class FibriChecker implements CameraListener {
       this.measurementData = measurementData;
       this.measurementRawList = measurementRawList;
       if (state == State.FINISHED) {
+        Log.d(TAG, "closing camera reason: finished");
         closeCamera();
       }
     }
 
     @Override protected MeasurementData doInBackground(String... params) {
-
       Collections.sort(measurementRawList);
       for (MeasurementRaw m : measurementRawList) {
         updateMeasurement(m.quadrantData, m.motionData, m.timestamp);
@@ -540,12 +507,9 @@ public abstract class FibriChecker implements CameraListener {
       if (cameraResolution != null) {
         measurementData.technical_details.put("camera_resolution", cameraResolution);
       }
-      if (currentIso != 0) {
-        measurementData.technical_details.put("camera_iso", currentIso);
-      }
-      if (currentExposureTime != 0) {
-        measurementData.technical_details.put("camera_exposure_time", currentExposureTime);
-      }
+
+      measurementData.cameraSettings = cameraSettings.toOutput();
+      cameraSettings.addTo(measurementData.technical_details);
 
       measurementData.attempts = attempts;
       measurementData.skippedPulseDetection = skippedPulseDetection;
@@ -561,7 +525,6 @@ public abstract class FibriChecker implements CameraListener {
     }
 
     private String getStringFromHardwareLevel(int hardwareLevel) {
-
       switch (hardwareLevel) {
         case -1:
           return "camera1";
@@ -606,46 +569,33 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   public static class FibriBuilder {
-
     private final ViewGroup viewGroup;
-
     private final Context context;
 
     private boolean flashEnabled = true;
-
     private boolean gyroEnabled = false;
-
     private boolean accEnabled = false;
-
     private boolean gravEnabled = false;
-
     private boolean rotationEnabled = false;
-
     private boolean movementDetectionEnabled = true;
 
     private FibriListener fibriListener;
 
     protected int quadrantRows = 4;
-
     protected int quadrantCols = 4;
 
     private int sampleTime = 60;
-
     private int pulseDetectionExpiryTime = 10000;
-
     private int upperMovementLimit = 12;
-
     private int lowerMovementLimit = 8;
-
     private int fingerDetectionExpiryTime = -1;
 
     private int minYValue = 20;
-
     private int maxYValue = 160;
-  
     private int minVValue = 135;
-  
-    private int maxStdDevYValue = 42;  
+    private int maxStdDevYValue = 42;
+
+    private CameraSettings manualCameraSettings = new CameraSettings();
 
     private boolean waitForStartRecordingSignal = false;
 
@@ -775,8 +725,12 @@ public abstract class FibriChecker implements CameraListener {
       return this;
     }
 
-    public FibriChecker build() throws IllegalStateException {
+    public FibriBuilder cameraSettings(CameraSettings cameraSettings) {
+      this.manualCameraSettings = cameraSettings;
+      return this;
+    }
 
+    public FibriChecker build() throws IllegalStateException {
       return (android.os.Build.VERSION.SDK_INT >= 22) ? new FibriCheckerImpl2(viewGroup, context, this)
         : new FibriCheckerImpl1(viewGroup, context, this);
     }

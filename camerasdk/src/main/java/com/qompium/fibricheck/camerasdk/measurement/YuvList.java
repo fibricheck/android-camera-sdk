@@ -29,9 +29,9 @@ public class YuvList implements Serializable {
   public void addYUV (Yuv yuv) {
 
     try {
-      this.y.add(yuv.y);
-      this.u.add(yuv.u);
-      this.v.add(yuv.v);
+      this.y.add(yuv.getY());
+      this.u.add(yuv.getU());
+      this.v.add(yuv.getV());
     } catch (NullPointerException e) {
       Log.e("YUVList", "NPE while adding YUV");
       e.printStackTrace();

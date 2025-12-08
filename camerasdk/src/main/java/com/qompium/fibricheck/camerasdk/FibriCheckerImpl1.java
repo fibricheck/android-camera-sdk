@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.Application.ActivityLifecycleCallbacks;
 import android.content.Context;
+import android.hardware.camera2.CameraCharacteristics;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Range;
 import android.view.View;
 import android.view.ViewGroup;
 import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
+import com.qompium.fibricheck.camerasdk.models.CameraSettingMode;
+import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo;
 
 public class FibriCheckerImpl1 extends FibriChecker {
 
@@ -36,7 +40,7 @@ public class FibriCheckerImpl1 extends FibriChecker {
       }
 
       @Override public void onActivityPaused (Activity activity) {
-
+        Log.d(TAG, "closing camera reason: activity paused");
         closeCamera();
       }
 
@@ -82,14 +86,9 @@ public class FibriCheckerImpl1 extends FibriChecker {
     handleStates(quadrant, yuvData, getMotionData(), timeStamp);
   }
 
-  @Override public void lockExposure () {
-
-    camera1SurfaceView.setExposureLock(true);
-  }
-
-  @Override public void unlockExposure () {
-
-    camera1SurfaceView.setExposureLock(false);
+  @Override
+  protected void applyCameraSettings() {
+    camera1SurfaceView.setExposureLock(cameraSettings.getExposureMode() == CameraSettingMode.Locked);
   }
 
   @Override public void closeCamera () {
@@ -99,5 +98,13 @@ public class FibriCheckerImpl1 extends FibriChecker {
     } catch (NullPointerException e) {
       Log.e(TAG, e.toString());
     }
+  }
+
+
+  @Override
+  public CameraSettingsInfo getCameraInfo() {
+    return new CameraSettingsInfo(
+        2
+    );
   }
 }
