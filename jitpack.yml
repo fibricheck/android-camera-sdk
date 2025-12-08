@@ -1,2 +1,6 @@
 jdk:
-  - openjdk11
+  - openjdk17
+
+# Only build the camera sdk when using jitpack, skip example apps
+install:
+  - ./gradlew :camerasdk:build :camerasdk:publishToMavenLocal -x lint -x lintVitalRelease
