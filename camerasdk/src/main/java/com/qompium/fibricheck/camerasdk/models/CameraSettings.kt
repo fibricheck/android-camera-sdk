@@ -136,11 +136,11 @@ public class CameraSettings(
       else -> "auto"
     }
 
-    val whiteBalanceOutput = WhiteBalanceLog(
-      whiteBalanceLog.map { it.r },
-      whiteBalanceLog.map { it.g },
-      whiteBalanceLog.map { it.b }
-    )
+    val whiteBalanceR = whiteBalanceLog.map { it.r }
+    val whiteBalanceG = whiteBalanceLog.map { it.g }
+    val whiteBalanceB = whiteBalanceLog.map { it.b }
+    val isWhiteBalanceEmpty = whiteBalanceR.isEmpty() && whiteBalanceG.isEmpty() && whiteBalanceB.isEmpty()
+    val whiteBalanceOutput = if (isWhiteBalanceEmpty) null else WhiteBalanceLog(whiteBalanceR, whiteBalanceG, whiteBalanceB)
 
     return MeasurementCameraSettings(
       if (exposureMode != CameraSettingMode.Locked) exposureMode.name.lowercase() else null,
