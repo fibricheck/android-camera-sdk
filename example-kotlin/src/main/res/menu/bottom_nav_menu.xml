@@ -7,4 +7,8 @@
     <item
         android:id="@+id/navigation_camera"
         android:title="@string/title_camera_test" />
+
+    <item
+        android:id="@+id/navigation_label"
+        android:title="@string/title_label_info" />
 </menu>

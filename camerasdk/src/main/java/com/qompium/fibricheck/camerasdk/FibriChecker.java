@@ -17,20 +17,22 @@ import com.qompium.fibricheck.camerasdk.listeners.SensorListener;
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementData;
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementRaw;
 import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
-import com.qompium.fibricheck.camerasdk.measurement.Vec3f;
 import com.qompium.fibricheck.camerasdk.models.CameraSettings;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInput;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsState;
+import com.qompium.fibricheck.camerasdk.utils.LabelInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Vector;
+import java.util.Map;
 
 import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ACC;
 import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GRAV;
 import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GYRO;
 import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ROTATION;
+
+import org.jetbrains.annotations.NotNull;
 
 public abstract class FibriChecker implements CameraListener {
   private static final int MOVING_WINDOW_SIZE = 7; //used for Savitzky Golay filter
@@ -110,6 +112,10 @@ public abstract class FibriChecker implements CameraListener {
     this.context = context;
     exportBuilderData(builder);
     init();
+  }
+
+  public static @NotNull Map<String, String> getLabel() {
+    return LabelInfo.Companion.getLabel();
   }
 
   private void init() {

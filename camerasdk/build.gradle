@@ -1,15 +1,24 @@
+import groovy.json.JsonSlurper
+
 plugins {
     id 'com.android.library'
     id 'maven-publish'
     id 'org.jetbrains.kotlin.android'
 }
 
+// Read version and release date from sdk-release.json
+def sdkRelease = new JsonSlurper().parse(file("${rootDir}/sdk-release.json"))
+
 group 'com.qompium.fibricheck'
-version '1.0.2' // x-release-please-version
+version sdkRelease.version
 
 android {
     namespace 'com.qompium.fibricheck.camerasdk'
     compileSdk 35
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         minSdk 19
@@ -20,6 +29,9 @@ android {
         aarMetadata {
             minCompileSdk = 19
         }
+
+        buildConfigField "String", "RELEASE_DATE", "\"${sdkRelease.releaseDate}\""
+        buildConfigField "String", "SDK_VERSION", "\"${project.version}\""
     }
 
     buildTypes {
@@ -68,4 +80,3 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.13.2'
     implementation 'androidx.core:core-ktx:1.13.1'
 }
-

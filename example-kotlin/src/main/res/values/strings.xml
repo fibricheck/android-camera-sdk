@@ -10,4 +10,5 @@
     <string name="hello_first_fragment">Measurement</string>
     <string name="title_tester">Tester</string>
     <string name="title_camera_test">Camera Test</string>
+    <string name="title_label_info">Label Info</string>
 </resources>
