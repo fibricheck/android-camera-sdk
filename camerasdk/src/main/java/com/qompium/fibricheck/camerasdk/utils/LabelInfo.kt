@@ -4,7 +4,6 @@ import com.qompium.fibricheck.camerasdk.BuildConfig
 
 class LabelInfo {
   companion object {
-    private const val UDI_NUMBER = "0044" // Increment this
     private const val UDI_PREFIX = "(01)05419980589323(8012)" // Always the same
     private const val UDI_PRODUCT = "CAMAND" // Always the same
     private const val CE_LABEL = "CE 1639"
@@ -26,7 +25,7 @@ class LabelInfo {
 
     private fun buildUdi(version: String): String {
       val versionCode = version.split('.').map { it.padStart(2, '0')}.joinToString("")
-      return "${UDI_PREFIX}${UDI_NUMBER}${UDI_PRODUCT}$versionCode"
+      return "${UDI_PREFIX}${UDI_PRODUCT}$versionCode"
     }
   }
 }
