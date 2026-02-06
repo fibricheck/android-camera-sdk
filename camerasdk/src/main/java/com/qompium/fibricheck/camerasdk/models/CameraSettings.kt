@@ -23,6 +23,8 @@ open class CameraSettingsInput(
   var focusMode: CameraSettingMode = CameraSettingMode.Auto,
   var manualFocusValue: Float = 0f,
 
+  var rawDataEnabled: Boolean = false,
+
   var logWhiteBalance: Boolean = false,
   var logExposure: Boolean = false,
   var logFocus: Boolean = false
@@ -44,6 +46,8 @@ public class CameraSettings(
   focusMode: CameraSettingMode = CameraSettingMode.Auto,
   var autoFocusValue: Float = 0f,
   manualFocusValue: Float = 0f,
+
+  rawDataEnabled: Boolean = false,
 
   logWhiteBalance: Boolean = false,
   logExposure: Boolean = false,
@@ -84,6 +88,7 @@ public class CameraSettings(
     this.logWhiteBalance = settings.logWhiteBalance
     this.logExposure = settings.logExposure
     this.logFocus = settings.logFocus
+    this.rawDataEnabled = settings.rawDataEnabled
   }
 
   fun addTo(map: MutableMap<String, Any>) {

@@ -11,6 +11,7 @@ import com.google.android.material.slider.Slider.OnChangeListener
 import com.qompium.fibricheck.camerasdk.FibriChecker
 import com.qompium.fibricheck.camerasdk.FibriChecker.FibriBuilder
 import com.qompium.fibricheck.camerasdk.listeners.FibriListener
+import com.qompium.fibricheck.camerasdk.listeners.RawDataListener
 import com.qompium.fibricheck.camerasdk.measurement.Vec3f
 import com.qompium.fibricheck.camerasdk.models.CameraSettingMode
 import com.qompium.fibricheck.camerasdk.models.CameraSettings
@@ -49,11 +50,21 @@ class FragmentCameraTester : Fragment() {
                     fibrichecker.start()
                 }
             })
+            .rawDataListener(object: RawDataListener {
+                override fun onNewData(
+                    data: ByteArray,
+                    metadata: Map<String, String>
+                ) {
+                    println("Received raw image of ${data.size} bytes")
+                    onNewMetadata(metadata)
+                }
+            })
             .build()
         
         fibrichecker.sampleTime = 20
         fibrichecker.fingerDetectionExpiryTime = 10000
         fibrichecker.pulseDetectionExpiryTime = 10000
+        cameraSettings.rawDataEnabled = true
         fibrichecker.setCameraSettings(cameraSettings)
         cameraInfo = fibrichecker.cameraInfo
 

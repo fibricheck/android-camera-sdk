@@ -30,14 +30,18 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import com.qompium.fibricheck.camerasdk.extensions.ImageKt;
+import com.qompium.fibricheck.camerasdk.extensions.TotalCaptureResultKt;
 import com.qompium.fibricheck.camerasdk.listeners.EmptyActivityLifecycleCallbacks;
 import com.qompium.fibricheck.camerasdk.listeners.EmptySurfaceTextureListener;
+import com.qompium.fibricheck.camerasdk.listeners.RawDataListener;
 import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
 import com.qompium.fibricheck.camerasdk.measurement.QuadrantColor;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -77,6 +81,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
   private final ImageReader.OnImageAvailableListener mOnImageAvailableListener;
   private CaptureRequest.Builder mCaptureRequest;
   private ImageReader mImageReader;
+  private Map<String, String> mLastCameraData;
 
   private final CameraCaptureSession.CaptureCallback mCaptureCallback;
 
@@ -463,6 +468,10 @@ public class FibriCheckerImpl2 extends FibriChecker {
     }
   }
 
+  public void setRawDataListener(RawDataListener listener) {
+    super.rawDataListener = listener;
+  }
+
   private Application.ActivityLifecycleCallbacks createLifecycleListener() {
     return new EmptyActivityLifecycleCallbacks() {
       @Override public void onActivityPaused (@NonNull Activity activity) {
@@ -512,6 +521,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
       Image img = reader.acquireLatestImage();
       long sampleTimestamp = SystemClock.uptimeMillis();
 
+      notifyRawDataIfEnabled(img, sampleTimestamp);
       QuadrantColor quadrantColor = calculateAverageYUV(img);
       if (quadrantColor != null) {
         onFrameReceived(quadrantColor.quadrant, quadrantColor.yuvData, sampleTimestamp);
@@ -519,11 +529,26 @@ public class FibriCheckerImpl2 extends FibriChecker {
     };
   }
 
+  private void notifyRawDataIfEnabled(Image image, long sampleTimestamp) {
+    if (!cameraSettings.getRawDataEnabled() || rawDataListener == null || image == null || mLastCameraData == null) {
+      return;
+    }
+
+    byte[] rawImageData = ImageKt.toByteArray(image);
+    mLastCameraData.put("image.width", String.valueOf(image.getWidth()));
+    mLastCameraData.put("image.height", String.valueOf(image.getHeight()));
+    mLastCameraData.put("image.cropRect", TotalCaptureResultKt.toCustomString(image.getCropRect()));
+    mLastCameraData.put("measurement.sampleTimestamp", String.valueOf(sampleTimestamp));
+
+    rawDataListener.onNewData(rawImageData, mLastCameraData);
+  }
+
   private CameraCaptureSession.CaptureCallback createCaptureCallback() {
     return new CameraCaptureSession.CaptureCallback() {
       @Override
       public void onCaptureCompleted (@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
         updateCameraValues(result);
+        mLastCameraData = TotalCaptureResultKt.toMap(result);
       }
     };
   }

@@ -13,6 +13,7 @@ import com.qompium.fibricheck.camerasdk.listeners.CameraListener;
 import com.qompium.fibricheck.camerasdk.listeners.FibriListener;
 import com.qompium.fibricheck.camerasdk.listeners.IFibriListener;
 import com.qompium.fibricheck.camerasdk.listeners.OnBeatEventListener;
+import com.qompium.fibricheck.camerasdk.listeners.RawDataListener;
 import com.qompium.fibricheck.camerasdk.listeners.SensorListener;
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementData;
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementRaw;
@@ -84,6 +85,7 @@ public abstract class FibriChecker implements CameraListener {
   private BeatListener beatListener;
   private IFibriListener fibriListener = new FibriListener();
   private SensorListener sensorListener;
+  protected RawDataListener rawDataListener = null;
 
   private State previousState = State.ON_HOLD;
   private ArrayList<MeasurementRaw> measurementRawList = new ArrayList<>();
@@ -187,6 +189,7 @@ public abstract class FibriChecker implements CameraListener {
     } else {
       this.fibriListener = new FibriListener();
     }
+    this.rawDataListener = builder.rawDataListener;
 
     this.skippedMovementDetection = !builder.movementDetectionEnabled;
   }
@@ -599,6 +602,7 @@ public abstract class FibriChecker implements CameraListener {
     private boolean movementDetectionEnabled = true;
 
     private FibriListener fibriListener;
+    private RawDataListener rawDataListener = null;
 
     protected int quadrantRows = 4;
     protected int quadrantCols = 4;
@@ -741,6 +745,11 @@ public abstract class FibriChecker implements CameraListener {
     public FibriBuilder fibriListener(FibriListener fibriListener) {
 
       this.fibriListener = fibriListener;
+      return this;
+    }
+
+    public FibriBuilder rawDataListener(RawDataListener rawDataListener) {
+      this.rawDataListener = rawDataListener;
       return this;
     }
 
