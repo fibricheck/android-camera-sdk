@@ -20,5 +20,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      # Build SDK (includes tests) and verify example app compiles
       - name: Build and test
-        run: ./gradlew clean build
+        run: ./gradlew clean :camerasdk:build :example-kotlin:assembleDebug
