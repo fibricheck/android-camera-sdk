@@ -1,0 +1,53 @@
+name: Publish
+
+on:
+  workflow_call:
+    inputs:
+      type:
+        description: "Release type (prod, dev, snapshot)"
+        required: true
+        type: string
+      dry_run:
+        description: "Run without making changes"
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      token:
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # gradlew build also includes tests, so we don't need to run them separately
+      - name: Build and test
+        run: ./gradlew clean build
+
+      - name: Create release
+        id: sdk-release
+        uses: fibricheck/actions-general/sdk-release@v3
+        with:
+          token: ${{ secrets.token }}
+          type: ${{ inputs.type }}
+          dry_run: ${{ inputs.dry_run }}
+
+      - name: Request build from JitPack
+        if: ${{ !inputs.dry_run }}
+        run: |
+          VERSION="${{ steps.sdk-release.outputs.tag }}"
+          VERSION="${VERSION#v}"
+          JITPACK_URL="https://jitpack.io/com/github/fibricheck/android-camera-sdk/${VERSION}/"
+          curl -s -m 30 ${JITPACK_URL} || true

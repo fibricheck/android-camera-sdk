@@ -1,4 +1,4 @@
-name: Release
+name: Snapshot Release
 
 on:
   workflow_dispatch:
@@ -7,10 +7,6 @@ on:
         description: "Run without making changes"
         type: boolean
         default: false
-  push:
-    branches:
-      - main
-      - master
 
 permissions:
   contents: write
@@ -19,7 +15,7 @@ jobs:
   publish:
     uses: ./.github/workflows/publish.yml
     with:
-      type: prod
+      type: snapshot
       dry_run: ${{ inputs.dry_run || false }}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}

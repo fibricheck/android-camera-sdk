@@ -79,4 +79,12 @@ publishing {
 dependencies {
     implementation 'com.google.code.gson:gson:2.13.2'
     implementation 'androidx.core:core-ktx:1.13.1'
+
+    testImplementation 'junit:junit:4.13.2'
+}
+
+tasks.withType(Test) {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
