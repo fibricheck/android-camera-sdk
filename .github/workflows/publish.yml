@@ -32,9 +32,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # gradlew build also includes tests, so we don't need to run them separately
+      # build command includes tests
+      # assemble kotlin app for verification
       - name: Build and test
-        run: ./gradlew clean build
+        run: ./gradlew clean :camerasdk:build :example-kotlin:assembleDebug
 
       - name: Create release
         id: sdk-release
