@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".FirstFragment">
+
+    <!-- Current Step Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_current_step"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#E6F4F1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:paddingEnd="48dp">
+
+                <TextView
+                    android:id="@+id/text_current_step_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Step 1 of 11"
+                    android:textSize="14sp"
+                    android:textColor="#1E8D95" />
+
+                <TextView
+                    android:id="@+id/text_current_step_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Start Measurement"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="#0F676D" />
+
+                <TextView
+                    android:id="@+id/text_current_step_instruction"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Tap the START button to begin"
+                    android:textSize="16sp"
+                    android:textColor="#424242" />
+
+                <!-- Status Message (inside card) -->
+                <TextView
+                    android:id="@+id/text_status_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:padding="8dp"
+                    android:background="#E6F4F1"
+                    android:textColor="#0F676D"
+                    android:textSize="14sp"
+                    android:visibility="gone" />
+
+                <!-- Debug: Last Event -->
+                <TextView
+                    android:id="@+id/text_debug_event"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:padding="6dp"
+                    android:background="#F5F5F5"
+                    android:textColor="#616161"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:text="Last event: -" />
+
+            </LinearLayout>
+
+            <!-- Restart Icon Button -->
+            <ImageButton
+                android:id="@+id/button_restart"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Restart sequence"
+                android:src="@android:drawable/ic_menu_rotate"
+                app:tint="#1E8D95"
+                android:padding="8dp" />
+
+        </FrameLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Action Button -->
+    <Button
+        android:id="@+id/button_proceed"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="12dp"
+        android:text="START"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/card_current_step"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Steps List Header -->
+    <TextView
+        android:id="@+id/text_steps_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Test Sequence"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#616161"
+        app:layout_constraintTop_toBottomOf="@id/button_proceed"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Steps List ScrollView -->
+    <ScrollView
+        android:id="@+id/scroll_steps"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/text_steps_header"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/layout_steps_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </ScrollView>
+
+    <!-- Hidden TextViews for backward compatibility -->
+    <TextView
+        android:id="@+id/textview_first"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView_overview2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textView_overview"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

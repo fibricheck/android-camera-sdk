@@ -14,5 +14,6 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Fibricheck Example"
 include ':example'
+include ':test-sequence'
 include ':camerasdk'
 include ':example-kotlin'

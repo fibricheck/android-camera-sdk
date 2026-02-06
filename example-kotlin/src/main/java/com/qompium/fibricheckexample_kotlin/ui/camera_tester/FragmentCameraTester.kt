@@ -50,7 +50,7 @@ class FragmentCameraTester : Fragment() {
                 }
             })
             .build()
-
+        
         fibrichecker.sampleTime = 20
         fibrichecker.fingerDetectionExpiryTime = 10000
         fibrichecker.pulseDetectionExpiryTime = 10000

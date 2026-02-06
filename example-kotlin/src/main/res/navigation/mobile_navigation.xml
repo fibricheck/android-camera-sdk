@@ -16,4 +16,11 @@
         android:name="com.qompium.fibricheckexample_kotlin.ui.camera_tester.FragmentCameraTester"
         android:label="@string/title_camera_test"
         tools:layout="@layout/fragment_camera_tester" />
+
+    <fragment android:id="@+id/navigation_label"
+        android:name="com.qompium.fibricheckexample_kotlin.ui.LabelInfoFragment"
+        android:label="@string/title_label_info"
+        tools:layout="@layout/fragment_label_info" />
+
+        />
 </navigation>
