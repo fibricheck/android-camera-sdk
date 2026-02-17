@@ -14,10 +14,12 @@ public class TestSequenceManager {
     public static final int STEP_HEARTBEAT = 6;
     public static final int STEP_PULSE = 7;
     public static final int STEP_CALIBRATION = 8;
-    public static final int STEP_RECORDING_START = 9;
-    public static final int STEP_RECORDING = 10;
-    public static final int STEP_RECORDING_FINISHED = 11;
-    public static final int STEP_PROCESSING = 12;
+    public static final int STEP_FINGER_REMOVED = 9;
+    public static final int STEP_MOVEMENT_DETECTED = 10;
+    public static final int STEP_RECORDING_START = 11;
+    public static final int STEP_RECORDING = 12;
+    public static final int STEP_RECORDING_FINISHED = 13;
+    public static final int STEP_PROCESSING = 14;
 
     public interface TestSequenceListener {
         void onStepChanged(int currentStepIndex, TestStep currentStep);
@@ -68,6 +70,14 @@ public class TestSequenceManager {
         steps.add(new TestStep(STEP_CALIBRATION, "Calibration",
                 "Calibrating camera settings...",
                 "onCalibrationReady"));
+
+        steps.add(new TestStep(STEP_FINGER_REMOVED, "Test Finger Removed",
+                "Briefly lift your finger off the camera",
+                "onFingerRemoved"));
+
+        steps.add(new TestStep(STEP_MOVEMENT_DETECTED, "Test Movement Detection",
+                "While keeping your finger on the camera, shake the phone gently",
+                "onMovementDetected"));
 
         steps.add(new TestStep(STEP_RECORDING_START, "Recording Started",
                 "Recording has begun!",

@@ -26,13 +26,11 @@ repositories {
 
 The dependency can then be added:
 
-<!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'com.qompium.fibricheck:camerasdk:1.0.2'
+    implementation 'com.qompium.fibricheck:camerasdk:x.y.z'
 }
 ```
-<!-- x-release-please-end -->
 
 ### Add the dependency using JitPack
 [JitPack](https://jitpack.io) is a package repository for Git and allows to add dependencies without having to authenticate (as with the GitHub package registry):
@@ -47,13 +45,11 @@ allprojects {
 ```
 
 Add the dependency in the following way:
-<!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-        implementation 'com.github.fibricheck:android-camera-sdk:v1.0.2'
+        implementation 'com.github.fibricheck:android-camera-sdk:x.y.z'
 }
 ```
-<!-- x-release-please-end -->
 
 ### In your code
 Once the dependency is correctly added, the SDK is available in your code.
@@ -61,6 +57,36 @@ Once the dependency is correctly added, the SDK is available in your code.
 ```java
 import com.qompium.fibricheck.camerasdk.*;
 ```
+
+## Running Tests
+
+```bash
+# All tests (SDK + test sequence)
+./gradlew test
+
+# SDK tests only
+./gradlew :camerasdk:test
+
+# Test sequence tests only
+./gradlew :test-sequence:test
+```
+
+## Generate changelog
+
+This project uses [git-cliff](https://git-cliff.org/) to generate changelogs following the [Keep a Changelog](https://keepachangelog.com/) format.
+
+```bash
+# Update CHANGELOG.md
+git-cliff --output CHANGELOG.md
+
+# Preview unreleased changes
+git-cliff --unreleased
+```
+
+## Releasing a new version
+To release a new version, follow the [git convention](https://www.conventionalcommits.org/en/v1.0.0/#summary) guidelines.
+When a new PR to the `main` branch is merged, it will trigger the release process.
+Development releases will be build on PR merged to the `dev` branch
 
 ## License
 This SDK is proprietary. See `LICENCE` for more information.
