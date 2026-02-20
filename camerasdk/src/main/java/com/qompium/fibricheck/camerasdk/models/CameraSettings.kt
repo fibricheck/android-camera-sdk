@@ -1,9 +1,10 @@
 package com.qompium.fibricheck.camerasdk.models
 
-import android.graphics.Camera
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.RggbChannelVector
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import com.qompium.fibricheck.camerasdk.extensions.toRgb
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementCameraSettings
@@ -163,6 +164,96 @@ public class CameraSettings(
     focusLog.clear()
     exposureTimeLog.clear()
     isoLog.clear()
+  }
+
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+  fun apply(request: CaptureRequest.Builder, advancedImplementation: Boolean) {
+    applyExposure(request, advancedImplementation)
+    applyWhiteBalance(request)
+    applyFocus(request)
+  }
+
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+  private fun applyExposure(request: CaptureRequest.Builder, advancedImplementation: Boolean) {
+    if (isAutoExposure) {
+      request.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
+      request.set(
+        CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
+        CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START
+      )
+      request.set(CaptureRequest.SENSOR_SENSITIVITY, null)
+      request.set(CaptureRequest.SENSOR_EXPOSURE_TIME, null)
+      Log.d("CameraSettings", "Exposure Auto")
+      return
+    }
+
+    request.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF)
+    if (!advancedImplementation) {
+      request.set(CaptureRequest.CONTROL_AE_LOCK, true)
+      return
+    }
+
+    Log.d(
+      "CameraSettings",
+      "Exposure Locked ISO: $iso, Time: $exposureTime"
+    )
+
+    request.set(CaptureRequest.SENSOR_SENSITIVITY, iso)
+    request.set(CaptureRequest.SENSOR_EXPOSURE_TIME, exposureTime)
+    request.set(
+      CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
+      CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE
+    )
+  }
+
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+  private fun applyWhiteBalance(request: CaptureRequest.Builder) {
+    if (isAutoWhiteBalance) {
+      request.set(
+        CaptureRequest.CONTROL_AWB_MODE,
+        CaptureRequest.CONTROL_AWB_MODE_AUTO
+      )
+      request.set(
+        CaptureRequest.COLOR_CORRECTION_MODE,
+        CaptureRequest.COLOR_CORRECTION_MODE_HIGH_QUALITY
+      )
+      request.set(CaptureRequest.COLOR_CORRECTION_GAINS, null)
+      Log.d("CameraSettings", "White Balance Auto")
+      return
+    }
+
+    Log.d("CameraSettings", "White Balance Locked: $whiteBalance")
+    request.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_OFF)
+    request.set(
+      CaptureRequest.COLOR_CORRECTION_MODE,
+      CaptureRequest.COLOR_CORRECTION_MODE_TRANSFORM_MATRIX
+    )
+    request.set(
+      CaptureRequest.COLOR_CORRECTION_GAINS,
+      whiteBalanceRggb
+    )
+  }
+
+  @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+  private fun applyFocus(request: CaptureRequest.Builder) {
+    if (isAutoFocus) {
+      request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+      request.set(CaptureRequest.LENS_FOCUS_DISTANCE, null)
+      request.set(
+        CaptureRequest.CONTROL_AF_TRIGGER,
+        CaptureRequest.CONTROL_AF_TRIGGER_START
+      )
+      Log.d("CameraSettings", "Focus Auto")
+      return
+    }
+
+    request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
+    request.set(CaptureRequest.LENS_FOCUS_DISTANCE, focus)
+    request.set(
+      CaptureRequest.CONTROL_AF_TRIGGER,
+      CaptureRequest.CONTROL_AF_TRIGGER_IDLE
+    )
+    Log.d("CameraSettings", "Focus Locked $focus")
   }
 
   val isAutoExposure

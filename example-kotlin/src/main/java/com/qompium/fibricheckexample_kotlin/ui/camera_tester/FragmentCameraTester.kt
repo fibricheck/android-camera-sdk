@@ -1,12 +1,10 @@
 package com.qompium.fibricheckexample_kotlin.ui.camera_tester
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.google.android.material.slider.Slider
 import com.google.android.material.slider.Slider.OnChangeListener
 import com.qompium.fibricheck.camerasdk.FibriChecker
 import com.qompium.fibricheck.camerasdk.FibriChecker.FibriBuilder
@@ -16,23 +14,22 @@ import com.qompium.fibricheck.camerasdk.measurement.Vec3f
 import com.qompium.fibricheck.camerasdk.models.CameraSettingMode
 import com.qompium.fibricheck.camerasdk.models.CameraSettings
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo
-import com.qompium.fibricheck.camerasdk.models.CameraSettingsState
 import com.qompium.fibricheck.camerasdk.models.WhiteBalanceMode
 import com.qompium.fibricheckexample_kotlin.databinding.FragmentCameraTesterBinding
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
+
 
 class FragmentCameraTester : Fragment() {
 
     private var _binding: FragmentCameraTesterBinding? = null
     private lateinit var fibrichecker: FibriChecker
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
     private var lastData: Map<String, String>? = null
     private var cameraSettings: CameraSettings = CameraSettings()
     private lateinit var cameraInfo: CameraSettingsInfo
+    private var measurementCount = 0;
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,10 +41,26 @@ class FragmentCameraTester : Fragment() {
 
         fibrichecker = FibriBuilder(requireActivity(), binding.cameraFinder)
             .fibriListener(object: FibriListener() {
+                override fun onSampleReady(ppg: Double, raw: Double) {
+                    // println("PPG: $ppg")
+                }
+
+                override fun onMeasurementStart(timestamp: Long) {
+                    println("onMeasurementStart")
+                    root.keepScreenOn = true
+                }
+
                 override fun onMeasurementFinished(timestamp: Long) {
+                    println("onMeasurementFinished")
                     // To loop the camera
-                    fibrichecker.stop()
+                    root.keepScreenOn = false
+                    println("Finished Measurements: ${++this@FragmentCameraTester.measurementCount}")
                     fibrichecker.start()
+                }
+
+                override fun onMeasurementError(message: String?) {
+                    println("onMeasurementError")
+                    root.keepScreenOn = false
                 }
             })
             .rawDataListener(object: RawDataListener {
@@ -55,15 +68,15 @@ class FragmentCameraTester : Fragment() {
                     data: ByteArray,
                     metadata: Map<String, String>
                 ) {
-                    println("Received raw image of ${data.size} bytes")
+                    // println("Received raw image of ${data.size} bytes")
                     onNewMetadata(metadata)
                 }
             })
             .build()
         
         fibrichecker.sampleTime = 20
-        fibrichecker.fingerDetectionExpiryTime = 10000
-        fibrichecker.pulseDetectionExpiryTime = 10000
+        fibrichecker.fingerDetectionExpiryTime = 5000
+        fibrichecker.pulseDetectionExpiryTime = 0
         cameraSettings.rawDataEnabled = true
         fibrichecker.setCameraSettings(cameraSettings)
         cameraInfo = fibrichecker.cameraInfo
@@ -74,9 +87,20 @@ class FragmentCameraTester : Fragment() {
     }
 
     private fun initUi() {
+        initControls()
         initWhiteBalance()
         initFocus()
         initExposure()
+    }
+
+    private fun initControls() {
+        binding.buttonRecord.setOnClickListener {
+            fibrichecker.start()
+        }
+
+        binding.buttonPreview.setOnClickListener {
+            fibrichecker.preview()
+        }
     }
 
     private fun initWhiteBalance() {
@@ -232,7 +256,7 @@ class FragmentCameraTester : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fibrichecker.start()
+        fibrichecker.preview()
     }
 
     override fun onDestroyView() {
@@ -242,13 +266,13 @@ class FragmentCameraTester : Fragment() {
     }
 
     private fun onNewMetadata(metadata: Map<String, String>) {
-        println()
-        println("Metadata:")
-        metadata.forEach { (key, value) ->
-            if (lastData?.get(key) != value) {
-                println("\t$key: $value")
-            }
-        }
+//        println()
+//        println("Metadata:")
+//        metadata.forEach { (key, value) ->
+//            if (lastData?.get(key) != value) {
+//                println("\t$key: $value")
+//            }
+//        }
 
         lastData = metadata
     }

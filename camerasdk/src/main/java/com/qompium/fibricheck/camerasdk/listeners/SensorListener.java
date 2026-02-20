@@ -7,6 +7,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
+
 import java.util.Arrays;
 
 public class SensorListener implements SensorEventListener {
@@ -51,12 +53,16 @@ public class SensorListener implements SensorEventListener {
   }
 
   public void destroyListener () {
-
     if (mSensorManager != null) {
       mSensorManager.unregisterListener(this);
     }
-    if (mHandlerThread != null && mHandlerThread.isAlive()) {
-      mHandlerThread.quit();
+    try {
+      if (mHandlerThread != null && mHandlerThread.isAlive()) {
+        mHandlerThread.quit();
+        mHandlerThread.join();
+      }
+    } catch (InterruptedException e) {
+      Log.w("SensorListener", e);
     }
   }
 

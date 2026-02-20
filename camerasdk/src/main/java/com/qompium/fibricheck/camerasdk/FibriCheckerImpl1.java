@@ -53,8 +53,7 @@ public class FibriCheckerImpl1 extends FibriChecker {
       }
 
       @Override public void onActivityDestroyed (Activity activity) {
-
-        clearResources();
+        destroy();
       }
     });
   }
