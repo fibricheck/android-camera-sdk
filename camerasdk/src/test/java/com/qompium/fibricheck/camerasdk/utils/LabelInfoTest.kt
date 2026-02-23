@@ -100,7 +100,7 @@ class LabelInfoTest {
     @Test
     fun `ifu URL is correct`() {
         val label = LabelInfo.getLabel()
-        assertEquals("https://pages.fibricheck.com/ifu", label["ifu"])
+        assertEquals("https://pages.fibricheck.com/document-versions/", label["ifu"])
     }
 
     @Test

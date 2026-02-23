@@ -8,7 +8,7 @@ class LabelInfo {
     private const val UDI_PRODUCT = "CAMAND" // Always the same
     private const val CE_LABEL = "CE 1639"
     private const val MANUFACTURER = "Qompium NV - Kempische Steenweg 303/27 - 3500 Hasselt - Belgium"
-    private const val IFU_URL = "https://pages.fibricheck.com/ifu"
+    private const val IFU_URL = "https://pages.fibricheck.com/document-versions/"
 
     fun getLabel(): Map<String, String> {
       val version = BuildConfig.SDK_VERSION
