@@ -163,7 +163,11 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                         return;
                     }
 
-                    testSequenceManager.onEvent("onFingerRemoved");
+                    if (step == TestSequenceManager.STEP_FINGER_REMOVED) {
+                        testSequenceManager.onEvent("onFingerRemoved");
+                        setStatusMessage("Finger removed detected - place finger back", StatusType.SUCCESS);
+                        return;
+                    }
 
                     if (step >= TestSequenceManager.STEP_PLACE_FINGER && step <= TestSequenceManager.STEP_RECORDING) {
                         setStatusMessage("Finger removed - place finger back", StatusType.WARNING);
@@ -294,6 +298,13 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                         Log.d(TAG, "Ignoring movement on step " + step + " (post-recording)");
                         return;
                     }
+
+                    if (step == TestSequenceManager.STEP_MOVEMENT_DETECTED) {
+                        testSequenceManager.onEvent("onMovementDetected");
+                        setStatusMessage("Movement detected - test passed!", StatusType.SUCCESS);
+                        return;
+                    }
+
                     stopAndFail("Movement detected - hold steady");
                 });
             }

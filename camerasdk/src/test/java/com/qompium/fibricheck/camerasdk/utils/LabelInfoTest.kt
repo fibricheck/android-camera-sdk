@@ -1,6 +1,7 @@
 package com.qompium.fibricheck.camerasdk.utils
 
 import com.qompium.fibricheck.camerasdk.BuildConfig
+import com.qompium.fibricheck.camerasdk.FibriChecker
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -31,6 +32,13 @@ class LabelInfoTest {
         assertTrue(
             "componentName should start with 'FibriCheck Camera SDK Android'",
             componentName.startsWith("FibriCheck Camera SDK Android")
+        )
+
+        // Version should be in format X.Y.Z
+        val version = componentName.removePrefix("FibriCheck Camera SDK Android ")
+        assertTrue(
+            "componentName should contain version in X.Y.Z format",
+            version.matches(Regex("\\d+\\.\\d+\\.\\d+"))
         )
     }
 
@@ -92,6 +100,18 @@ class LabelInfoTest {
     @Test
     fun `ifu URL is correct`() {
         val label = LabelInfo.getLabel()
-        assertEquals("https://pages.fibricheck.com/ifu", label["ifu"])
+        assertEquals("https://pages.fibricheck.com/document-versions/", label["ifu"])
+    }
+
+    @Test
+    fun `FibriChecker getLabel delegates to LabelInfo`() {
+        val labelFromLabelInfo = LabelInfo.getLabel()
+        val labelFromFibriChecker = FibriChecker.getLabel()
+
+        assertEquals(
+            "FibriChecker.getLabel() should return same result as LabelInfo.getLabel()",
+            labelFromLabelInfo,
+            labelFromFibriChecker
+        )
     }
 }
