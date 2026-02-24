@@ -263,6 +263,9 @@ public abstract class FibriChecker implements CameraListener {
 
         break;
       case DETECTING_FINGER:
+        unlockSettings();
+        reset();
+
         if (fingerDetectionExpiryTime == 0 || event == Event.FINGER_DETECTED
             || event == Event.FINGER_DETECTION_TIME_EXPIRED) {
           state = State.DETECTING_PULSE;
@@ -270,8 +273,6 @@ public abstract class FibriChecker implements CameraListener {
         }
 
         if (previousState != State.DETECTING_FINGER) {
-          unlockSettings();
-          reset();
           fingerDetectionStartTime = SystemClock.uptimeMillis();
           previousState = State.DETECTING_FINGER;
         }
