@@ -117,7 +117,12 @@ public class FibriCheckerImpl2 extends FibriChecker {
     }
 
     stopThreads();
-    ((Application)context.getApplicationContext()).unregisterActivityLifecycleCallbacks(mActivityCallback);
+    if (context != null) {
+      Application app = (Application) context.getApplicationContext();
+      if (app != null) {
+        app.unregisterActivityLifecycleCallbacks(mActivityCallback);
+      }
+    }
   }
 
   @Override public void start () {
