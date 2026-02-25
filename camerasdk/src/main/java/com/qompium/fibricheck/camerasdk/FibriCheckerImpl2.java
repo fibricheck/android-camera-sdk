@@ -357,7 +357,9 @@ public class FibriCheckerImpl2 extends FibriChecker {
       @Override
       public void onCaptureCompleted (@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
         updateCameraValues(result);
-        mLastCameraData = TotalCaptureResultKt.toMap(result);
+        if (cameraSettings.getRawDataEnabled()) {
+          mLastCameraData = TotalCaptureResultKt.toMap(result);
+        }
       }
     };
   }
