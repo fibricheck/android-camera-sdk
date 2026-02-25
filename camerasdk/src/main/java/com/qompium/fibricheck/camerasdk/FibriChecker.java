@@ -258,6 +258,7 @@ public abstract class FibriChecker implements CameraListener {
     switch (state) {
       case PREVIEW:
         if (previousState != State.PREVIEW) {
+          Log.e(TAG, "Entering Preview State");
           previousState = State.PREVIEW;
         }
 
@@ -273,6 +274,7 @@ public abstract class FibriChecker implements CameraListener {
         }
 
         if (previousState != State.DETECTING_FINGER) {
+          Log.e(TAG, "Entering Detecting Finger State");
           fingerDetectionStartTime = SystemClock.uptimeMillis();
           previousState = State.DETECTING_FINGER;
         }
@@ -292,6 +294,7 @@ public abstract class FibriChecker implements CameraListener {
         }
 
         if (previousState != State.DETECTING_PULSE) {
+          Log.e(TAG, "Entering Detecting Pulse State");
           pulseDetectionStartTime = SystemClock.uptimeMillis();
           previousState = State.DETECTING_PULSE;
         }
@@ -309,6 +312,7 @@ public abstract class FibriChecker implements CameraListener {
         }
 
         if (previousState != State.CALIBRATING) {
+          Log.e(TAG, "Entering Calibration State");
           calibrationStartTime = SystemClock.uptimeMillis();
           lockSettings();
           previousState = State.CALIBRATING;
@@ -320,6 +324,7 @@ public abstract class FibriChecker implements CameraListener {
         // Wait while the exposure lock is setting
         if ((SystemClock.uptimeMillis() - calibrationStartTime > CALIBRATION_DELAY)
             && !calibrationReadyDispatched) {
+          Log.e(TAG, "Firing Calibration Ready");
           fibriListener.onCalibrationReady();
           calibrationReadyDispatched = true;
         }
@@ -341,6 +346,7 @@ public abstract class FibriChecker implements CameraListener {
         }
 
         if (previousState != State.RECORDING) {
+          Log.e(TAG, "Entering Recording State");
           fibriListener.onMeasurementStart(timestamp);
           startMeasurement(timestamp);
           previousState = State.RECORDING;
@@ -356,6 +362,7 @@ public abstract class FibriChecker implements CameraListener {
         break;
       case FINISHED:
         if (previousState != State.FINISHED) {
+          Log.e(TAG, "Entering Finished State");
           finishMeasurement();
           fibriListener.onMeasurementFinished(timestamp);
           previousState = State.FINISHED;
