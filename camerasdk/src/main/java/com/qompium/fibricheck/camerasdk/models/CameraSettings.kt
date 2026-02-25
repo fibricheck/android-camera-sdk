@@ -57,7 +57,7 @@ public class CameraSettings(
   exposureMode, manualIsoValue, manualExposureTime,
   whiteBalanceMode, manualWhiteBalanceRgb, manualWhiteBalanceKelvin,
   focusMode, manualFocusValue,
-  logWhiteBalance, logExposure, logFocus
+  rawDataEnabled, logWhiteBalance, logExposure, logFocus
 ) {
   val iso get() = if (exposureMode == CameraSettingMode.Manual) manualIsoValue else autoIsoValue
   val exposureTime get() = if (exposureMode == CameraSettingMode.Manual) manualExposureTime else autoExposureTime
@@ -102,7 +102,7 @@ public class CameraSettings(
   @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
   fun onSettingsChanged(settings: CaptureResult) {
       val focusDistance = settings.get(CaptureResult.LENS_FOCUS_DISTANCE)
-      val whiteBalance= settings.get(CaptureResult.COLOR_CORRECTION_GAINS)?.toRgb()
+      val whiteBalance = settings.get(CaptureResult.COLOR_CORRECTION_GAINS)?.toRgb()
       val iso = settings.get(CaptureResult.SENSOR_SENSITIVITY)
       val exposureTime = settings.get(CaptureResult.SENSOR_EXPOSURE_TIME)
 

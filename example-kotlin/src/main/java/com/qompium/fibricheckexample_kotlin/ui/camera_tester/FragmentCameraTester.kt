@@ -77,7 +77,7 @@ class FragmentCameraTester : Fragment() {
         fibrichecker.sampleTime = 20
         fibrichecker.fingerDetectionExpiryTime = 5000
         fibrichecker.pulseDetectionExpiryTime = 0
-        cameraSettings.rawDataEnabled = true
+        cameraSettings.rawDataEnabled = false
         fibrichecker.setCameraSettings(cameraSettings)
         cameraInfo = fibrichecker.cameraInfo
 

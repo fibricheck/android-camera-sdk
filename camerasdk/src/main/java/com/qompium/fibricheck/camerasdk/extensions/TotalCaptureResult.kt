@@ -70,14 +70,14 @@ val KeyParsers = mapOf<String, (Any) -> String >(
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 fun TotalCaptureResult.toMap (): Map<String, String> {
-  return keys.filter {
+  return keys.asSequence().filter {
     !DenyList.contains(it.name) && it.name.startsWith("android")
   }.map {
     it to get(it)
   }.filter {
     it.second != null
-  }.map {
+  }.associate {
     val valueParser = KeyParsers[it.first.name] ?: { data: Any -> data.toString() }
     it.first.name to valueParser(it.second!!)
-  }.toMap()
+  }
 }

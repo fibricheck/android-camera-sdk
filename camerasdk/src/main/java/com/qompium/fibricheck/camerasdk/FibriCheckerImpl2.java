@@ -108,6 +108,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
 
   @Override
   public void destroy() {
+    stopThreads();
     super.destroy();
 
     if (null != mImageReader) {
@@ -116,7 +117,6 @@ public class FibriCheckerImpl2 extends FibriChecker {
       mImageReader = null;
     }
 
-    stopThreads();
     if (context != null) {
       Application app = (Application) context.getApplicationContext();
       if (app != null) {
