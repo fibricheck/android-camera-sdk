@@ -68,6 +68,7 @@ class FragmentCameraTester : Fragment() {
                 override fun onMeasurementProcessed(measurementData: MeasurementData?) {
                     binding.statusText.text = "Measurement Processed"
                     fibrichecker.stop()
+                    fibrichecker.record()
                 }
 
                 override fun onPreviewStarted() {

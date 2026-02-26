@@ -53,8 +53,7 @@ public class FibriCheckerImpl1 extends FibriChecker {
       }
 
       @Override public void onActivityDestroyed (Activity activity) {
-
-        clearResources();
+        destroy();
       }
     });
   }
@@ -67,6 +66,12 @@ public class FibriCheckerImpl1 extends FibriChecker {
     } catch (RuntimeException e) {
       Log.e(TAG, e.toString());
     }
+  }
+
+  @Override
+  public void stop() {
+    closeCamera();
+    state = State.INITIAL;
   }
 
   public void activateCamera () {
@@ -91,7 +96,7 @@ public class FibriCheckerImpl1 extends FibriChecker {
     camera1SurfaceView.setExposureLock(cameraSettings.getExposureMode() == CameraSettingMode.Locked);
   }
 
-  @Override public void closeCamera () {
+  public void closeCamera () {
 
     try {
       camera1SurfaceView.destroyCamera();

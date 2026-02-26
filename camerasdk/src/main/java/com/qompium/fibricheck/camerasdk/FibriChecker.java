@@ -214,21 +214,13 @@ public abstract class FibriChecker implements CameraListener {
     this.event = Event.START_RECORDING;
   }
 
-  public void stop() {
-    if (state == State.RECORDING) {
-      state = State.FINISHED;
-    } else {
-      state = State.INITIAL;
-    }
-  }
+  abstract public void stop();
 
   public void destroy() {
-    clearResources();
+    reset();
+    destroyListeners();
+    state = State.INITIAL;
   }
-
-  abstract void activateCamera();
-
-  abstract void closeCamera();
 
   protected abstract void applyCameraSettings();
 
@@ -263,9 +255,8 @@ public abstract class FibriChecker implements CameraListener {
   @Override
   public void onCameraDestroyed() {
     Log.d(TAG, "closing camera reason: camera destroyed");
-    closeCamera();
     reset();
-    destroyListeners();
+    destroy();
   }
 
   protected void handleStates(final Quadrant quadrantData, final double[] yuvData,
@@ -533,13 +524,6 @@ public abstract class FibriChecker implements CameraListener {
     data.skippedMovementDetection = !movementDetectionEnabled;
 
     fibriListener.onMeasurementProcessed(data);
-  }
-
-  protected void clearResources() {
-    reset();
-    Log.d(TAG, "closing camera reason: clearing resources");
-    closeCamera();
-    destroyListeners();
   }
 
   public void setFibriListener(FibriListener fibriListener) {
