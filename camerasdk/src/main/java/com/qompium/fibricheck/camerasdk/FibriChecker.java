@@ -2,7 +2,6 @@ package com.qompium.fibricheck.camerasdk;
 
 import android.content.Context;
 import android.hardware.Sensor;
-import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.view.ViewGroup;
 import android.util.Log;
@@ -22,16 +21,14 @@ import com.qompium.fibricheck.camerasdk.models.CameraSettings;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInput;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsState;
+import com.qompium.fibricheck.camerasdk.models.ProcessMeasurementWorker;
+import com.qompium.fibricheck.camerasdk.utils.CameraUtils;
 import com.qompium.fibricheck.camerasdk.utils.LabelInfo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
 
 import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ACC;
-import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GRAV;
-import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GYRO;
-import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ROTATION;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -87,7 +84,7 @@ public abstract class FibriChecker implements CameraListener {
   private SensorListener sensorListener;
   protected RawDataListener rawDataListener = null;
 
-  private State previousState = State.ON_HOLD;
+  private State previousState = State.INITIAL;
   private ArrayList<MeasurementRaw> measurementRawList = new ArrayList<>();
   private MeasurementData measurementData;
 
@@ -108,7 +105,9 @@ public abstract class FibriChecker implements CameraListener {
   Context context;
   ViewGroup viewGroup;
 
-  State state = State.DETECTING_FINGER;
+  State state = State.INITIAL;
+
+  private ProcessMeasurementWorker mMeasurementWorker = new ProcessMeasurementWorker();
 
   FibriChecker(ViewGroup viewGroup, Context context, FibriBuilder builder) {
     this.viewGroup = viewGroup;
@@ -194,7 +193,19 @@ public abstract class FibriChecker implements CameraListener {
     this.skippedMovementDetection = !builder.movementDetectionEnabled;
   }
 
-  public abstract void start();
+  public void record() {
+    stop();
+    state = State.DETECTING_FINGER;
+    start();
+  }
+
+  protected abstract void start();
+
+  public void preview() {
+    stop();
+    state = State.PREVIEW;
+    start();
+  }
 
   public void startRecording() {
     if (!calibrationReadyDispatched) {
@@ -207,8 +218,12 @@ public abstract class FibriChecker implements CameraListener {
     if (state == State.RECORDING) {
       state = State.FINISHED;
     } else {
-      clearResources();
+      state = State.INITIAL;
     }
+  }
+
+  public void destroy() {
+    clearResources();
   }
 
   abstract void activateCamera();
@@ -259,17 +274,17 @@ public abstract class FibriChecker implements CameraListener {
 
     switch (state) {
       case DETECTING_FINGER:
-        if (fingerDetectionExpiryTime == 0 || event == Event.FINGER_DETECTED
-            || event == Event.FINGER_DETECTION_TIME_EXPIRED) {
-          state = State.DETECTING_PULSE;
-          break;
-        }
-
         if (previousState != State.DETECTING_FINGER) {
           unlockSettings();
           reset();
           fingerDetectionStartTime = SystemClock.uptimeMillis();
           previousState = State.DETECTING_FINGER;
+        }
+
+        if (fingerDetectionExpiryTime == 0 || event == Event.FINGER_DETECTED
+            || event == Event.FINGER_DETECTION_TIME_EXPIRED) {
+          state = State.DETECTING_PULSE;
+          break;
         }
 
         checkFingerDetectionTimer();
@@ -357,9 +372,10 @@ public abstract class FibriChecker implements CameraListener {
         }
 
         break;
-      case ON_HOLD:
-        if (previousState != State.ON_HOLD) {
-          previousState = State.ON_HOLD;
+      case PREVIEW:
+        if (previousState != State.PREVIEW) {
+          fibriListener.onPreviewStarted();
+          previousState = State.PREVIEW;
         }
 
         break;
@@ -481,7 +497,42 @@ public abstract class FibriChecker implements CameraListener {
 
   private void finishMeasurement() {
     destroyListeners();
-    new ProcessRawMeasurementTask(measurementData, measurementRawList).execute();
+
+    mMeasurementWorker.execute(
+        measurementData,
+        measurementRawList,
+        gyroEnabled,
+        accEnabled,
+        rotationEnabled,
+        gravEnabled,
+        processedMeasurement -> {
+          onMeasurementProcessed(processedMeasurement);
+          return null;
+        },
+        () -> {
+          fibriListener.onMeasurementError("Cancelled");
+          return null;
+        }
+    );
+  }
+
+  private void onMeasurementProcessed(MeasurementData data) {
+    data.heartrate = beatListener.getHeartRate();
+    data.technical_details.put("camera_hardware_level", CameraUtils.Companion.getStringFromHardwareLevel(hardwareLevel));
+
+    if (cameraResolution != null) {
+      data.technical_details.put("camera_resolution", cameraResolution);
+    }
+
+    data.cameraSettings = cameraSettings.toOutput();
+    cameraSettings.addTo(data.technical_details);
+
+    data.attempts = attempts;
+    data.skippedPulseDetection = skippedPulseDetection;
+    data.skippedFingerDetection = skippedFingerDetection;
+    data.skippedMovementDetection = !movementDetectionEnabled;
+
+    fibriListener.onMeasurementProcessed(data);
   }
 
   protected void clearResources() {
@@ -492,97 +543,11 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   public void setFibriListener(FibriListener fibriListener) {
-
     this.fibriListener = fibriListener;
   }
 
-  private class ProcessRawMeasurementTask extends AsyncTask<String, Void, MeasurementData> {
-
-    MeasurementData measurementData;
-
-    ArrayList<MeasurementRaw> measurementRawList;
-
-    public ProcessRawMeasurementTask(MeasurementData measurementData,
-        ArrayList<MeasurementRaw> measurementRawList) {
-
-      this.measurementData = measurementData;
-      this.measurementRawList = measurementRawList;
-      if (state == State.FINISHED) {
-        Log.d(TAG, "closing camera reason: finished");
-        closeCamera();
-      }
-    }
-
-    @Override
-    protected MeasurementData doInBackground(String... params) {
-      Collections.sort(measurementRawList);
-      for (MeasurementRaw m : measurementRawList) {
-        updateMeasurement(m.quadrantData, m.motionData, m.timestamp);
-      }
-
-      measurementData.heartrate = beatListener.getHeartRate();
-      measurementData.technical_details.put("camera_hardware_level",
-          getStringFromHardwareLevel(hardwareLevel));
-
-      if (cameraResolution != null) {
-        measurementData.technical_details.put("camera_resolution", cameraResolution);
-      }
-
-      measurementData.cameraSettings = cameraSettings.toOutput();
-      cameraSettings.addTo(measurementData.technical_details);
-
-      measurementData.attempts = attempts;
-      measurementData.skippedPulseDetection = skippedPulseDetection;
-      measurementData.skippedFingerDetection = skippedFingerDetection;
-      measurementData.skippedMovementDetection = !movementDetectionEnabled;
-
-      return measurementData;
-    }
-
-    @Override
-    protected void onPostExecute(MeasurementData measurementdata) {
-
-      fibriListener.onMeasurementProcessed(measurementdata);
-    }
-
-    private String getStringFromHardwareLevel(int hardwareLevel) {
-      switch (hardwareLevel) {
-        case -1:
-          return "camera1";
-        case 0:
-          return "camera2 - limited";
-        case 1:
-          return "camera2 - full";
-        case 2:
-          return "camera2 - legacy";
-        case 3:
-          return "camera2 - level3";
-        default:
-          return "undetected";
-      }
-    }
-
-    private void updateMeasurement(Quadrant quadrant, float[][] motionData, int timestamp) {
-
-      measurementData.addQuadrant(quadrant);
-      if (gyroEnabled) {
-        measurementData.addGyro(motionData[SENSOR_LISTENER_DATA_GYRO]);
-      }
-      if (accEnabled) {
-        measurementData.addAcc(motionData[SENSOR_LISTENER_DATA_ACC]);
-      }
-      if (rotationEnabled) {
-        measurementData.addRotation(motionData[SENSOR_LISTENER_DATA_ROTATION]);
-      }
-      if (gravEnabled) {
-        measurementData.addGrav(motionData[SENSOR_LISTENER_DATA_GRAV]);
-      }
-      measurementData.time.add(timestamp);
-    }
-  }
-
   protected enum State {
-    ON_HOLD, DETECTING_FINGER, DETECTING_PULSE, CALIBRATING, RECORDING, FINISHED,
+    INITIAL, PREVIEW, DETECTING_FINGER, DETECTING_PULSE, CALIBRATING, RECORDING, FINISHED,
   }
 
   private enum Event {

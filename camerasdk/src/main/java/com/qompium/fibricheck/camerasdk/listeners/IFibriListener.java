@@ -31,4 +31,6 @@ public interface IFibriListener {
   void onSampleReady (double ppg, double raw);
 
   void onCalibrationReady ();
+
+  void onPreviewStarted();
 }

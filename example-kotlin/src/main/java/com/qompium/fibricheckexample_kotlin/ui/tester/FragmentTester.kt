@@ -188,9 +188,10 @@ class FragmentTester : Fragment() {
             CameraSettingMode.Locked, 0, 0,
             WhiteBalanceMode.Auto, Vec3f(), 6504,
             CameraSettingMode.Auto, 0f,
-            true,
-            true,
-            true
+            false,
+            false,
+            false,
+            false
         ))
 
         fibriChecker.setFibriListener(object : FibriListener() {
@@ -256,7 +257,7 @@ class FragmentTester : Fragment() {
 
     private fun startMeasurement() {
         addLog("START MEASUREMENT BUTTON-PRESS")
-        fibriChecker.start()
+        fibriChecker.record()
         Log.i(TAG, "Start FibriCheck Measurement")
     }
 

@@ -56,6 +56,7 @@ public class CameraSettings(
   exposureMode, manualIsoValue, manualExposureTime,
   whiteBalanceMode, manualWhiteBalanceRgb, manualWhiteBalanceKelvin,
   focusMode, manualFocusValue,
+  rawDataEnabled,
   logWhiteBalance, logExposure, logFocus
 ) {
   val iso get() = if (exposureMode == CameraSettingMode.Manual) manualIsoValue else autoIsoValue

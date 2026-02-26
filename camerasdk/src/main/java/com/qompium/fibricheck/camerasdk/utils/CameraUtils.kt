@@ -1,6 +1,12 @@
 package com.qompium.fibricheck.camerasdk.utils
 
+import android.os.Build
+import android.util.Size
+import androidx.annotation.RequiresApi
 import com.qompium.fibricheck.camerasdk.measurement.Vec3f
+import kotlin.Float
+import kotlin.Int
+import kotlin.String
 import kotlin.math.ln
 import kotlin.math.pow
 
@@ -47,6 +53,22 @@ class CameraUtils {
       }
 
       return Vec3f((red / 255) * 2, (green / 255) * 2, (blue / 255) * 2)
+    }
+
+    fun getStringFromHardwareLevel(hardwareLevel: Int): String {
+      return when (hardwareLevel) {
+        -1 -> "camera1"
+        0 -> "camera2 - limited"
+        1 -> "camera2 - full"
+        2 -> "camera2 - legacy"
+        3 -> "camera2 - level3"
+        else -> "undetected"
+      }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun pickSmallest(choices: Array<Size>): Size {
+      return choices.minBy { it.width * it.height.toLong() }
     }
   }
 }

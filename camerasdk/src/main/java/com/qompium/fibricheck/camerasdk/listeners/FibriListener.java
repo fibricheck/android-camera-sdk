@@ -59,4 +59,9 @@ public class FibriListener implements IFibriListener {
   @Override public void onCalibrationReady () {
 
   }
+
+  @Override
+  public void onPreviewStarted() {
+
+  }
 }

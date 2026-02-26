@@ -12,6 +12,7 @@ import com.qompium.fibricheck.camerasdk.FibriChecker
 import com.qompium.fibricheck.camerasdk.FibriChecker.FibriBuilder
 import com.qompium.fibricheck.camerasdk.listeners.FibriListener
 import com.qompium.fibricheck.camerasdk.listeners.RawDataListener
+import com.qompium.fibricheck.camerasdk.measurement.MeasurementData
 import com.qompium.fibricheck.camerasdk.measurement.Vec3f
 import com.qompium.fibricheck.camerasdk.models.CameraSettingMode
 import com.qompium.fibricheck.camerasdk.models.CameraSettings
@@ -44,10 +45,33 @@ class FragmentCameraTester : Fragment() {
 
         fibrichecker = FibriBuilder(requireActivity(), binding.cameraFinder)
             .fibriListener(object: FibriListener() {
+                override fun onMeasurementStart(timestamp: Long) {
+                    binding.statusText.text = "Started"
+                }
+                override fun onFingerRemoved(y: Double, v: Double, stdDevY: Double) {
+                    binding.statusText.text = "Finger Removed"
+                }
+
+                override fun onCalibrationReady() {
+                    binding.statusText.text = "Calibrated"
+                }
+                override fun onFingerDetected() {
+                    binding.statusText.text = "Finger Detected"
+                }
+
                 override fun onMeasurementFinished(timestamp: Long) {
                     // To loop the camera
+                    binding.statusText.text = "Measurement Finished"
+                    // fibrichecker.stop()
+                }
+
+                override fun onMeasurementProcessed(measurementData: MeasurementData?) {
+                    binding.statusText.text = "Measurement Processed"
                     fibrichecker.stop()
-                    fibrichecker.start()
+                }
+
+                override fun onPreviewStarted() {
+                    binding.statusText.text = "Preview"
                 }
             })
             .rawDataListener(object: RawDataListener {
@@ -62,9 +86,9 @@ class FragmentCameraTester : Fragment() {
             .build()
         
         fibrichecker.sampleTime = 20
-        fibrichecker.fingerDetectionExpiryTime = 10000
-        fibrichecker.pulseDetectionExpiryTime = 10000
-        cameraSettings.rawDataEnabled = true
+        fibrichecker.fingerDetectionExpiryTime = 0
+        fibrichecker.pulseDetectionExpiryTime = 5000
+        cameraSettings.rawDataEnabled = false
         fibrichecker.setCameraSettings(cameraSettings)
         cameraInfo = fibrichecker.cameraInfo
 
@@ -74,9 +98,22 @@ class FragmentCameraTester : Fragment() {
     }
 
     private fun initUi() {
+        initButtons()
         initWhiteBalance()
         initFocus()
         initExposure()
+    }
+
+    private fun initButtons() {
+        binding.previewButton.setOnClickListener {
+            binding.root.keepScreenOn = true
+            fibrichecker.preview()
+        }
+
+        binding.startButton.setOnClickListener {
+            binding.root.keepScreenOn = true
+            fibrichecker.record()
+        }
     }
 
     private fun initWhiteBalance() {
@@ -232,7 +269,7 @@ class FragmentCameraTester : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fibrichecker.start()
+        // fibrichecker.start()
     }
 
     override fun onDestroyView() {

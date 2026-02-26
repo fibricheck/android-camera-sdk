@@ -354,7 +354,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         // Reinitialize and restart
         initMeasurement();
         showCameraPlaceholder(false);
-        fibriChecker.start();
+        fibriChecker.record();
 
         setProceedButtonState("STOP", true);
         buttonProceed.setOnClickListener(v -> stopMeasurement());
@@ -449,7 +449,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         initMeasurement();
 
         showCameraPlaceholder(false);
-        fibriChecker.start();
+        fibriChecker.record();
         setProceedButtonState("STOP", true);
         buttonProceed.setOnClickListener(v -> stopMeasurement());
 
@@ -602,7 +602,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
 
         initMeasurement();
         showCameraPlaceholder(false);
-        fibriChecker.start();
+        fibriChecker.record();
 
         setProceedButtonState("STOP", true);
         buttonProceed.setOnClickListener(v -> stopMeasurement());

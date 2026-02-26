@@ -59,7 +59,7 @@ public class FibriCheckerImpl1 extends FibriChecker {
     });
   }
 
-  @Override public void start () {
+  @Override protected void start () {
 
     try {
       activateCamera();
