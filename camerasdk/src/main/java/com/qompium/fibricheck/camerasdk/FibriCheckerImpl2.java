@@ -44,6 +44,7 @@ import com.qompium.fibricheck.camerasdk.utils.CameraUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Map;
@@ -121,10 +122,14 @@ public class FibriCheckerImpl2 extends FibriChecker {
             return;
           }
 
+          WeakReference<FibriCheckerImpl2> weakThis = new WeakReference<>(this);
           mTextureView.setSurfaceTextureListener(new EmptySurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(@NotNull SurfaceTexture surface, int width, int height) {
-              onTextureReady(surface);
+              FibriCheckerImpl2 impl2 = weakThis.get();
+              if (impl2 != null) {
+                impl2.onTextureReady(surface);
+              }
             }
           });
 	  } catch (InterruptedException e) {
@@ -178,25 +183,39 @@ public class FibriCheckerImpl2 extends FibriChecker {
     Log.d(TAG, "OnTextureReady");
     try {
       mCameraId = manager.getCameraIdList()[0];
+      WeakReference<FibriCheckerImpl2> weakThis = new WeakReference<>(this);
+
       manager.openCamera(mCameraId, new CameraStateCallback(
           camera -> {
             Log.d(TAG, "onCameraOpened");
-            onCameraOpened(camera);
+            FibriCheckerImpl2 impl2 = weakThis.get();
+            if (impl2 != null) {
+              impl2.onCameraOpened(camera);
+            }
             return null;
           },
           camera -> {
             Log.d(TAG, "onCameraClosed");
-            onCameraClosed(camera);
+            FibriCheckerImpl2 impl2 = weakThis.get();
+            if (impl2 != null) {
+              impl2.onCameraClosed(camera);
+            }
             return null;
           },
           (camera, error) -> {
             Log.d(TAG, "onCameraError");
-            onCameraStartError(new Exception("Camera error: " + error + ""));
+            FibriCheckerImpl2 impl2 = weakThis.get();
+            if (impl2 != null) {
+              impl2.onCameraStartError(new Exception("Camera error: " + error + ""));
+            }
             return null;
           },
           camera -> {
             Log.d(TAG, "onCameraDisconnect");
-            onCameraClosed(camera);
+            FibriCheckerImpl2 impl2 = weakThis.get();
+            if (impl2 != null) {
+              impl2.onCameraClosed(camera);
+            }
             return null;
           }
       ), mBackgroundHandler);
@@ -272,10 +291,6 @@ public class FibriCheckerImpl2 extends FibriChecker {
           yValue = yFullRow[yPixStride * j] & 0xFF;
           uValue = uFullRow[uvPixStride * halfW] & 0xFF;
           vValue = vFullRow[uvPixStride * halfW] & 0xFF;
-
-          yValue = yValue > 0 ? yValue : 0;
-          uValue = uValue > 0 ? uValue : 0;
-          vValue = vValue > 0 ? vValue : 0;
 
           quadrantDataArray[i / quadrantHeight][j / quadrantWidth][0] += yValue;
           quadrantDataArray[i / quadrantHeight][j / quadrantWidth][1] += uValue;
@@ -389,15 +404,22 @@ public class FibriCheckerImpl2 extends FibriChecker {
       mCaptureRequest.addTarget(dataSurface);
       mCaptureRequest.addTarget(previewSurface);
 
+      WeakReference<FibriCheckerImpl2> weakThis = new WeakReference<>(this);
       mCameraDevice.createCaptureSession(Arrays.asList(dataSurface, previewSurface), new CameraCaptureSession.StateCallback() {
         @Override public void onConfigured (@NonNull CameraCaptureSession cameraCaptureSession) {
-          implState = ImplState.Ready;
-          mPreviewSession = cameraCaptureSession;
-          applyCameraSettings();
+          FibriCheckerImpl2 impl2 = weakThis.get();
+          if (impl2 != null) {
+            impl2.implState = ImplState.Ready;
+            impl2.mPreviewSession = cameraCaptureSession;
+            impl2.applyCameraSettings();
+          }
         }
 
         @Override public void onConfigureFailed (@NonNull CameraCaptureSession cameraCaptureSession) {
-          onCameraStartError(new Exception("Camera session failed to configure"));
+          FibriCheckerImpl2 impl2 = weakThis.get();
+          if (impl2 != null) {
+            impl2.onCameraStartError(new Exception("Camera session failed to configure"));
+          }
         }
       }, null);
     } catch (SecurityException | IllegalStateException | CameraAccessException | NullPointerException e) {
@@ -516,12 +538,17 @@ public class FibriCheckerImpl2 extends FibriChecker {
 
   private void applyRequest() {
     try {
+      WeakReference<FibriCheckerImpl2> weakThis = new WeakReference<>(this);
+
       mPreviewSession.setRepeatingRequest(mCaptureRequest.build(), new CameraCaptureSession.CaptureCallback() {
         @Override
         public void onCaptureCompleted (@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-          updateCameraValues(result);
-          if (cameraSettings.getRawDataEnabled()) {
-            mLastCameraData = TotalCaptureResultKt.toMap(result);
+          FibriCheckerImpl2 impl2 = weakThis.get();
+          if (impl2 != null) {
+            impl2.updateCameraValues(result);
+            if (impl2.cameraSettings.getRawDataEnabled()) {
+              impl2.mLastCameraData = TotalCaptureResultKt.toMap(result);
+            }
           }
         }
         }, mRawDataHandler);
