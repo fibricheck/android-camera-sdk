@@ -10,9 +10,11 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
 import com.qompium.fibricheck.camerasdk.listeners.CameraListener;
 import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
 import com.qompium.fibricheck.camerasdk.measurement.QuadrantColor;
+
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
@@ -44,7 +46,7 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
 
   private double frameSize;
 
-  public Camera1SurfaceView (Context context, int quadrantRows, int quadrantCols, CameraListener cameraListener) {
+  public Camera1SurfaceView(Context context, int quadrantRows, int quadrantCols, CameraListener cameraListener) {
 
     super(context);
 
@@ -63,7 +65,8 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
     }
   }
 
-  @Override public void surfaceCreated (SurfaceHolder holder) {
+  @Override
+  public void surfaceCreated(SurfaceHolder holder) {
 
     synchronized (this) {
       Log.d(TAG, "surface created");
@@ -72,7 +75,8 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
     }
   }
 
-  @Override public void surfaceChanged (SurfaceHolder holder, int format, int width, int height) {
+  @Override
+  public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 
     Log.d(TAG, "Surface changed");
 
@@ -87,7 +91,7 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
     }
   }
 
-  private void initCamera () {
+  private void initCamera() {
 
     Log.d(TAG, "Camera init");
     params = mCamera.getParameters();
@@ -100,7 +104,7 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
     final List<Size> sizes = params.getSupportedPreviewSizes();
     Collections.sort(sizes, new Comparator<Size>() {
 
-      public int compare (Size o1, Size o2) {
+      public int compare(Size o1, Size o2) {
 
         return new Integer(o2.width).compareTo(o1.width);
       }
@@ -142,21 +146,22 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
     }
   }
 
-  @Override public void surfaceDestroyed (SurfaceHolder holder) {
+  @Override
+  public void surfaceDestroyed(SurfaceHolder holder) {
 
     Log.d(TAG, "Surface destroyed");
 
     cameraListener.onCameraDestroyed();
   }
 
-  public void openCamera () {
+  public void openCamera() {
 
     if (mCamera == null) {
       mCamera = Camera.open();
     }
   }
 
-  public void destroyCamera () {
+  public void destroyCamera() {
 
     setFlash(false);
 
@@ -173,7 +178,8 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
     }
   }
 
-  @Override public void onPreviewFrame (final byte[] data, Camera camera) {
+  @Override
+  public void onPreviewFrame(final byte[] data, Camera camera) {
 
     // Use uptimeMillis as timestamp because it's monotonic.
     long frameTimestamp = SystemClock.uptimeMillis();
@@ -183,7 +189,7 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
     cameraListener.onFrameReceived(quadrantColor.quadrant, quadrantColor.yuvData, frameTimestamp);
   }
 
-  private QuadrantColor calculateAverageYUV (byte[] yuv420sp) {
+  private QuadrantColor calculateAverageYUV(byte[] yuv420sp) {
 
     int ySum = 0, uSum = 0, vSum = 0;
     double yAvg = 0, uAvg = 0, vAvg = 0;
@@ -246,10 +252,10 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
       Log.e(TAG, e.toString());
     }
 
-    return new QuadrantColor(quadrant, new double[] { yAvg, uAvg, vAvg, stdDevY });
+    return new QuadrantColor(quadrant, new double[]{yAvg, uAvg, vAvg, stdDevY});
   }
 
-  public boolean setFlash (boolean bool) {
+  public boolean setFlash(boolean bool) {
 
     if (mCamera == null) {
       Log.e(TAG, "no camera fo flash..");
@@ -277,7 +283,7 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
     return false;
   }
 
-  public void setWhiteBalance () {
+  public void setWhiteBalance() {
 
     if (mCamera == null) {
       return;
@@ -287,12 +293,12 @@ public class Camera1SurfaceView extends SurfaceView implements SurfaceHolder.Cal
     params.setFocusMode(params.FOCUS_MODE_INFINITY);
   }
 
-  public void setUiCallBackListener (CameraListener cameraListener) {
+  public void setUiCallBackListener(CameraListener cameraListener) {
 
     this.cameraListener = cameraListener;
   }
 
-  public void setExposureLock (boolean state) {
+  public void setExposureLock(boolean state) {
 
     if (isAELocksupported) {
       Parameters params = mCamera.getParameters();

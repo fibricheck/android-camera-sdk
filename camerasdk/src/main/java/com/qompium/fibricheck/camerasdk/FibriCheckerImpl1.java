@@ -4,12 +4,11 @@ import android.app.Activity;
 import android.app.Application;
 import android.app.Application.ActivityLifecycleCallbacks;
 import android.content.Context;
-import android.hardware.camera2.CameraCharacteristics;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Range;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingMode;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo;
@@ -20,46 +19,54 @@ public class FibriCheckerImpl1 extends FibriChecker {
 
   private Camera1SurfaceView camera1SurfaceView;
 
-  public FibriCheckerImpl1 (ViewGroup viewGroup, Context context, FibriBuilder builder) {
+  public FibriCheckerImpl1(ViewGroup viewGroup, Context context, FibriBuilder builder) {
 
     super(viewGroup, context, builder);
     hardwareLevel = -1;
 
-    ((Application)context.getApplicationContext()).registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+    ((Application) context.getApplicationContext()).registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
 
-      @Override public void onActivityCreated (Activity activity, Bundle bundle) {
-
-      }
-
-      @Override public void onActivityStarted (Activity activity) {
+      @Override
+      public void onActivityCreated(Activity activity, Bundle bundle) {
 
       }
 
-      @Override public void onActivityResumed (Activity activity) {
+      @Override
+      public void onActivityStarted(Activity activity) {
 
       }
 
-      @Override public void onActivityPaused (Activity activity) {
+      @Override
+      public void onActivityResumed(Activity activity) {
+
+      }
+
+      @Override
+      public void onActivityPaused(Activity activity) {
         Log.d(TAG, "closing camera reason: activity paused");
         closeCamera();
       }
 
-      @Override public void onActivityStopped (Activity activity) {
+      @Override
+      public void onActivityStopped(Activity activity) {
 
       }
 
-      @Override public void onActivitySaveInstanceState (Activity activity, Bundle bundle) {
+      @Override
+      public void onActivitySaveInstanceState(Activity activity, Bundle bundle) {
 
       }
 
-      @Override public void onActivityDestroyed (Activity activity) {
+      @Override
+      public void onActivityDestroyed(Activity activity) {
 
         clearResources();
       }
     });
   }
 
-  @Override public void start () {
+  @Override
+  public void start() {
 
     try {
       activateCamera();
@@ -69,7 +76,7 @@ public class FibriCheckerImpl1 extends FibriChecker {
     }
   }
 
-  public void activateCamera () {
+  public void activateCamera() {
 
     camera1SurfaceView = new Camera1SurfaceView(context, quadrantRows, quadrantCols, this);
     camera1SurfaceView.setFlash(flashEnabled);
@@ -81,7 +88,8 @@ public class FibriCheckerImpl1 extends FibriChecker {
     }
   }
 
-  @Override public void onFrameReceived (final Quadrant quadrant, final double[] yuvData, long timeStamp) {
+  @Override
+  public void onFrameReceived(final Quadrant quadrant, final double[] yuvData, long timeStamp) {
 
     handleStates(quadrant, yuvData, getMotionData(), timeStamp);
   }
@@ -91,7 +99,8 @@ public class FibriCheckerImpl1 extends FibriChecker {
     camera1SurfaceView.setExposureLock(cameraSettings.getExposureMode() == CameraSettingMode.Locked);
   }
 
-  @Override public void closeCamera () {
+  @Override
+  public void closeCamera() {
 
     try {
       camera1SurfaceView.destroyCamera();

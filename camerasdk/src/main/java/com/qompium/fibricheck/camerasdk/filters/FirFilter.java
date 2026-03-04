@@ -23,7 +23,7 @@ public class FirFilter {
    * @param a Output-coefficients.
    * @param b Input-coefficients.
    */
-  public FirFilter (double[] a, double[] b) {
+  public FirFilter(double[] a, double[] b) {
 
     this.a = a;
     this.b = b;
@@ -48,7 +48,7 @@ public class FirFilter {
    * @param b          Input-coefficients.
    * @param nextFilter FirFilter object, output of this filter is connected to the input of nextFilter.
    */
-  public FirFilter (double[] a, double[] b, FirFilter nextFilter) {
+  public FirFilter(double[] a, double[] b, FirFilter nextFilter) {
 
     this.a = a;
     this.b = b;
@@ -70,10 +70,9 @@ public class FirFilter {
    * Calculates the filtered value based upon the new input value.
    *
    * @param inputValue The current input value.
-   *
    * @return The filtered value.
    */
-  public double calculateOutput (double inputValue) {
+  public double calculateOutput(double inputValue) {
 
     double result = 0f; //y(n) in Matlab.
 
@@ -102,7 +101,7 @@ public class FirFilter {
    *
    * @param x The value to be saved.
    */
-  private void pushX (double x) {
+  private void pushX(double x) {
 
     for (int i = xRegister.length - 1; i > 0; i--) {
       xRegister[i] = xRegister[i - 1];
@@ -115,7 +114,7 @@ public class FirFilter {
    *
    * @param y The value to be saved.
    */
-  private void pushY (double y) {
+  private void pushY(double y) {
 
     for (int i = yRegister.length - 1; i > 0; i--) {
       yRegister[i] = yRegister[i - 1];
@@ -125,27 +124,27 @@ public class FirFilter {
 
   // Getters and setters:
 
-  public void connectOutput (FirFilter nextFilter) {
+  public void connectOutput(FirFilter nextFilter) {
 
     this.nextFilter = nextFilter;
   }
 
-  public double[] getA () {
+  public double[] getA() {
 
     return a;
   }
 
-  public void setA (double[] a) {
+  public void setA(double[] a) {
 
     this.a = a;
   }
 
-  public double[] getB () {
+  public double[] getB() {
 
     return b;
   }
 
-  public void setB (double[] b) {
+  public void setB(double[] b) {
 
     this.b = b;
   }

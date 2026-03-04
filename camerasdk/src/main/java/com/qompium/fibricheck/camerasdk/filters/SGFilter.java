@@ -4,12 +4,12 @@ public class SGFilter {
 
   private double[] sgData;
 
-  public SGFilter (int bufferSize) {
+  public SGFilter(int bufferSize) {
 
     this.sgData = new double[bufferSize];
   }
 
-  public void pushData (double x) {
+  public void pushData(double x) {
 
     for (int i = sgData.length - 1; i > 0; i--) {
       sgData[i] = sgData[i - 1];
@@ -17,14 +17,14 @@ public class SGFilter {
     sgData[0] = x;
   }
 
-  public void fillSgData () {
+  public void fillSgData() {
 
     for (int i = 0; i < sgData.length; i++) {
       sgData[i] = 0.0;
     }
   }
 
-  public double applyFilter () {
+  public double applyFilter() {
 
     // Values calculated from http://www.statistics4u.com/fundstat_eng/cc_savgol_coeff.html
     switch (sgData.length) {

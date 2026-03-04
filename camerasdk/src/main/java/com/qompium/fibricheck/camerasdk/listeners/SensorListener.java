@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.HandlerThread;
+
 import java.util.Arrays;
 
 public class SensorListener implements SensorEventListener {
@@ -35,7 +36,7 @@ public class SensorListener implements SensorEventListener {
 
   private Handler handler;
 
-  public SensorListener (Context context) {
+  public SensorListener(Context context) {
 
     mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 
@@ -45,12 +46,12 @@ public class SensorListener implements SensorEventListener {
     this.handler = new Handler(mHandlerThread.getLooper());
   }
 
-  public void addListener (int sensorType) {
+  public void addListener(int sensorType) {
 
     mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(sensorType), SensorManager.SENSOR_DELAY_GAME, handler);
   }
 
-  public void destroyListener () {
+  public void destroyListener() {
 
     if (mSensorManager != null) {
       mSensorManager.unregisterListener(this);
@@ -60,7 +61,8 @@ public class SensorListener implements SensorEventListener {
     }
   }
 
-  @Override public void onSensorChanged (SensorEvent event) {
+  @Override
+  public void onSensorChanged(SensorEvent event) {
 
     Sensor sensor = event.sensor;
     if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -76,11 +78,12 @@ public class SensorListener implements SensorEventListener {
     }
   }
 
-  @Override public void onAccuracyChanged (Sensor sensor, int accuracy) {
+  @Override
+  public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
   }
 
-  public float[][] getData () {
+  public float[][] getData() {
 
     float[][] data = new float[4][3];
     data[SENSOR_LISTENER_DATA_GYRO] = Arrays.copyOf(gyroData, gyroData.length);
@@ -91,7 +94,7 @@ public class SensorListener implements SensorEventListener {
     return data;
   }
 
-  private void convertToDegrees (float[] vector) {
+  private void convertToDegrees(float[] vector) {
 
     for (int i = 0; i < vector.length; i++) {
       vector[i] = Math.round(Math.toDegrees(vector[i]));

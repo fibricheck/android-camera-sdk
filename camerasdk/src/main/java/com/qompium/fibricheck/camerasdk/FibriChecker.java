@@ -1,11 +1,17 @@
 package com.qompium.fibricheck.camerasdk;
 
+import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ACC;
+import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GRAV;
+import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GYRO;
+import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ROTATION;
+
 import android.content.Context;
 import android.hardware.Sensor;
 import android.os.AsyncTask;
 import android.os.SystemClock;
-import android.view.ViewGroup;
 import android.util.Log;
+import android.view.ViewGroup;
+
 import com.qompium.fibricheck.camerasdk.filters.FirFilter;
 import com.qompium.fibricheck.camerasdk.filters.SGFilter;
 import com.qompium.fibricheck.camerasdk.listeners.BeatListener;
@@ -23,16 +29,11 @@ import com.qompium.fibricheck.camerasdk.models.CameraSettingsInput;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsState;
 import com.qompium.fibricheck.camerasdk.utils.LabelInfo;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
-
-import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ACC;
-import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GRAV;
-import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_GYRO;
-import static com.qompium.fibricheck.camerasdk.listeners.SensorListener.SENSOR_LISTENER_DATA_ROTATION;
-
-import org.jetbrains.annotations.NotNull;
 
 public abstract class FibriChecker implements CameraListener {
   private static final int MOVING_WINDOW_SIZE = 7; // used for Savitzky Golay filter
@@ -121,7 +122,7 @@ public abstract class FibriChecker implements CameraListener {
 
   private void init() {
     // Values calculated in MathLab to get a LP/HP/BP/Notch-filter
-    firFilter = new FirFilter(new double[] { 1.0, 0.0, 0.0, 0.0 }, new double[] { 1.0, 1.0, 1.0, 1.0 });
+    firFilter = new FirFilter(new double[]{1.0, 0.0, 0.0, 0.0}, new double[]{1.0, 1.0, 1.0, 1.0});
 
     sgFilter = new SGFilter(MOVING_WINDOW_SIZE);
 
@@ -251,7 +252,7 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   protected void handleStates(final Quadrant quadrantData, final double[] yuvData,
-      final float[][] motionData, final long timestamp) {
+                              final float[][] motionData, final long timestamp) {
     double dataPoint;
 
     switch (state) {
@@ -500,7 +501,7 @@ public abstract class FibriChecker implements CameraListener {
     ArrayList<MeasurementRaw> measurementRawList;
 
     public ProcessRawMeasurementTask(MeasurementData measurementData,
-        ArrayList<MeasurementRaw> measurementRawList) {
+                                     ArrayList<MeasurementRaw> measurementRawList) {
 
       this.measurementData = measurementData;
       this.measurementRawList = measurementRawList;
@@ -691,7 +692,7 @@ public abstract class FibriChecker implements CameraListener {
      * Set the time to wait until a pulse is detected
      * Set value to -1 for no expiryTime --> Always wait for a detected pulse
      * Set value to 0 to skip the pulse detection
-     *
+     * <p>
      * Default value = 10 seconds
      *
      * @param seconds Time to expire the finger detection
@@ -708,7 +709,7 @@ public abstract class FibriChecker implements CameraListener {
      * Set the time to wait until a finger is detected
      * Set value to -1 for no expiryTime --> Always wait for a detected finger
      * Set value to 0 to skip the finger detection
-     *
+     * <p>
      * Default value = -1
      *
      * @param seconds Time to expire the finger detection
@@ -721,7 +722,7 @@ public abstract class FibriChecker implements CameraListener {
     }
 
     public FibriBuilder fingerDetectionValues(int minYValue, int maxYValue, int maxStdDevYValue,
-        int minVValue) {
+                                              int minVValue) {
 
       if (minYValue > 0) {
         this.minYValue = minYValue;

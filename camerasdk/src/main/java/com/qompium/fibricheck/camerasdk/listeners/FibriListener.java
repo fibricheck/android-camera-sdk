@@ -4,59 +4,73 @@ import com.qompium.fibricheck.camerasdk.measurement.MeasurementData;
 
 public class FibriListener implements IFibriListener {
 
-  @Override public void onFingerDetected () {
+  @Override
+  public void onFingerDetected() {
 
   }
 
-  @Override public void onFingerRemoved (double y, double v, double stdDevY) {
+  @Override
+  public void onFingerRemoved(double y, double v, double stdDevY) {
 
   }
 
-  @Override public void onFingerDetectionTimeExpired() {
+  @Override
+  public void onFingerDetectionTimeExpired() {
 
   }
 
-  @Override public void onHeartBeat (int value) {
+  @Override
+  public void onHeartBeat(int value) {
 
   }
 
-  @Override public void onPulseDetected () {
+  @Override
+  public void onPulseDetected() {
 
   }
 
-  @Override public void onPulseDetectionTimeExpired () {
+  @Override
+  public void onPulseDetectionTimeExpired() {
 
   }
 
-  @Override public void onMeasurementFinished (long timestamp) {
+  @Override
+  public void onMeasurementFinished(long timestamp) {
 
   }
 
-  @Override public void onTimeRemaining (int seconds) {
+  @Override
+  public void onTimeRemaining(int seconds) {
 
   }
 
-  @Override public void onMeasurementProcessed (MeasurementData measurementData) {
+  @Override
+  public void onMeasurementProcessed(MeasurementData measurementData) {
 
   }
 
-  @Override public void onMeasurementError (String message) {
+  @Override
+  public void onMeasurementError(String message) {
 
   }
 
-  @Override public void onMeasurementStart (long timestamp) {
+  @Override
+  public void onMeasurementStart(long timestamp) {
 
   }
 
-  @Override public void onMovementDetected () {
+  @Override
+  public void onMovementDetected() {
 
   }
 
-  @Override public void onSampleReady (double ppg, double raw) {
+  @Override
+  public void onSampleReady(double ppg, double raw) {
 
   }
 
-  @Override public void onCalibrationReady () {
+  @Override
+  public void onCalibrationReady() {
 
   }
 }

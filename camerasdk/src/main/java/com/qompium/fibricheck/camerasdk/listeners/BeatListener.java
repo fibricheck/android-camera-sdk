@@ -2,6 +2,7 @@ package com.qompium.fibricheck.camerasdk.listeners;
 
 import android.os.SystemClock;
 import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,9 +60,9 @@ public class BeatListener {
 
   private long timeSinceLastPulse;
 
-  public BeatListener (int minYValue, int maxYValue, int maxStdDevYValue, int minVValue) {
+  public BeatListener(int minYValue, int maxYValue, int maxStdDevYValue, int minVValue) {
 
-    pattern = new double[] {
+    pattern = new double[]{
         -0.260377750000000, -0.264072118421053, -0.690280657894737, 0.320902447368421, 0.636459210526316, 0.775235157894737, 0.616998750000000,
         0.258818513157895, -0.0155936315789474, -0.107737578947368, -0.0730700131578947, -0.00178090789473684, 0.0353458026315790, 0.0177359342105263,
         -0.0479446842105263, -0.145095802631579, -0.218533671052632, -0.243734131578947, -0.243979118421053, -0.229033460526316, -0.206577592105263
@@ -69,8 +70,8 @@ public class BeatListener {
 
     denominatorPattern = calculateDenumerator(pattern);
 
-    correlations = new double[] { 0.0, 0.0, 0.0 };
-    timeStamps = new long[] { 0, 0, 0 };
+    correlations = new double[]{0.0, 0.0, 0.0};
+    timeStamps = new long[]{0, 0, 0};
 
     this.minYValue = minYValue;
     this.maxYValue = maxYValue;
@@ -78,7 +79,7 @@ public class BeatListener {
     this.minVValue = minVValue;
   }
 
-  public void correlateWithValue (double value, double[] raw) {
+  public void correlateWithValue(double value, double[] raw) {
 
     detectFinger(raw);
     if (!fingerDetected) {
@@ -106,7 +107,7 @@ public class BeatListener {
     timeSinceLastPulse = SystemClock.uptimeMillis() - lastTime;
   }
 
-  public void correlateWithValue (double value, double[] raw, long timestamp) {
+  public void correlateWithValue(double value, double[] raw, long timestamp) {
 
     detectFinger(raw);
     if (!fingerDetected) {
@@ -133,7 +134,7 @@ public class BeatListener {
     timeSinceLastPulse = timestamp - lastTime;
   }
 
-  private void pushTimestamp (long timeStamp) {
+  private void pushTimestamp(long timeStamp) {
 
     for (int i = 0; i < timestampCalculationLength; i++) {
       timeStamps[i] = timeStamps[i + 1];
@@ -141,7 +142,7 @@ public class BeatListener {
     timeStamps[timestampCalculationLength] = timeStamp;
   }
 
-  private void pushCorrelation (double correlation) {
+  private void pushCorrelation(double correlation) {
 
     for (int i = 0; i < correlationCalculationLength; i++) {
       correlations[i] = correlations[i + 1];
@@ -149,7 +150,7 @@ public class BeatListener {
     correlations[correlationCalculationLength] = correlation;
   }
 
-  private void pushSignal (double signal) {
+  private void pushSignal(double signal) {
 
     for (int i = 0; i < signalCalculationLength; i++) {
       signals[i] = signals[i + 1];
@@ -157,7 +158,7 @@ public class BeatListener {
     signals[signalCalculationLength] = signal;
   }
 
-  private void detectFinger (double[] signal) {
+  private void detectFinger(double[] signal) {
 
     double yValue = signal[0];
     double vValue = signal[2];
@@ -176,7 +177,7 @@ public class BeatListener {
 
     if (fingerDetected && fingerOffCount >= 4) {
       fingerDetected = false;
-      Log.i(TAG,"Finger removed: y/v/stdDevY: " + yValue + "/" + vValue + "/" + stdDevY);
+      Log.i(TAG, "Finger removed: y/v/stdDevY: " + yValue + "/" + vValue + "/" + stdDevY);
       beatEventListener.onFingerRemoved(yValue, vValue, stdDevY);
     }
 
@@ -186,7 +187,7 @@ public class BeatListener {
     }
   }
 
-  private void countPulse () {
+  private void countPulse() {
 
     if (!pulseDetected) {
       pulseCount++;
@@ -199,7 +200,7 @@ public class BeatListener {
     }
   }
 
-  private void calculateNumerator () {
+  private void calculateNumerator() {
 
     numerator = 0;
     for (int i = 0; i < patternLength; i++) {
@@ -207,7 +208,7 @@ public class BeatListener {
     }
   }
 
-  private double calculateDenumerator (double[] doubleArray) {
+  private double calculateDenumerator(double[] doubleArray) {
 
     double denominator = 0;
     for (int i = 0; i < doubleArray.length; i++) {
@@ -216,12 +217,12 @@ public class BeatListener {
     return denominator;
   }
 
-  private boolean isPeakDetected () {
+  private boolean isPeakDetected() {
 
     return (correlations[0] < correlations[1] && correlations[1] > correlations[2] && correlations[1] > 0.6);
   }
 
-  private boolean isValidPulse () {
+  private boolean isValidPulse() {
 
     long timeMax = calculateMaxValue(timeStamps);
     long timeMin = calculateMinValue(timeStamps);
@@ -230,7 +231,7 @@ public class BeatListener {
     return (timeMax < 2000 && timeMin > 400 && timeMax < timeAvg * 1.20 && timeMin > timeAvg * 0.80);
   }
 
-  private long calculateMinValue (long[] arrayLong) {
+  private long calculateMinValue(long[] arrayLong) {
 
     long min = arrayLong[0];
 
@@ -241,7 +242,7 @@ public class BeatListener {
     return min;
   }
 
-  private long calculateMaxValue (long[] arrayLong) {
+  private long calculateMaxValue(long[] arrayLong) {
 
     long max = arrayLong[0];
 
@@ -252,7 +253,7 @@ public class BeatListener {
     return max;
   }
 
-  private double calculateAvgValue (long[] arrayLong) {
+  private double calculateAvgValue(long[] arrayLong) {
 
     long sum = 0;
 
@@ -263,7 +264,7 @@ public class BeatListener {
     return sum / (double) arrayLong.length;
   }
 
-  private int calculateAvgValue (List<Integer> list) {
+  private int calculateAvgValue(List<Integer> list) {
 
     int sum = 0;
     int listSize = list.size();
@@ -276,12 +277,12 @@ public class BeatListener {
     return sum;
   }
 
-  public int getHeartRate () {
+  public int getHeartRate() {
 
     return calculateAvgValue(heartRates);
   }
 
-  public void reset () {
+  public void reset() {
 
     signals = new double[21];
     pulseCount = 0;
@@ -289,13 +290,13 @@ public class BeatListener {
     fingerOnCount = 0;
     fingerDetected = false;
     heartRates = new ArrayList<>();
-    correlations = new double[] { 0.0, 0.0, 0.0 };
-    timeStamps = new long[] { 0, 0, 0 };
+    correlations = new double[]{0.0, 0.0, 0.0};
+    timeStamps = new long[]{0, 0, 0};
     lastTime = 0;
     timeSinceLastPulse = 0;
   }
 
-  public void setBeatEventListener (OnBeatEventListener eventListener) {
+  public void setBeatEventListener(OnBeatEventListener eventListener) {
 
     beatEventListener = eventListener;
   }

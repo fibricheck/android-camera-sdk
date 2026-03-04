@@ -1,14 +1,14 @@
 package com.qompium.fibricheck.camerasdk.measurement;
 
+import static com.qompium.fibricheck.camerasdk.measurement.Quadrant.QUADRANT_COLS;
+import static com.qompium.fibricheck.camerasdk.measurement.Quadrant.QUADRANT_ROWS;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static com.qompium.fibricheck.camerasdk.measurement.Quadrant.QUADRANT_COLS;
-import static com.qompium.fibricheck.camerasdk.measurement.Quadrant.QUADRANT_ROWS;
 
 public class MeasurementData implements Serializable {
   @SerializedName("heartrate")
@@ -53,7 +53,7 @@ public class MeasurementData implements Serializable {
   @SerializedName("camera_settings")
   public MeasurementCameraSettings cameraSettings;
 
-  public MeasurementData () {
+  public MeasurementData() {
 
     this.technical_details = new HashMap<>();
     this.time = new ArrayList<>();
@@ -65,7 +65,7 @@ public class MeasurementData implements Serializable {
     initQuadrants();
   }
 
-  private void initQuadrants () {
+  private void initQuadrants() {
 
     quadrants = new ArrayList<>();
     for (int i = 0; i < QUADRANT_ROWS; i++) {
@@ -76,7 +76,7 @@ public class MeasurementData implements Serializable {
     }
   }
 
-  public void addQuadrant (Quadrant quadrant) {
+  public void addQuadrant(Quadrant quadrant) {
 
     for (int i = 0; i < QUADRANT_ROWS; i++) {
       for (int j = 0; j < QUADRANT_COLS; j++) {
@@ -85,12 +85,12 @@ public class MeasurementData implements Serializable {
     }
   }
 
-  public void addAcc (float[] data) {
+  public void addAcc(float[] data) {
 
     this.acc.addData(data);
   }
 
-  public void addGyro (float[] data) {
+  public void addGyro(float[] data) {
 
     this.gyro.addData(data);
   }
@@ -105,7 +105,7 @@ public class MeasurementData implements Serializable {
     this.grav.addData(data);
   }
 
-  public ArrayList<Double> getVList () {
+  public ArrayList<Double> getVList() {
 
     return this.getVList();
   }
@@ -121,7 +121,7 @@ public class MeasurementData implements Serializable {
     @SerializedName("z")
     public List<Float> z;
 
-    public MotionData () {
+    public MotionData() {
 
       this.x = new ArrayList<>();
       this.y = new ArrayList<>();
