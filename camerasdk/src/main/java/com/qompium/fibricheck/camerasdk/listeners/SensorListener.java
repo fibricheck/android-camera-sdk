@@ -50,13 +50,13 @@ public class SensorListener implements SensorEventListener {
     mSensorManager.registerListener(this, mSensorManager.getDefaultSensor(sensorType), SensorManager.SENSOR_DELAY_GAME, handler);
   }
 
-  public void destroyListener () {
-
+  public void destroyListener () throws InterruptedException {
     if (mSensorManager != null) {
       mSensorManager.unregisterListener(this);
     }
     if (mHandlerThread != null && mHandlerThread.isAlive()) {
       mHandlerThread.quit();
+      mHandlerThread.join();
     }
   }
 

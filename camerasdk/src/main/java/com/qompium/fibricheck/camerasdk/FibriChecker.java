@@ -217,7 +217,6 @@ public abstract class FibriChecker implements CameraListener {
   abstract public void stop();
 
   public void destroy() {
-    reset();
     destroyListeners();
     state = State.INITIAL;
   }
@@ -255,7 +254,6 @@ public abstract class FibriChecker implements CameraListener {
   @Override
   public void onCameraDestroyed() {
     Log.d(TAG, "closing camera reason: camera destroyed");
-    reset();
     destroy();
   }
 

@@ -10,6 +10,10 @@ import com.qompium.fibricheck.camerasdk.measurement.MeasurementCameraSettings
 import com.qompium.fibricheck.camerasdk.measurement.Vec3f
 import com.qompium.fibricheck.camerasdk.measurement.WhiteBalanceLog
 import com.qompium.fibricheck.camerasdk.utils.CameraUtils
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlin.concurrent.Volatile
 
 open class CameraSettingsInput(
   var exposureMode: CameraSettingMode = CameraSettingMode.Locked,
@@ -59,6 +63,7 @@ public class CameraSettings(
   rawDataEnabled,
   logWhiteBalance, logExposure, logFocus
 ) {
+  val mutex = Mutex()
   val iso get() = if (exposureMode == CameraSettingMode.Manual) manualIsoValue else autoIsoValue
   val exposureTime get() = if (exposureMode == CameraSettingMode.Manual) manualExposureTime else autoExposureTime
   val focus get() = if (focusMode == CameraSettingMode.Manual) manualFocusValue else autoFocusValue
@@ -69,6 +74,7 @@ public class CameraSettings(
   }
   val whiteBalanceRggb @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     get() = RggbChannelVector(whiteBalance.r, whiteBalance.g / 2.0f, whiteBalance.g / 2.0f, whiteBalance.b)
+
   val whiteBalanceLog = mutableListOf<Vec3f>()
   val isoLog = mutableListOf<Int>()
   val exposureTimeLog = mutableListOf<Long>()
@@ -106,64 +112,77 @@ public class CameraSettings(
       val iso = settings.get(CaptureResult.SENSOR_SENSITIVITY)
       val exposureTime = settings.get(CaptureResult.SENSOR_EXPOSURE_TIME)
 
-      if (focusMode != CameraSettingMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
-        autoFocusValue = focusDistance ?: autoFocusValue
-      }
-      if (whiteBalanceMode != WhiteBalanceMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
-        autoWhiteBalanceRgb = whiteBalance ?: autoWhiteBalanceRgb
-      }
-      if (exposureMode != CameraSettingMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
-        autoExposureTime = exposureTime ?: autoExposureTime
-        autoIsoValue = iso ?: autoIsoValue
-      }
+    runBlocking {
+      mutex.withLock {
+        if (focusMode != CameraSettingMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
+          autoFocusValue = focusDistance ?: autoFocusValue
+        }
+        if (whiteBalanceMode != WhiteBalanceMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
+          autoWhiteBalanceRgb = whiteBalance ?: autoWhiteBalanceRgb
+        }
+        if (exposureMode != CameraSettingMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
+          autoExposureTime = exposureTime ?: autoExposureTime
+          autoIsoValue = iso ?: autoIsoValue
+        }
 
-      // We only want to log values when we are recording
-      if (cameraSettingsState != CameraSettingsState.Recording) {
-        return
-      }
+        // We only want to log values when we are recording
+        if (cameraSettingsState != CameraSettingsState.Recording) {
+          return@withLock
+        }
 
-      if (logFocus && focusMode == CameraSettingMode.Auto && focusDistance != null) {
-        focusLog.add(focusDistance)
+        if (logFocus && focusMode == CameraSettingMode.Auto && focusDistance != null) {
+          focusLog.add(focusDistance)
+        }
+        if (logWhiteBalance && whiteBalanceMode == WhiteBalanceMode.Auto && whiteBalance != null) {
+          whiteBalanceLog.add(whiteBalance)
+        }
+        if (logExposure && exposureMode == CameraSettingMode.Auto && exposureTime != null && iso != null) {
+          exposureTimeLog.add(exposureTime)
+          isoLog.add(iso)
+        }
       }
-      if (logWhiteBalance && whiteBalanceMode == WhiteBalanceMode.Auto && whiteBalance != null) {
-        whiteBalanceLog.add(whiteBalance)
-      }
-      if (logExposure && exposureMode == CameraSettingMode.Auto && exposureTime != null && iso != null) {
-        exposureTimeLog.add(exposureTime)
-        isoLog.add(iso)
-      }
+    }
+
   }
 
   fun toOutput(): MeasurementCameraSettings {
-    val whiteBalanceMode = when(whiteBalanceMode) {
-      WhiteBalanceMode.ManualRgb -> "manual"
-      WhiteBalanceMode.ManualKelvin -> "manual"
-      WhiteBalanceMode.Locked -> null
-      else -> "auto"
+    return runBlocking {
+      mutex.withLock {
+        val whiteBalanceMode = when(whiteBalanceMode) {
+          WhiteBalanceMode.ManualRgb -> "manual"
+          WhiteBalanceMode.ManualKelvin -> "manual"
+          WhiteBalanceMode.Locked -> null
+          else -> "auto"
+        }
+
+        val whiteBalanceR = whiteBalanceLog.map { it.r }
+        val whiteBalanceG = whiteBalanceLog.map { it.g }
+        val whiteBalanceB = whiteBalanceLog.map { it.b }
+        val isWhiteBalanceEmpty = whiteBalanceR.isEmpty() && whiteBalanceG.isEmpty() && whiteBalanceB.isEmpty()
+        val whiteBalanceOutput = if (isWhiteBalanceEmpty) null else WhiteBalanceLog(whiteBalanceR, whiteBalanceG, whiteBalanceB)
+
+        MeasurementCameraSettings(
+          if (exposureMode != CameraSettingMode.Locked) exposureMode.name.lowercase() else null,
+          if (isoLog.size > 0) isoLog else null,
+          if (exposureTimeLog.size > 0) exposureTimeLog else null,
+          whiteBalanceMode,
+          whiteBalanceOutput,
+          if (focusMode != CameraSettingMode.Locked) focusMode.name.lowercase() else null,
+          if (focusLog.size > 0) focusLog else null
+        )
+      }
     }
-
-    val whiteBalanceR = whiteBalanceLog.map { it.r }
-    val whiteBalanceG = whiteBalanceLog.map { it.g }
-    val whiteBalanceB = whiteBalanceLog.map { it.b }
-    val isWhiteBalanceEmpty = whiteBalanceR.isEmpty() && whiteBalanceG.isEmpty() && whiteBalanceB.isEmpty()
-    val whiteBalanceOutput = if (isWhiteBalanceEmpty) null else WhiteBalanceLog(whiteBalanceR, whiteBalanceG, whiteBalanceB)
-
-    return MeasurementCameraSettings(
-      if (exposureMode != CameraSettingMode.Locked) exposureMode.name.lowercase() else null,
-      if (isoLog.size > 0) isoLog else null,
-      if (exposureTimeLog.size > 0) exposureTimeLog else null,
-      whiteBalanceMode,
-      whiteBalanceOutput,
-      if (focusMode != CameraSettingMode.Locked) focusMode.name.lowercase() else null,
-      if (focusLog.size > 0) focusLog else null
-    )
   }
 
   fun clear() {
-    whiteBalanceLog.clear()
-    focusLog.clear()
-    exposureTimeLog.clear()
-    isoLog.clear()
+    runBlocking {
+      mutex.withLock {
+        whiteBalanceLog.clear()
+        focusLog.clear()
+        exposureTimeLog.clear()
+        isoLog.clear()
+      }
+    }
   }
 
   val isAutoExposure
