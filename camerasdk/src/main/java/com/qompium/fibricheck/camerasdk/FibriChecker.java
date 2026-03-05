@@ -489,6 +489,11 @@ public abstract class FibriChecker implements CameraListener {
   private void finishMeasurement() {
     destroyListeners();
 
+    if (measurementData == null) {
+      fibriListener.onMeasurementError("Cancelled");
+      return;
+    }
+
     mMeasurementWorker.execute(
         measurementData,
         measurementRawList,
