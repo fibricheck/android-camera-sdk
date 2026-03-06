@@ -11,11 +11,14 @@ import com.google.android.material.slider.Slider.OnChangeListener
 import com.qompium.fibricheck.camerasdk.FibriChecker
 import com.qompium.fibricheck.camerasdk.FibriChecker.FibriBuilder
 import com.qompium.fibricheck.camerasdk.listeners.FibriListener
+import com.qompium.fibricheck.camerasdk.measurement.MeasurementData
 import com.qompium.fibricheck.camerasdk.measurement.Vec3f
 import com.qompium.fibricheck.camerasdk.models.CameraSettingMode
 import com.qompium.fibricheck.camerasdk.models.CameraSettings
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo
+import com.qompium.fibricheck.camerasdk.models.CameraSettingsInput
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsState
+import com.qompium.fibricheck.camerasdk.models.HdrMode
 import com.qompium.fibricheck.camerasdk.models.WhiteBalanceMode
 import com.qompium.fibricheckexample_kotlin.databinding.FragmentCameraTesterBinding
 import kotlin.math.roundToInt
@@ -30,7 +33,7 @@ class FragmentCameraTester : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
     private var lastData: Map<String, String>? = null
-    private var cameraSettings: CameraSettings = CameraSettings()
+    private var cameraSettings: CameraSettingsInput = CameraSettingsInput(hdrMode = HdrMode.Auto, logHdr = true)
     private lateinit var cameraInfo: CameraSettingsInfo
 
     override fun onCreateView(
@@ -45,9 +48,13 @@ class FragmentCameraTester : Fragment() {
         fibrichecker = FibriBuilder(requireActivity(), binding.cameraFinder)
             .fibriListener(object: FibriListener() {
                 override fun onMeasurementFinished(timestamp: Long) {
-                    // To loop the camera
-                    fibrichecker.stop()
-                    fibrichecker.start()
+                   fibrichecker.stop()
+                }
+
+                override fun onMeasurementProcessed(measurementData: MeasurementData?) {
+                    if (measurementData != null) {
+                        println(measurementData.cameraSettings)
+                    }
                 }
             })
             .build()

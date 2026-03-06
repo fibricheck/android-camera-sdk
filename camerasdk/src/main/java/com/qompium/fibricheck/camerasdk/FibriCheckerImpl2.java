@@ -14,10 +14,14 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.DynamicRangeProfiles;
+import android.hardware.camera2.params.OutputConfiguration;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.SystemClock;
@@ -34,10 +38,14 @@ import com.qompium.fibricheck.camerasdk.listeners.EmptySurfaceTextureListener;
 import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
 import com.qompium.fibricheck.camerasdk.measurement.QuadrantColor;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo;
+import com.qompium.fibricheck.camerasdk.models.HdrMode;
+import com.qompium.fibricheck.camerasdk.utils.CameraUtils;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.concurrent.Executor;
+
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -48,6 +56,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
   private final TextureView mTextureView;
   private CameraDevice mCameraDevice;
   private CameraCaptureSession mPreviewSession;
+  private OutputConfiguration mOutputConfig;
 
   private Size mPreviewSize;
   private boolean isAdvancedCamera2Implementation = false;
@@ -104,11 +113,6 @@ public class FibriCheckerImpl2 extends FibriChecker {
       Log.e(TAG, "No texture was available to attach on");
       mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
     }
-  }
-
-  private static Size chooseVideoSize(Size[] choices) {
-    Arrays.sort(choices, Comparator.comparingLong(s -> s.getWidth() * (long) s.getHeight()));
-    return choices[0];
   }
 
   private QuadrantColor calculateAverageYUV(Image yuvImage) {
@@ -261,8 +265,8 @@ public class FibriCheckerImpl2 extends FibriChecker {
       }
       Log.i(TAG, "Hardwarelevel: " + hardwareLevel);
 
-      Size mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
-      mPreviewSize = chooseVideoSize(map.getOutputSizes(SurfaceTexture.class));
+      Size mVideoSize = CameraUtils.Companion.getSmallestSize(map.getOutputSizes(MediaRecorder.class));
+      mPreviewSize = CameraUtils.Companion.getSmallestSize(map.getOutputSizes(SurfaceTexture.class));
       cameraResolution = mVideoSize.toString();
 
       Log.i(TAG, "Chosen video/preview size: " + mVideoSize + "/" + mPreviewSize.toString());
@@ -320,10 +324,13 @@ public class FibriCheckerImpl2 extends FibriChecker {
       mCaptureRequest.addTarget(mImageSurface);
       mCaptureRequest.addTarget(textureSurface);
 
-      mCameraDevice.createCaptureSession(Arrays.asList(mImageSurface, textureSurface), new CameraCaptureSession.StateCallback() {
+      CameraCaptureSession.StateCallback sessionCallback = new CameraCaptureSession.StateCallback() {
         @Override
         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
           mPreviewSession = cameraCaptureSession;
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            cameraSettings.setHdrProfile(mOutputConfig.getDynamicRangeProfile());
+          }
           updatePreview();
         }
 
@@ -331,7 +338,27 @@ public class FibriCheckerImpl2 extends FibriChecker {
         public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
           Log.e(TAG, "configure failed");
         }
-      }, null);
+      };
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        mOutputConfig = new OutputConfiguration(mImageSurface);
+        OutputConfiguration textureOutputConfig = new OutputConfiguration(textureSurface);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && cameraSettings.getHdrMode() == HdrMode.Off) {
+          mOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
+          textureOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
+        }
+
+        Executor executor = context.getMainExecutor();
+        mCameraDevice.createCaptureSession(new SessionConfiguration(
+            SessionConfiguration.SESSION_REGULAR,
+            Arrays.asList(mOutputConfig, textureOutputConfig),
+            executor,
+            sessionCallback
+        ));
+      } else {
+        mCameraDevice.createCaptureSession(Arrays.asList(mImageSurface, textureSurface), sessionCallback, null);
+      }
 
       applyCameraSettings();
     } catch (SecurityException | IllegalStateException | CameraAccessException |

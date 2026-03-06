@@ -13,17 +13,25 @@ data class WhiteBalanceLog(
 
 data class MeasurementCameraSettings(
     @SerializedName("exposure_mode")
-    val exposureMode: String?,
+    var exposureMode: String?,
     @SerializedName("iso")
-    val iso: List<Int>?,
+    var iso: List<Int>?,
     @SerializedName("exposure_time")
-    val exposureTime: List<Long>?,
+    var exposureTime: List<Long>?,
     @SerializedName("white_balance_mode")
-    val whiteBalanceMode: String?,
+    var whiteBalanceMode: String?,
     @SerializedName("white_balance")
-    val whiteBalance: WhiteBalanceLog?,
+    var whiteBalance: WhiteBalanceLog?,
     @SerializedName("focus_mode")
-    val focusMode: String?,
+    var focusMode: String?,
     @SerializedName("focus")
-    val focus: List<Float>?
+    var focus: List<Float>?,
+    @SerializedName("hdr_mode")
+    var hdrMode: String?,
+    @SerializedName("hdr_supported")
+    var hdrEnabled: Boolean?,
+    @SerializedName("tonemap_mode")
+    var tonemapMode: String?,
+    @SerializedName("hdr_profile")
+    var hdrProfile: String?
 )

@@ -1,9 +1,8 @@
 package com.qompium.fibricheck.camerasdk.models
 
 import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.params.DynamicRangeProfiles
 import android.hardware.camera2.params.RggbChannelVector
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.qompium.fibricheck.camerasdk.extensions.toRgb
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementCameraSettings
 import com.qompium.fibricheck.camerasdk.measurement.Vec3f
@@ -22,9 +21,12 @@ open class CameraSettingsInput(
     var focusMode: CameraSettingMode = CameraSettingMode.Auto,
     var manualFocusValue: Float = 0f,
 
+    var hdrMode: HdrMode = HdrMode.Auto,
+
     var logWhiteBalance: Boolean = false,
     var logExposure: Boolean = false,
-    var logFocus: Boolean = false
+    var logFocus: Boolean = false,
+    var logHdr: Boolean = false
 )
 
 class CameraSettings(
@@ -44,14 +46,19 @@ class CameraSettings(
     var autoFocusValue: Float = 0f,
     manualFocusValue: Float = 0f,
 
+    hdrMode: HdrMode = HdrMode.Auto,
+    var hdrEnabled: Boolean = false,
+
     logWhiteBalance: Boolean = false,
     logExposure: Boolean = false,
-    logFocus: Boolean = false
+    logFocus: Boolean = false,
+    logHdr: Boolean = false,
 ) : CameraSettingsInput(
     exposureMode, manualIsoValue, manualExposureTime,
     whiteBalanceMode, manualWhiteBalanceRgb, manualWhiteBalanceKelvin,
     focusMode, manualFocusValue,
-    logWhiteBalance, logExposure, logFocus
+    hdrMode,
+    logWhiteBalance, logExposure, logFocus, logHdr
 ) {
     val iso get() = if (exposureMode == CameraSettingMode.Manual) manualIsoValue else autoIsoValue
     val exposureTime get() = if (exposureMode == CameraSettingMode.Manual) manualExposureTime else autoExposureTime
@@ -76,6 +83,9 @@ class CameraSettings(
     val isoLog = mutableListOf<Int>()
     val exposureTimeLog = mutableListOf<Long>()
     val focusLog = mutableListOf<Float>()
+    val hdrLog = mutableListOf<Boolean>()
+    var toneMapMode: String? = null
+    var hdrProfile: Long? = null
 
     fun set(settings: CameraSettingsInput) {
         this.exposureMode = settings.exposureMode
@@ -88,6 +98,9 @@ class CameraSettings(
 
         this.focusMode = settings.focusMode
         this.manualFocusValue = settings.manualFocusValue
+
+        this.hdrMode = settings.hdrMode
+        this.logHdr = settings.logHdr
 
         this.logWhiteBalance = settings.logWhiteBalance
         this.logExposure = settings.logExposure
@@ -107,6 +120,9 @@ class CameraSettings(
         val whiteBalance = settings.get(CaptureResult.COLOR_CORRECTION_GAINS)?.toRgb()
         val iso = settings.get(CaptureResult.SENSOR_SENSITIVITY)
         val exposureTime = settings.get(CaptureResult.SENSOR_EXPOSURE_TIME)
+        val sceneMode = settings.get(CaptureResult.CONTROL_SCENE_MODE)
+        hdrEnabled = sceneMode != null && sceneMode == CaptureResult.CONTROL_SCENE_MODE_HDR
+        toneMapMode = CameraUtils.tonemapModeToString(settings.get(CaptureResult.TONEMAP_MODE))
 
         if (focusMode != CameraSettingMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
             autoFocusValue = focusDistance ?: autoFocusValue
@@ -134,6 +150,9 @@ class CameraSettings(
             exposureTimeLog.add(exposureTime)
             isoLog.add(iso)
         }
+        if (logHdr && hdrMode == HdrMode.Auto) {
+            hdrLog.add(hdrEnabled)
+        }
     }
 
     fun toOutput(): MeasurementCameraSettings {
@@ -157,12 +176,16 @@ class CameraSettings(
 
         return MeasurementCameraSettings(
             if (exposureMode != CameraSettingMode.Locked) exposureMode.name.lowercase() else null,
-            if (isoLog.size > 0) isoLog else null,
-            if (exposureTimeLog.size > 0) exposureTimeLog else null,
+            isoLog.ifEmpty { null },
+            exposureTimeLog.ifEmpty { null },
             whiteBalanceMode,
             whiteBalanceOutput,
             if (focusMode != CameraSettingMode.Locked) focusMode.name.lowercase() else null,
-            if (focusLog.size > 0) focusLog else null
+            focusLog.ifEmpty { null },
+            hdrMode.name.lowercase(),
+            hdrEnabled,
+            toneMapMode,
+            if (hdrProfile != null) CameraUtils.dynamicRangeProfileToString(hdrProfile) else null
         )
     }
 
@@ -171,6 +194,10 @@ class CameraSettings(
         focusLog.clear()
         exposureTimeLog.clear()
         isoLog.clear()
+        hdrLog.clear()
+        toneMapMode = null
+        hdrProfile = null
+        hdrEnabled = false
     }
 
     val isAutoExposure
