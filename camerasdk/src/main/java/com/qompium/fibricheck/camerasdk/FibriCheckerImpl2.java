@@ -28,7 +28,6 @@ import android.view.TextureView;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.qompium.fibricheck.camerasdk.listeners.EmptyActivityLifecycleCallbacks;
 import com.qompium.fibricheck.camerasdk.listeners.EmptySurfaceTextureListener;
@@ -38,10 +37,10 @@ import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-@RequiresApi(21)
 public class FibriCheckerImpl2 extends FibriChecker {
   private static final String TAG = "FibriChecker2";
 
@@ -108,14 +107,14 @@ public class FibriCheckerImpl2 extends FibriChecker {
   }
 
   private static Size chooseVideoSize(Size[] choices) {
-    Arrays.sort(choices, (s1, s2) -> Long.compare(s1.getWidth() * (long) s1.getHeight(), s2.getWidth() * (long) s2.getHeight()));
+    Arrays.sort(choices, Comparator.comparingLong(s -> s.getWidth() * (long) s.getHeight()));
     return choices[0];
   }
 
   private QuadrantColor calculateAverageYUV(Image yuvImage) {
     int ySum = 0, uSum = 0, vSum = 0;
     double yAvg, uAvg, vAvg;
-    double stdDevY = 0;
+    double stdDevY;
     int[] histY = new int[256];
 
     Quadrant quadrant = new Quadrant();
@@ -266,7 +265,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
       mPreviewSize = chooseVideoSize(map.getOutputSizes(SurfaceTexture.class));
       cameraResolution = mVideoSize.toString();
 
-      Log.i(TAG, "Chosen video/preview size: " + mVideoSize.toString() + "/" + mPreviewSize.toString());
+      Log.i(TAG, "Chosen video/preview size: " + mVideoSize + "/" + mPreviewSize.toString());
       mImageReader = ImageReader.newInstance(mVideoSize.getWidth(), mVideoSize.getHeight(), ImageFormat.YUV_420_888, 4);
       mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mBackgroundHandler);
       manager.openCamera(cameraId, mStateCallback, mBackgroundHandler);

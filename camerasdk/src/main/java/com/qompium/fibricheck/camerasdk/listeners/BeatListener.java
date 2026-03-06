@@ -8,7 +8,7 @@ import java.util.List;
 
 public class BeatListener {
 
-  private static String TAG = "BeatListener";
+  private static final String TAG = "BeatListener";
 
   private static final int correlationCalculationLength = 2;
 
@@ -20,13 +20,13 @@ public class BeatListener {
 
   private static final int patternLength = 21;
 
-  private int minYValue;
+  private final int minYValue;
 
-  private int maxYValue;
+  private final int maxYValue;
 
-  private int minVValue;
+  private final int minVValue;
 
-  private int maxStdDevYValue;
+  private final int maxStdDevYValue;
 
   protected double[] pattern;
 
@@ -44,7 +44,7 @@ public class BeatListener {
 
   private ArrayList<Integer> heartRates = new ArrayList<>();
 
-  private double denominatorPattern; //noemer
+  private final double denominatorPattern; //noemer
 
   private double denominatorSignal;
 
@@ -211,8 +211,8 @@ public class BeatListener {
   private double calculateDenumerator(double[] doubleArray) {
 
     double denominator = 0;
-    for (int i = 0; i < doubleArray.length; i++) {
-      denominator += Math.pow(doubleArray[i], 2);
+    for (double v : doubleArray) {
+      denominator += Math.pow(v, 2);
     }
     return denominator;
   }
@@ -235,8 +235,8 @@ public class BeatListener {
 
     long min = arrayLong[0];
 
-    for (int i = 0; i < arrayLong.length; i++) {
-      min = (arrayLong[i] < min) ? arrayLong[i] : min;
+    for (long l : arrayLong) {
+      min = (l < min) ? l : min;
     }
 
     return min;

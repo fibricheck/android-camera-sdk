@@ -47,12 +47,13 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
 
     @Override
     public View onCreateView(
-            LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+        @NonNull LayoutInflater inflater, ViewGroup container,
+        Bundle savedInstanceState) {
         binding = FragmentFirstBinding.inflate(inflater, container, false);
 
         testSequenceManager = new TestSequenceManager();
         testSequenceManager.setListener(this);
+        container.setKeepScreenOn(true);
 
         registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted) {
@@ -169,7 +170,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                         return;
                     }
 
-                    if (step >= TestSequenceManager.STEP_PLACE_FINGER && step <= TestSequenceManager.STEP_RECORDING) {
+                    if (step >= TestSequenceManager.STEP_PLACE_FINGER) {
                         setStatusMessage("Finger removed - place finger back", StatusType.WARNING);
                     }
                 });

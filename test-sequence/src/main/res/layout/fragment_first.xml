@@ -147,7 +147,6 @@
 
     <!-- Hidden TextViews for backward compatibility -->
     <TextView
-        android:id="@+id/textview_first"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
@@ -155,7 +154,6 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/textView_overview2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"
@@ -163,7 +161,6 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/textView_overview"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:visibility="gone"

@@ -6,7 +6,7 @@ import android.os.Build
 import android.util.Range
 import androidx.annotation.RequiresApi
 
-public data class CameraSettingsInfo(
+data class CameraSettingsInfo(
     val hardwareLevel: Int,
     val hasManualPostProcessing: Boolean,
     val isoRange: Pair<Int, Int>,
@@ -19,12 +19,9 @@ public data class CameraSettingsInfo(
         Pair(-1, -1),
         Pair(-1L, -1L),
         Pair(-1.0f, -1.0f)
-    ) {
-
-    }
+    )
 
     companion object {
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         fun from(characteristics: CameraCharacteristics): CameraSettingsInfo {
             val capabilities =
                 characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)

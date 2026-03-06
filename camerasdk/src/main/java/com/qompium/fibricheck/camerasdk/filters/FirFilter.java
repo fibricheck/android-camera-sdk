@@ -11,9 +11,9 @@ public class FirFilter {
 
   private double[] b;
 
-  private double[] xRegister; //Contains previous input values that are used for computing the filtered value.
+  private final double[] xRegister; //Contains previous input values that are used for computing the filtered value.
 
-  private double[] yRegister; //Contains previous output values.
+  private final double[] yRegister; //Contains previous output values.
 
   private FirFilter nextFilter; //Used to chain filters together.
 

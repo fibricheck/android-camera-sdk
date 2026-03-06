@@ -248,7 +248,6 @@
             app:layout_constraintTop_toBottomOf="@id/switchLogExposure" />
 
         <Switch
-            android:id="@+id/switchLogFocus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"

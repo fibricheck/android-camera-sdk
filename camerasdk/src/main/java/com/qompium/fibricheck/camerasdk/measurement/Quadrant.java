@@ -10,7 +10,7 @@ public class Quadrant implements Serializable {
   public static final int QUADRANT_ROWS = 4;
   public static final int QUADRANT_COLS = 4;
 
-  private Yuv[][] quadrants;
+  private final Yuv[][] quadrants;
 
   public double avgY;
   public double frameSize;

@@ -26,15 +26,15 @@ public class SensorListener implements SensorEventListener {
 
   private float[] gravData = new float[3];
 
-  private float[] rotationData = new float[3];
+  private final float[] rotationData = new float[3];
 
-  private float[] rotationMatrix = new float[9];
+  private final float[] rotationMatrix = new float[9];
 
-  private SensorManager mSensorManager;
+  private final SensorManager mSensorManager;
 
-  private HandlerThread mHandlerThread;
+  private final HandlerThread mHandlerThread;
 
-  private Handler handler;
+  private final Handler handler;
 
   public SensorListener(Context context) {
 

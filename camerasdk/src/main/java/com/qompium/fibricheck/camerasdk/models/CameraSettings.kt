@@ -27,7 +27,7 @@ open class CameraSettingsInput(
     var logFocus: Boolean = false
 )
 
-public class CameraSettings(
+class CameraSettings(
     var cameraSettingsState: CameraSettingsState = CameraSettingsState.Calibrating,
     exposureMode: CameraSettingMode = CameraSettingMode.Locked,
     var autoIsoValue: Int = 0,
@@ -66,7 +66,6 @@ public class CameraSettings(
             else -> autoWhiteBalanceRgb
         }
     val whiteBalanceRggb
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         get() = RggbChannelVector(
             whiteBalance.r,
             whiteBalance.g / 2.0f,
@@ -103,7 +102,6 @@ public class CameraSettings(
         if (focusMode != CameraSettingMode.Auto) map["camera_focus_distance"] = focus
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun onSettingsChanged(settings: CaptureResult) {
         val focusDistance = settings.get(CaptureResult.LENS_FOCUS_DISTANCE)
         val whiteBalance = settings.get(CaptureResult.COLOR_CORRECTION_GAINS)?.toRgb()

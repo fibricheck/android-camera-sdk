@@ -39,7 +39,6 @@ public abstract class FibriChecker implements CameraListener {
   private static final int MOVING_WINDOW_SIZE = 7; // used for Savitzky Golay filter
 
   private static final int CALIBRATION_DELAY = 1000;
-  private static final long ONE_SECOND_NS = 1000000000L;
 
   private static final String TAG = "FibriChecker";
 
@@ -411,8 +410,8 @@ public abstract class FibriChecker implements CameraListener {
   private double calculateVector(float[] data) {
     double sum = 0;
 
-    for (int i = 0; i < data.length; i++) {
-      sum += Math.pow(data[i], 2);
+    for (float datum : data) {
+      sum += Math.pow(datum, 2);
     }
 
     return Math.sqrt(sum);
@@ -544,20 +543,14 @@ public abstract class FibriChecker implements CameraListener {
     }
 
     private String getStringFromHardwareLevel(int hardwareLevel) {
-      switch (hardwareLevel) {
-        case -1:
-          return "camera1";
-        case 0:
-          return "camera2 - limited";
-        case 1:
-          return "camera2 - full";
-        case 2:
-          return "camera2 - legacy";
-        case 3:
-          return "camera2 - level3";
-        default:
-          return "undetected";
-      }
+      return switch (hardwareLevel) {
+        case -1 -> "camera1";
+        case 0 -> "camera2 - limited";
+        case 1 -> "camera2 - full";
+        case 2 -> "camera2 - legacy";
+        case 3 -> "camera2 - level3";
+        default -> "undetected";
+      };
     }
 
     private void updateMeasurement(Quadrant quadrant, float[][] motionData, int timestamp) {
@@ -751,8 +744,7 @@ public abstract class FibriChecker implements CameraListener {
     }
 
     public FibriChecker build() throws IllegalStateException {
-      return (android.os.Build.VERSION.SDK_INT >= 22) ? new FibriCheckerImpl2(viewGroup, context, this)
-          : new FibriCheckerImpl1(viewGroup, context, this);
+      return new FibriCheckerImpl2(viewGroup, context, this);
     }
   }
 }

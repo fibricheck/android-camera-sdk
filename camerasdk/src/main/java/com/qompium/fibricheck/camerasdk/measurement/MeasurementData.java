@@ -69,7 +69,7 @@ public class MeasurementData implements Serializable {
 
     quadrants = new ArrayList<>();
     for (int i = 0; i < QUADRANT_ROWS; i++) {
-      quadrants.add(i, new ArrayList<YuvList>());
+      quadrants.add(i, new ArrayList<>());
       for (int j = 0; j < QUADRANT_COLS; j++) {
         quadrants.get(i).add(j, new YuvList());
       }
@@ -110,7 +110,7 @@ public class MeasurementData implements Serializable {
     return this.getVList();
   }
 
-  public class MotionData implements Serializable {
+  public static class MotionData implements Serializable {
 
     @SerializedName("x")
     public List<Float> x;

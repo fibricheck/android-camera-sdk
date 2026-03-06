@@ -14,20 +14,20 @@ version sdkRelease.version
 
 android {
     namespace 'com.qompium.fibricheck.camerasdk'
-    compileSdk 35
+    compileSdk 36
 
     buildFeatures {
         buildConfig = true
     }
 
     defaultConfig {
-        minSdk 19
-        targetSdk 35
+        minSdk 22
+        targetSdk 36
 
         consumerProguardFiles "consumer-rules.pro"
 
         aarMetadata {
-            minCompileSdk = 19
+            minCompileSdk = 22
         }
 
         buildConfigField "String", "RELEASE_DATE", "\"${sdkRelease.releaseDate}\""
@@ -78,12 +78,12 @@ publishing {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.13.2'
-    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.core:core-ktx:1.17.0'
 
     testImplementation 'junit:junit:4.13.2'
 }
 
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
     testLogging {
         events "passed", "skipped", "failed"
     }

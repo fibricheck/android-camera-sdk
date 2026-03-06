@@ -40,6 +40,7 @@ class FragmentCameraTester : Fragment() {
     ): View {
         _binding = FragmentCameraTesterBinding.inflate(inflater, container, false)
         val root: View = binding.root
+        root.keepScreenOn = true
 
         fibrichecker = FibriBuilder(requireActivity(), binding.cameraFinder)
             .fibriListener(object: FibriListener() {
