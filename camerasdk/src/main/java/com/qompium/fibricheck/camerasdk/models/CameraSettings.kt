@@ -1,12 +1,12 @@
 package com.qompium.fibricheck.camerasdk.models
 
 import android.hardware.camera2.CaptureResult
-import android.hardware.camera2.params.DynamicRangeProfiles
 import android.hardware.camera2.params.RggbChannelVector
+import com.qompium.fibricheck.camerasdk.extensions.differs
+import com.qompium.fibricheck.camerasdk.extensions.toInt
 import com.qompium.fibricheck.camerasdk.extensions.toRgb
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementCameraSettings
 import com.qompium.fibricheck.camerasdk.measurement.Vec3f
-import com.qompium.fibricheck.camerasdk.measurement.WhiteBalanceLog
 import com.qompium.fibricheck.camerasdk.utils.CameraUtils
 
 open class CameraSettingsInput(
@@ -79,13 +79,20 @@ class CameraSettings(
             whiteBalance.g / 2.0f,
             whiteBalance.b
         )
-    val whiteBalanceLog = mutableListOf<Vec3f>()
-    val isoLog = mutableListOf<Int>()
-    val exposureTimeLog = mutableListOf<Long>()
-    val focusLog = mutableListOf<Float>()
-    val hdrLog = mutableListOf<Boolean>()
+    val whiteBalanceLog = mutableListOf<List<Any>>()
+    val isoLog = mutableListOf<List<Int>>()
+    val exposureTimeLog = mutableListOf<List<Any>>()
+    val focusLog = mutableListOf<List<Any>>()
+    val hdrLog = mutableListOf<List<Any>>()
     var toneMapMode: String? = null
     var hdrProfile: Long? = null
+
+    var frameCounter = 0
+    var lastIsoValue = -1
+    var lastExposureTimeValue =-1L
+    var lastFocusValue = -1.0f
+    var lastWhiteBalanceValue = Vec3f(-1f, -1f, -1f)
+    var lastHdrValue: Boolean? = null
 
     fun set(settings: CameraSettingsInput) {
         this.exposureMode = settings.exposureMode
@@ -100,11 +107,11 @@ class CameraSettings(
         this.manualFocusValue = settings.manualFocusValue
 
         this.hdrMode = settings.hdrMode
-        this.logHdr = settings.logHdr
 
         this.logWhiteBalance = settings.logWhiteBalance
         this.logExposure = settings.logExposure
         this.logFocus = settings.logFocus
+        this.logHdr = settings.logHdr
     }
 
     fun addTo(map: MutableMap<String, Any>) {
@@ -113,6 +120,13 @@ class CameraSettings(
             exposureTime
         if (whiteBalanceMode != WhiteBalanceMode.Auto) map["camera_white_balance"] = whiteBalance
         if (focusMode != CameraSettingMode.Auto) map["camera_focus_distance"] = focus
+        map["camera_hdr"] = when {
+            hdrMode == HdrMode.Auto && hdrEnabled -> "hdr-auto-on"
+            hdrMode == HdrMode.Auto && !hdrEnabled -> "hdr-auto-off"
+            hdrMode == HdrMode.Off && hdrEnabled -> "hdr-conflict"
+            hdrMode == HdrMode.Off && !hdrEnabled -> "hdr-manual-off"
+            else -> "hdr-unknown"
+        }
     }
 
     fun onSettingsChanged(settings: CaptureResult) {
@@ -140,19 +154,31 @@ class CameraSettings(
             return
         }
 
-        if (logFocus && focusMode == CameraSettingMode.Auto && focusDistance != null) {
-            focusLog.add(focusDistance)
+        if (logFocus && focusMode == CameraSettingMode.Auto && focusDistance != null && lastFocusValue.differs(focusDistance)) {
+            focusLog.add(listOf(focusDistance, frameCounter))
+            lastFocusValue = focusDistance
         }
-        if (logWhiteBalance && whiteBalanceMode == WhiteBalanceMode.Auto && whiteBalance != null) {
-            whiteBalanceLog.add(whiteBalance)
+        if (logWhiteBalance && whiteBalanceMode == WhiteBalanceMode.Auto && whiteBalance != null && lastWhiteBalanceValue.differs(whiteBalance)) {
+            whiteBalanceLog.add(listOf<Any>(whiteBalance.r, whiteBalance.g, whiteBalance.b, frameCounter))
+            lastWhiteBalanceValue = whiteBalance
         }
         if (logExposure && exposureMode == CameraSettingMode.Auto && exposureTime != null && iso != null) {
-            exposureTimeLog.add(exposureTime)
-            isoLog.add(iso)
+            if (iso != lastIsoValue) {
+                isoLog.add(listOf(iso, frameCounter))
+                lastIsoValue = iso
+            }
+
+            if (exposureTime != lastExposureTimeValue) {
+                exposureTimeLog.add(listOf(exposureTime, frameCounter))
+                lastExposureTimeValue = exposureTime
+            }
         }
-        if (logHdr && hdrMode == HdrMode.Auto) {
-            hdrLog.add(hdrEnabled)
+        if (logHdr && hdrMode == HdrMode.Auto && hdrEnabled != lastHdrValue) {
+            hdrLog.add(listOf(hdrEnabled.toInt(), frameCounter))
+            lastHdrValue = hdrEnabled
         }
+
+        frameCounter++
     }
 
     fun toOutput(): MeasurementCameraSettings {
@@ -163,29 +189,18 @@ class CameraSettings(
             else -> "auto"
         }
 
-        val whiteBalanceR = whiteBalanceLog.map { it.r }
-        val whiteBalanceG = whiteBalanceLog.map { it.g }
-        val whiteBalanceB = whiteBalanceLog.map { it.b }
-        val isWhiteBalanceEmpty =
-            whiteBalanceR.isEmpty() && whiteBalanceG.isEmpty() && whiteBalanceB.isEmpty()
-        val whiteBalanceOutput = if (isWhiteBalanceEmpty) null else WhiteBalanceLog(
-            whiteBalanceR,
-            whiteBalanceG,
-            whiteBalanceB
-        )
-
         return MeasurementCameraSettings(
             if (exposureMode != CameraSettingMode.Locked) exposureMode.name.lowercase() else null,
             isoLog.ifEmpty { null },
             exposureTimeLog.ifEmpty { null },
             whiteBalanceMode,
-            whiteBalanceOutput,
+            whiteBalanceLog,
             if (focusMode != CameraSettingMode.Locked) focusMode.name.lowercase() else null,
             focusLog.ifEmpty { null },
             hdrMode.name.lowercase(),
-            hdrEnabled,
             toneMapMode,
-            if (hdrProfile != null) CameraUtils.dynamicRangeProfileToString(hdrProfile) else null
+            if (hdrProfile != null) CameraUtils.dynamicRangeProfileToString(hdrProfile) else null,
+            hdrLog.ifEmpty { null }
         )
     }
 
@@ -198,6 +213,13 @@ class CameraSettings(
         toneMapMode = null
         hdrProfile = null
         hdrEnabled = false
+
+        frameCounter = 0
+        lastIsoValue = -1
+        lastExposureTimeValue = -1L
+        lastFocusValue = -1.0f
+        lastWhiteBalanceValue = Vec3f(-1f, -1f, -1f)
+        lastHdrValue = null
     }
 
     val isAutoExposure

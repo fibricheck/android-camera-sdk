@@ -21,6 +21,7 @@ import com.qompium.fibricheck.camerasdk.models.CameraSettingsState
 import com.qompium.fibricheck.camerasdk.models.HdrMode
 import com.qompium.fibricheck.camerasdk.models.WhiteBalanceMode
 import com.qompium.fibricheckexample_kotlin.databinding.FragmentCameraTesterBinding
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -47,14 +48,26 @@ class FragmentCameraTester : Fragment() {
 
         fibrichecker = FibriBuilder(requireActivity(), binding.cameraFinder)
             .fibriListener(object: FibriListener() {
-                override fun onMeasurementFinished(timestamp: Long) {
-                   fibrichecker.stop()
-                }
-
                 override fun onMeasurementProcessed(measurementData: MeasurementData?) {
                     if (measurementData != null) {
-                        println(measurementData.cameraSettings)
+                        println(measurementData.technical_details)
+                        println(measurementData.cameraSettings.exposureMode)
+                        println(measurementData.cameraSettings.iso?.subList(0, min(
+                            measurementData.cameraSettings.iso!!.size, 10)))
+                        println(measurementData.cameraSettings.exposureTime?.subList(0, min(
+                            measurementData.cameraSettings.exposureTime!!.size, 10)))
+                        println(measurementData.cameraSettings.whiteBalanceMode)
+                        println(measurementData.cameraSettings.whiteBalance?.subList(0, min(
+                            measurementData.cameraSettings.whiteBalance!!.size, 10)))
+                        println(measurementData.cameraSettings.focusMode)
+                        println(measurementData.cameraSettings.focus?.subList(0, min(
+                            measurementData.cameraSettings.focus!!.size, 10)))
+                        println(measurementData.cameraSettings.hdrMode)
+                        println(measurementData.cameraSettings.hdr?.subList(0, min(
+                            measurementData.cameraSettings.hdr!!.size, 10)))
                     }
+
+                    fibrichecker.stop()
                 }
             })
             .build()
@@ -74,6 +87,8 @@ class FragmentCameraTester : Fragment() {
         initWhiteBalance()
         initFocus()
         initExposure()
+        initHdr()
+        initLogButtons()
     }
 
     private fun initWhiteBalance() {
@@ -210,6 +225,41 @@ class FragmentCameraTester : Fragment() {
         }
 
         updateExposure()
+    }
+
+    private fun initHdr() {
+        binding.hdrState.onValueChange = { index, value ->
+            val mode = when (value) {
+                "Auto" -> HdrMode.Auto
+                "Off" -> HdrMode.Off
+                else -> HdrMode.Auto
+            }
+
+            cameraSettings.hdrMode = mode
+            fibrichecker.setCameraSettings(cameraSettings)
+        }
+    }
+
+    private fun initLogButtons() {
+        binding.switchLogExposure.setOnCheckedChangeListener { button, bool ->
+            cameraSettings.logExposure = bool
+            fibrichecker.setCameraSettings(cameraSettings)
+        }
+
+        binding.switchLogWhiteBalance.setOnCheckedChangeListener { button, bool ->
+            cameraSettings.logWhiteBalance = bool
+            fibrichecker.setCameraSettings(cameraSettings)
+        }
+
+        binding.switchLogFocus.setOnCheckedChangeListener { button, bool ->
+            cameraSettings.logFocus = bool
+            fibrichecker.setCameraSettings(cameraSettings)
+        }
+
+        binding.switchLogHdr.setOnCheckedChangeListener { button, bool ->
+            cameraSettings.logHdr = bool
+            fibrichecker.setCameraSettings(cameraSettings)
+        }
     }
 
     private fun updateExposure() {
