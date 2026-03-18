@@ -88,5 +88,37 @@ To release a new version, follow the [git convention](https://www.conventionalco
 When a new PR to the `main` branch is merged, it will trigger the release process.
 Development releases will be build on PR merged to the `dev` branch
 
+## Logged Data Structure
+When a `log` flag is enabled on a `CameraSettingsInput` and its corresponding mode is set to `auto`, the measurement result will include a `camera_settings` object containing the relevant log.
+
+The log lists only add a new entry when the value differs from the previous one (or exceeds 0.001 for floating-point values). This avoids storing redundant data for values that remain stable across many frames.
+
+The general structure of a log is:
+```
+[[<value>, <frame index>], ...]
+```
+
+**Example — focus distance:**
+```json
+[[0.0, 0], [0.1, 13], [0.5, 40]]
+```
+- Frame 0: focus distance is `0.0`
+- Frame 13: changes to `0.1`
+- Frame 40: changes to `0.5`, then remains constant for the rest of the recording
+
+**White balance** is the exception, it uses three values (`r`, `g`, `b`) per entry:
+```
+[[<r>, <g>, <b>, <frame index>], ...]
+```
+
+**Data types per field:**
+| Field | Structure | Notes |
+|---|---|---|
+| `iso` | `[[int, int]]` | |
+| `exposure_time` | `[[long, int]]` | |
+| `focus` | `[[float, int]]` | |
+| `white_balance` | `[[float, float, float, int]]` | |
+| `hdr` | `[[int, int]]` | 1 = on, 0 = off |
+
 ## License
 This SDK is proprietary. See `LICENCE` for more information.
