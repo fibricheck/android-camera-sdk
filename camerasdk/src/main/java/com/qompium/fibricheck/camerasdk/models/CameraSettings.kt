@@ -21,11 +21,11 @@ open class CameraSettingsInput(
     var focusMode: CameraSettingMode = CameraSettingMode.Auto,
     var manualFocusValue: Float = 0f,
 
-    var hdrMode: HdrMode = HdrMode.Auto,
+    var hdrMode: HdrMode = HdrMode.Off,
 
-    var logWhiteBalance: Boolean = false,
+    var logWhiteBalance: Boolean = true,
     var logExposure: Boolean = false,
-    var logFocus: Boolean = false,
+    var logFocus: Boolean = true,
     var logHdr: Boolean = false
 )
 
@@ -46,12 +46,12 @@ class CameraSettings(
     var autoFocusValue: Float = 0f,
     manualFocusValue: Float = 0f,
 
-    hdrMode: HdrMode = HdrMode.Auto,
+    hdrMode: HdrMode = HdrMode.Off,
     var hdrEnabled: Boolean = false,
 
-    logWhiteBalance: Boolean = false,
+    logWhiteBalance: Boolean = true,
     logExposure: Boolean = false,
-    logFocus: Boolean = false,
+    logFocus: Boolean = true,
     logHdr: Boolean = false,
 ) : CameraSettingsInput(
     exposureMode, manualIsoValue, manualExposureTime,
