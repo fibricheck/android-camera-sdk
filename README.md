@@ -76,11 +76,14 @@ import com.qompium.fibricheck.camerasdk.*;
 This project uses [git-cliff](https://git-cliff.org/) to generate changelogs following the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ```bash
-# Update CHANGELOG.md
+# Update CHANGELOG.md (after prod tag exists)
 git-cliff --output CHANGELOG.md
 
-# Preview unreleased changes
+# Preview unreleased changes without a tag
 git-cliff --unreleased
+
+# Generate changelog labelled with a specific version (e.g. before the prod tag exists)
+git-cliff --tag v1.1.0 --output CHANGELOG.md
 ```
 
 ## Releasing a new version
