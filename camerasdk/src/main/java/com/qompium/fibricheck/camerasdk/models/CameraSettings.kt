@@ -10,64 +10,64 @@ import com.qompium.fibricheck.camerasdk.measurement.Vec3f
 import com.qompium.fibricheck.camerasdk.utils.CameraUtils
 
 open class CameraSettingsInput(
-    var exposureMode: CameraSettingMode = CameraSettingMode.Locked,
-    var manualIsoValue: Int = 0,
-    var manualExposureTime: Long = 0,
+    var internal_exposureMode: CameraSettingMode = CameraSettingMode.Locked,
+    var internal_manualIso: Int = 0,
+    var internal_manualExposureTime: Long = 0,
 
-    var whiteBalanceMode: WhiteBalanceMode = WhiteBalanceMode.Auto,
-    var manualWhiteBalanceRgb: Vec3f = Vec3f(),
-    var manualWhiteBalanceKelvin: Int = 6504,
+    var internal_whiteBalanceMode: WhiteBalanceMode = WhiteBalanceMode.Auto,
+    var internal_manualWhiteBalanceRgb: Vec3f = Vec3f(),
+    var internal_manualWhiteBalanceKelvin: Int = 6504,
 
-    var focusMode: CameraSettingMode = CameraSettingMode.Auto,
-    var manualFocusValue: Float = 0f,
+    var internal_focusMode: CameraSettingMode = CameraSettingMode.Auto,
+    var internal_manualFocus: Float = 0f,
 
-    var hdrMode: HdrMode = HdrMode.Off,
+    var internal_hdrMode: HdrMode = HdrMode.Off,
 
-    var logWhiteBalance: Boolean = true,
-    var logExposure: Boolean = false,
-    var logFocus: Boolean = true,
-    var logHdr: Boolean = false
+    var internal_logWhiteBalance: Boolean = true,
+    var internal_logExposure: Boolean = false,
+    var internal_logFocus: Boolean = true,
+    var internal_logHdr: Boolean = false
 )
 
 class CameraSettings(
     var cameraSettingsState: CameraSettingsState = CameraSettingsState.Calibrating,
-    exposureMode: CameraSettingMode = CameraSettingMode.Locked,
+    internal_exposureMode: CameraSettingMode = CameraSettingMode.Locked,
     var autoIsoValue: Int = 0,
     var autoExposureTime: Long = 0,
-    manualIsoValue: Int = 0,
-    manualExposureTime: Long = 0,
+    internal_manualIso: Int = 0,
+    internal_manualExposureTime: Long = 0,
 
-    whiteBalanceMode: WhiteBalanceMode = WhiteBalanceMode.Auto,
+    internal_whiteBalanceMode: WhiteBalanceMode = WhiteBalanceMode.Auto,
     var autoWhiteBalanceRgb: Vec3f = Vec3f(),
-    manualWhiteBalanceRgb: Vec3f = Vec3f(),
-    manualWhiteBalanceKelvin: Int = 6504,
+    internal_manualWhiteBalanceRgb: Vec3f = Vec3f(),
+    internal_manualWhiteBalanceKelvin: Int = 6504,
 
-    focusMode: CameraSettingMode = CameraSettingMode.Auto,
+    internal_focusMode: CameraSettingMode = CameraSettingMode.Auto,
     var autoFocusValue: Float = 0f,
-    manualFocusValue: Float = 0f,
+    internal_manualFocus: Float = 0f,
 
-    hdrMode: HdrMode = HdrMode.Off,
+    internal_hdrMode: HdrMode = HdrMode.Off,
     var hdrEnabled: Boolean = false,
 
-    logWhiteBalance: Boolean = true,
-    logExposure: Boolean = false,
-    logFocus: Boolean = true,
-    logHdr: Boolean = false,
+    internal_logWhiteBalance: Boolean = true,
+    internal_logExposure: Boolean = false,
+    internal_logFocus: Boolean = true,
+    internal_logHdr: Boolean = false,
 ) : CameraSettingsInput(
-    exposureMode, manualIsoValue, manualExposureTime,
-    whiteBalanceMode, manualWhiteBalanceRgb, manualWhiteBalanceKelvin,
-    focusMode, manualFocusValue,
-    hdrMode,
-    logWhiteBalance, logExposure, logFocus, logHdr
+    internal_exposureMode, internal_manualIso, internal_manualExposureTime,
+    internal_whiteBalanceMode, internal_manualWhiteBalanceRgb, internal_manualWhiteBalanceKelvin,
+    internal_focusMode, internal_manualFocus,
+    internal_hdrMode,
+    internal_logWhiteBalance, internal_logExposure, internal_logFocus, internal_logHdr
 ) {
-    val iso get() = if (exposureMode == CameraSettingMode.Manual) manualIsoValue else autoIsoValue
-    val exposureTime get() = if (exposureMode == CameraSettingMode.Manual) manualExposureTime else autoExposureTime
-    val focus get() = if (focusMode == CameraSettingMode.Manual) manualFocusValue else autoFocusValue
+    val iso get() = if (internal_exposureMode == CameraSettingMode.Manual) internal_manualIso else autoIsoValue
+    val exposureTime get() = if (internal_exposureMode == CameraSettingMode.Manual) internal_manualExposureTime else autoExposureTime
+    val focus get() = if (internal_focusMode == CameraSettingMode.Manual) internal_manualFocus else autoFocusValue
     val whiteBalance
-        get() = when (whiteBalanceMode) {
-            WhiteBalanceMode.ManualRgb -> manualWhiteBalanceRgb
+        get() = when (internal_whiteBalanceMode) {
+            WhiteBalanceMode.ManualRgb -> internal_manualWhiteBalanceRgb
             WhiteBalanceMode.ManualKelvin -> CameraUtils.whiteBalanceToGains(
-                manualWhiteBalanceKelvin
+                internal_manualWhiteBalanceKelvin
             )
 
             else -> autoWhiteBalanceRgb
@@ -95,36 +95,36 @@ class CameraSettings(
     var lastHdrValue: Boolean? = null
 
     fun set(settings: CameraSettingsInput) {
-        this.exposureMode = settings.exposureMode
-        this.manualIsoValue = settings.manualIsoValue
-        this.manualExposureTime = settings.manualExposureTime
+        this.internal_exposureMode = settings.internal_exposureMode
+        this.internal_manualIso = settings.internal_manualIso
+        this.internal_manualExposureTime = settings.internal_manualExposureTime
 
-        this.whiteBalanceMode = settings.whiteBalanceMode
-        this.manualWhiteBalanceRgb = settings.manualWhiteBalanceRgb
-        this.manualWhiteBalanceKelvin = settings.manualWhiteBalanceKelvin
+        this.internal_whiteBalanceMode = settings.internal_whiteBalanceMode
+        this.internal_manualWhiteBalanceRgb = settings.internal_manualWhiteBalanceRgb
+        this.internal_manualWhiteBalanceKelvin = settings.internal_manualWhiteBalanceKelvin
 
-        this.focusMode = settings.focusMode
-        this.manualFocusValue = settings.manualFocusValue
+        this.internal_focusMode = settings.internal_focusMode
+        this.internal_manualFocus = settings.internal_manualFocus
 
-        this.hdrMode = settings.hdrMode
+        this.internal_hdrMode = settings.internal_hdrMode
 
-        this.logWhiteBalance = settings.logWhiteBalance
-        this.logExposure = settings.logExposure
-        this.logFocus = settings.logFocus
-        this.logHdr = settings.logHdr
+        this.internal_logWhiteBalance = settings.internal_logWhiteBalance
+        this.internal_logExposure = settings.internal_logExposure
+        this.internal_logFocus = settings.internal_logFocus
+        this.internal_logHdr = settings.internal_logHdr
     }
 
     fun addTo(map: MutableMap<String, Any>) {
-        if (iso != 0 && exposureMode != CameraSettingMode.Auto) map["camera_iso"] = iso
-        if (exposureTime != 0L && exposureMode != CameraSettingMode.Auto) map["camera_exposure_time"] =
+        if (iso != 0 && internal_exposureMode != CameraSettingMode.Auto) map["camera_iso"] = iso
+        if (exposureTime != 0L && internal_exposureMode != CameraSettingMode.Auto) map["camera_exposure_time"] =
             exposureTime
-        if (whiteBalanceMode != WhiteBalanceMode.Auto) map["camera_white_balance"] = whiteBalance
-        if (focusMode != CameraSettingMode.Auto) map["camera_focus_distance"] = focus
+        if (internal_whiteBalanceMode != WhiteBalanceMode.Auto) map["camera_white_balance"] = whiteBalance
+        if (internal_focusMode != CameraSettingMode.Auto) map["camera_focus_distance"] = focus
         map["camera_hdr"] = when {
-            hdrMode == HdrMode.Auto && hdrEnabled -> "hdr-auto-on"
-            hdrMode == HdrMode.Auto && !hdrEnabled -> "hdr-auto-off"
-            hdrMode == HdrMode.Off && hdrEnabled -> "hdr-conflict"
-            hdrMode == HdrMode.Off && !hdrEnabled -> "hdr-manual-off"
+            internal_hdrMode == HdrMode.Auto && hdrEnabled -> "hdr-auto-on"
+            internal_hdrMode == HdrMode.Auto && !hdrEnabled -> "hdr-auto-off"
+            internal_hdrMode == HdrMode.Off && hdrEnabled -> "hdr-conflict"
+            internal_hdrMode == HdrMode.Off && !hdrEnabled -> "hdr-manual-off"
             else -> "hdr-unknown"
         }
     }
@@ -138,13 +138,13 @@ class CameraSettings(
         hdrEnabled = sceneMode != null && sceneMode == CaptureResult.CONTROL_SCENE_MODE_HDR
         toneMapMode = CameraUtils.tonemapModeToString(settings.get(CaptureResult.TONEMAP_MODE))
 
-        if (focusMode != CameraSettingMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
+        if (internal_focusMode != CameraSettingMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
             autoFocusValue = focusDistance ?: autoFocusValue
         }
-        if (whiteBalanceMode != WhiteBalanceMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
+        if (internal_whiteBalanceMode != WhiteBalanceMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
             autoWhiteBalanceRgb = whiteBalance ?: autoWhiteBalanceRgb
         }
-        if (exposureMode != CameraSettingMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
+        if (internal_exposureMode != CameraSettingMode.Locked || cameraSettingsState == CameraSettingsState.Calibrating) {
             autoExposureTime = exposureTime ?: autoExposureTime
             autoIsoValue = iso ?: autoIsoValue
         }
@@ -154,15 +154,15 @@ class CameraSettings(
             return
         }
 
-        if (logFocus && focusMode == CameraSettingMode.Auto && focusDistance != null && lastFocusValue.differs(focusDistance)) {
+        if (internal_logFocus && internal_focusMode == CameraSettingMode.Auto && focusDistance != null && lastFocusValue.differs(focusDistance)) {
             focusLog.add(listOf(focusDistance, frameCounter))
             lastFocusValue = focusDistance
         }
-        if (logWhiteBalance && whiteBalanceMode == WhiteBalanceMode.Auto && whiteBalance != null && lastWhiteBalanceValue.differs(whiteBalance)) {
+        if (internal_logWhiteBalance && internal_whiteBalanceMode == WhiteBalanceMode.Auto && whiteBalance != null && lastWhiteBalanceValue.differs(whiteBalance)) {
             whiteBalanceLog.add(listOf<Any>(whiteBalance.r, whiteBalance.g, whiteBalance.b, frameCounter))
             lastWhiteBalanceValue = whiteBalance
         }
-        if (logExposure && exposureMode == CameraSettingMode.Auto && exposureTime != null && iso != null) {
+        if (internal_logExposure && internal_exposureMode == CameraSettingMode.Auto && exposureTime != null && iso != null) {
             if (iso != lastIsoValue) {
                 isoLog.add(listOf(iso, frameCounter))
                 lastIsoValue = iso
@@ -173,7 +173,7 @@ class CameraSettings(
                 lastExposureTimeValue = exposureTime
             }
         }
-        if (logHdr && hdrMode == HdrMode.Auto && hdrEnabled != lastHdrValue) {
+        if (internal_logHdr && internal_hdrMode == HdrMode.Auto && hdrEnabled != lastHdrValue) {
             hdrLog.add(listOf(hdrEnabled.toInt(), frameCounter))
             lastHdrValue = hdrEnabled
         }
@@ -182,7 +182,7 @@ class CameraSettings(
     }
 
     fun toOutput(): MeasurementCameraSettings {
-        val whiteBalanceMode = when (whiteBalanceMode) {
+        val whiteBalanceMode = when (internal_whiteBalanceMode) {
             WhiteBalanceMode.ManualRgb -> "manual"
             WhiteBalanceMode.ManualKelvin -> "manual"
             WhiteBalanceMode.Locked -> null
@@ -190,16 +190,16 @@ class CameraSettings(
         }
 
         return MeasurementCameraSettings(
-            if (exposureMode != CameraSettingMode.Locked) exposureMode.name.lowercase() else null,
+            internal_exposureMode.name.lowercase(),
             isoLog.ifEmpty { null },
             exposureTimeLog.ifEmpty { null },
             whiteBalanceMode,
             whiteBalanceLog,
-            if (focusMode != CameraSettingMode.Locked) focusMode.name.lowercase() else null,
+            internal_focusMode.name.lowercase(),
             focusLog.ifEmpty { null },
-            hdrMode.name.lowercase(),
+            internal_hdrMode.name.lowercase(),
             toneMapMode,
-            if (hdrProfile != null) CameraUtils.dynamicRangeProfileToString(hdrProfile) else null,
+            CameraUtils.dynamicRangeProfileToString(hdrProfile) ?: "STANDARD (SDR)",
             hdrLog.ifEmpty { null }
         )
     }
@@ -223,11 +223,11 @@ class CameraSettings(
     }
 
     val isAutoExposure
-        get() = exposureMode == CameraSettingMode.Auto || (exposureMode == CameraSettingMode.Locked && cameraSettingsState == CameraSettingsState.Calibrating)
+        get() = internal_exposureMode == CameraSettingMode.Auto || (internal_exposureMode == CameraSettingMode.Locked && cameraSettingsState == CameraSettingsState.Calibrating)
 
     val isAutoFocus
-        get() = focusMode == CameraSettingMode.Auto || (focusMode == CameraSettingMode.Locked && cameraSettingsState == CameraSettingsState.Calibrating)
+        get() = internal_focusMode == CameraSettingMode.Auto || (internal_focusMode == CameraSettingMode.Locked && cameraSettingsState == CameraSettingsState.Calibrating)
 
     val isAutoWhiteBalance
-        get() = whiteBalanceMode == WhiteBalanceMode.Auto || (whiteBalanceMode == WhiteBalanceMode.Locked && cameraSettingsState == CameraSettingsState.Calibrating)
+        get() = internal_whiteBalanceMode == WhiteBalanceMode.Auto || (internal_whiteBalanceMode == WhiteBalanceMode.Locked && cameraSettingsState == CameraSettingsState.Calibrating)
 }

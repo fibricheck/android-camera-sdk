@@ -58,6 +58,23 @@ Once the dependency is correctly added, the SDK is available in your code.
 import com.qompium.fibricheck.camerasdk.*;
 ```
 
+## Running the example apps
+
+Enable **USB debugging** on your phone: Settings → About phone → tap Build number 7 times → Developer options → USB Debugging. Then connect your phone via USB and approve the connection prompt.
+
+```bash
+# Check your device is detected
+adb devices
+
+# Install the Kotlin example app and launch it
+./gradlew :example-kotlin:installDebug && adb shell am start -n com.qompium.fibricheckexample/.MainActivity
+
+# Install the test sequence app and launch it
+./gradlew :test-sequence:installDebug && adb shell am start -n com.qompium.fibricheck.testsequence/.MainActivity
+```
+
+Alternatively, open the project in Android Studio, select your device from the device dropdown, and press Run (▶).
+
 ## Running Tests
 
 ```bash

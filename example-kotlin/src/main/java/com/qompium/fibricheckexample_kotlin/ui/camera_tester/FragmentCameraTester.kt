@@ -34,7 +34,7 @@ class FragmentCameraTester : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
     private var lastData: Map<String, String>? = null
-    private var cameraSettings: CameraSettingsInput = CameraSettingsInput(hdrMode = HdrMode.Auto, logHdr = true)
+    private var cameraSettings: CameraSettingsInput = CameraSettingsInput(internal_hdrMode = HdrMode.Auto, internal_logHdr = true)
     private lateinit var cameraInfo: CameraSettingsInfo
 
     override fun onCreateView(
@@ -101,10 +101,10 @@ class FragmentCameraTester : Fragment() {
                 else -> WhiteBalanceMode.Locked
             }
 
-            cameraSettings.whiteBalanceMode = whiteBalanceMode
+            cameraSettings.internal_whiteBalanceMode = whiteBalanceMode
             when (whiteBalanceMode) {
-                WhiteBalanceMode.ManualRgb -> cameraSettings.manualWhiteBalanceRgb = Vec3f(binding.whiteBalanceSliderR.value, binding.whiteBalanceSliderG.value, binding.whiteBalanceSliderB.value)
-                WhiteBalanceMode.ManualKelvin -> cameraSettings.manualWhiteBalanceKelvin = binding.whiteBalanceSliderKelvin.value.toInt()
+                WhiteBalanceMode.ManualRgb -> cameraSettings.internal_manualWhiteBalanceRgb = Vec3f(binding.whiteBalanceSliderR.value, binding.whiteBalanceSliderG.value, binding.whiteBalanceSliderB.value)
+                WhiteBalanceMode.ManualKelvin -> cameraSettings.internal_manualWhiteBalanceKelvin = binding.whiteBalanceSliderKelvin.value.toInt()
                 else -> {}
             }
 
@@ -113,19 +113,19 @@ class FragmentCameraTester : Fragment() {
         }
 
         binding.whiteBalanceSliderR.addOnChangeListener { _, value, _ ->
-            cameraSettings.manualWhiteBalanceRgb = Vec3f(value, cameraSettings.manualWhiteBalanceRgb.g, cameraSettings.manualWhiteBalanceRgb.b)
+            cameraSettings.internal_manualWhiteBalanceRgb = Vec3f(value, cameraSettings.internal_manualWhiteBalanceRgb.g, cameraSettings.internal_manualWhiteBalanceRgb.b)
             fibrichecker.setCameraSettings(cameraSettings)
         }
         binding.whiteBalanceSliderG.addOnChangeListener { _, value, _ ->
-            cameraSettings.manualWhiteBalanceRgb = Vec3f(cameraSettings.manualWhiteBalanceRgb.r, value, cameraSettings.manualWhiteBalanceRgb.b)
+            cameraSettings.internal_manualWhiteBalanceRgb = Vec3f(cameraSettings.internal_manualWhiteBalanceRgb.r, value, cameraSettings.internal_manualWhiteBalanceRgb.b)
             fibrichecker.setCameraSettings(cameraSettings)
         }
         binding.whiteBalanceSliderB.addOnChangeListener { _, value, _ ->
-            cameraSettings.manualWhiteBalanceRgb = Vec3f(cameraSettings.manualWhiteBalanceRgb.r, cameraSettings.manualWhiteBalanceRgb.g, value)
+            cameraSettings.internal_manualWhiteBalanceRgb = Vec3f(cameraSettings.internal_manualWhiteBalanceRgb.r, cameraSettings.internal_manualWhiteBalanceRgb.g, value)
             fibrichecker.setCameraSettings(cameraSettings)
         }
         binding.whiteBalanceSliderKelvin.addOnChangeListener { _, value, _ ->
-            cameraSettings.manualWhiteBalanceKelvin = value.toInt()
+            cameraSettings.internal_manualWhiteBalanceKelvin = value.toInt()
             fibrichecker.setCameraSettings(cameraSettings)
         }
 
@@ -133,7 +133,7 @@ class FragmentCameraTester : Fragment() {
     }
 
     private fun updateWhiteBalance() {
-        val state = when(cameraSettings.whiteBalanceMode) {
+        val state = when(cameraSettings.internal_whiteBalanceMode) {
             WhiteBalanceMode.Locked -> "Locked"
             WhiteBalanceMode.Auto -> "Auto"
             WhiteBalanceMode.ManualRgb -> "Rgb"
@@ -141,8 +141,8 @@ class FragmentCameraTester : Fragment() {
         }
 
         binding.whiteBalanceState.value = state
-        binding.whiteBalanceRgb.visibility = if (cameraSettings.whiteBalanceMode == WhiteBalanceMode.ManualRgb) View.VISIBLE else View.GONE
-        binding.whiteBalanceSliderKelvin.visibility = if (cameraSettings.whiteBalanceMode == WhiteBalanceMode.ManualKelvin) View.VISIBLE else View.GONE
+        binding.whiteBalanceRgb.visibility = if (cameraSettings.internal_whiteBalanceMode == WhiteBalanceMode.ManualRgb) View.VISIBLE else View.GONE
+        binding.whiteBalanceSliderKelvin.visibility = if (cameraSettings.internal_whiteBalanceMode == WhiteBalanceMode.ManualKelvin) View.VISIBLE else View.GONE
     }
 
     private fun initFocus() {
@@ -154,9 +154,9 @@ class FragmentCameraTester : Fragment() {
                 else -> CameraSettingMode.Locked
             }
 
-            cameraSettings.focusMode = mode
+            cameraSettings.internal_focusMode = mode
             if (mode == CameraSettingMode.Manual) {
-                cameraSettings.manualFocusValue = binding.focusSlider.value
+                cameraSettings.internal_manualFocus = binding.focusSlider.value
             }
 
             updateFocus()
@@ -168,7 +168,7 @@ class FragmentCameraTester : Fragment() {
         binding.focusSlider.valueTo = focusRange.second
 
         binding.focusSlider.addOnChangeListener(OnChangeListener { _, value, _ ->
-            cameraSettings.manualFocusValue = value
+            cameraSettings.internal_manualFocus = value
             fibrichecker.setCameraSettings(cameraSettings)
         })
 
@@ -176,14 +176,14 @@ class FragmentCameraTester : Fragment() {
     }
 
     private fun updateFocus() {
-        val state = when(cameraSettings.focusMode) {
+        val state = when(cameraSettings.internal_focusMode) {
             CameraSettingMode.Locked -> "Locked"
             CameraSettingMode.Auto -> "Auto"
             CameraSettingMode.Manual -> "Manual"
         }
 
         binding.focusState.value = state
-        binding.focusSlider.visibility = if (cameraSettings.focusMode == CameraSettingMode.Manual) View.VISIBLE else View.GONE
+        binding.focusSlider.visibility = if (cameraSettings.internal_focusMode == CameraSettingMode.Manual) View.VISIBLE else View.GONE
     }
 
     private fun initExposure() {
@@ -195,10 +195,10 @@ class FragmentCameraTester : Fragment() {
                 else -> CameraSettingMode.Locked
             }
 
-            cameraSettings.exposureMode = mode
+            cameraSettings.internal_exposureMode = mode
             if (mode == CameraSettingMode.Manual) {
-                cameraSettings.manualIsoValue = binding.sliderIso.value.toInt()
-                cameraSettings.manualExposureTime = binding.sliderExposureTime.value.toLong()
+                cameraSettings.internal_manualIso = binding.sliderIso.value.toInt()
+                cameraSettings.internal_manualExposureTime = binding.sliderExposureTime.value.toLong()
             }
 
             updateExposure()
@@ -213,13 +213,13 @@ class FragmentCameraTester : Fragment() {
         binding.sliderIso.valueTo = cameraInfo.isoRange.second.toFloat()
 
         binding.sliderIso.addOnChangeListener { slider, value, fromUser ->
-            cameraSettings.manualIsoValue = slider.value.roundToInt()
+            cameraSettings.internal_manualIso = slider.value.roundToInt()
             binding.textIso.text = "ISO: ${slider.value.roundToInt()}"
             fibrichecker.setCameraSettings(cameraSettings)
         }
 
         binding.sliderExposureTime.addOnChangeListener { slider, value, fromUser ->
-            cameraSettings.manualExposureTime = dividerToExposureTime(slider.value)
+            cameraSettings.internal_manualExposureTime = dividerToExposureTime(slider.value)
             binding.textExposureTime.text = "Exposure time: 1/${slider.value}"
             fibrichecker.setCameraSettings(cameraSettings)
         }
@@ -235,42 +235,42 @@ class FragmentCameraTester : Fragment() {
                 else -> HdrMode.Auto
             }
 
-            cameraSettings.hdrMode = mode
+            cameraSettings.internal_hdrMode = mode
             fibrichecker.setCameraSettings(cameraSettings)
         }
     }
 
     private fun initLogButtons() {
         binding.switchLogExposure.setOnCheckedChangeListener { button, bool ->
-            cameraSettings.logExposure = bool
+            cameraSettings.internal_logExposure = bool
             fibrichecker.setCameraSettings(cameraSettings)
         }
 
         binding.switchLogWhiteBalance.setOnCheckedChangeListener { button, bool ->
-            cameraSettings.logWhiteBalance = bool
+            cameraSettings.internal_logWhiteBalance = bool
             fibrichecker.setCameraSettings(cameraSettings)
         }
 
         binding.switchLogFocus.setOnCheckedChangeListener { button, bool ->
-            cameraSettings.logFocus = bool
+            cameraSettings.internal_logFocus = bool
             fibrichecker.setCameraSettings(cameraSettings)
         }
 
         binding.switchLogHdr.setOnCheckedChangeListener { button, bool ->
-            cameraSettings.logHdr = bool
+            cameraSettings.internal_logHdr = bool
             fibrichecker.setCameraSettings(cameraSettings)
         }
     }
 
     private fun updateExposure() {
-        val state = when(cameraSettings.exposureMode) {
+        val state = when(cameraSettings.internal_exposureMode) {
             CameraSettingMode.Locked -> "Locked"
             CameraSettingMode.Auto -> "Auto"
             CameraSettingMode.Manual -> "Manual"
         }
 
         binding.exposureState.value = state
-        binding.groupManualExposure.visibility = if (cameraSettings.exposureMode == CameraSettingMode.Manual) View.VISIBLE else View.GONE
+        binding.groupManualExposure.visibility = if (cameraSettings.internal_exposureMode == CameraSettingMode.Manual) View.VISIBLE else View.GONE
     }
 
     private fun dividerToExposureTime(divider: Float): Long {

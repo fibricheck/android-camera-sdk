@@ -344,7 +344,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
         mOutputConfig = new OutputConfiguration(mImageSurface);
         OutputConfiguration textureOutputConfig = new OutputConfiguration(textureSurface);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && cameraSettings.getHdrMode() == HdrMode.Off) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && cameraSettings.getInternal_hdrMode() == HdrMode.Off) {
           mOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
           textureOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
         }
