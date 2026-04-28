@@ -14,10 +14,14 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.DynamicRangeProfiles;
+import android.hardware.camera2.params.OutputConfiguration;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.SystemClock;
@@ -28,20 +32,23 @@ import android.view.TextureView;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.qompium.fibricheck.camerasdk.listeners.EmptyActivityLifecycleCallbacks;
 import com.qompium.fibricheck.camerasdk.listeners.EmptySurfaceTextureListener;
 import com.qompium.fibricheck.camerasdk.measurement.Quadrant;
 import com.qompium.fibricheck.camerasdk.measurement.QuadrantColor;
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInfo;
+import com.qompium.fibricheck.camerasdk.models.HdrMode;
+import com.qompium.fibricheck.camerasdk.utils.CameraUtils;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.concurrent.Executor;
+
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-@RequiresApi(21)
 public class FibriCheckerImpl2 extends FibriChecker {
   private static final String TAG = "FibriChecker2";
 
@@ -49,6 +56,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
   private final TextureView mTextureView;
   private CameraDevice mCameraDevice;
   private CameraCaptureSession mPreviewSession;
+  private OutputConfiguration mOutputConfig;
 
   private Size mPreviewSize;
   private boolean isAdvancedCamera2Implementation = false;
@@ -79,14 +87,16 @@ public class FibriCheckerImpl2 extends FibriChecker {
   private ImageReader mImageReader;
 
   private final CameraCaptureSession.CaptureCallback mCaptureCallback;
+  private final Application.ActivityLifecycleCallbacks mActivityLifecycleCallbacks;
 
-  public FibriCheckerImpl2 (ViewGroup viewGroup,Context context, FibriBuilder builder) {
+  public FibriCheckerImpl2(ViewGroup viewGroup, Context context, FibriBuilder builder) {
     super(viewGroup, context, builder);
 
     mTextureView = new TextureView(context);
     viewGroup.addView(mTextureView);
 
-    ((Application)context.getApplicationContext()).registerActivityLifecycleCallbacks(createLifecycleListener());
+    mActivityLifecycleCallbacks = createLifecycleListener();
+    ((Application) context.getApplicationContext()).registerActivityLifecycleCallbacks(mActivityLifecycleCallbacks);
 
     this.mSurfaceTextureListener = createSurfaceTextureListener();
     this.mStateCallback = createStateCallback();
@@ -94,7 +104,8 @@ public class FibriCheckerImpl2 extends FibriChecker {
     this.mCaptureCallback = createCaptureCallback();
   }
 
-  @Override public void start () {
+  @Override
+  public void start() {
     startBackgroundThread();
     state = State.DETECTING_FINGER;
 
@@ -106,15 +117,10 @@ public class FibriCheckerImpl2 extends FibriChecker {
     }
   }
 
-  private static Size chooseVideoSize (Size[] choices) {
-    Arrays.sort(choices, (s1, s2) -> Long.compare(s1.getWidth() * (long) s1.getHeight(), s2.getWidth() * (long) s2.getHeight()));
-    return choices [0];
-  }
-
-  private QuadrantColor calculateAverageYUV (Image yuvImage) {
+  private QuadrantColor calculateAverageYUV(Image yuvImage) {
     int ySum = 0, uSum = 0, vSum = 0;
     double yAvg, uAvg, vAvg;
-    double stdDevY = 0;
+    double stdDevY;
     int[] histY = new int[256];
 
     Quadrant quadrant = new Quadrant();
@@ -213,10 +219,10 @@ public class FibriCheckerImpl2 extends FibriChecker {
       }
     }
 
-    return new QuadrantColor(quadrant, new double[] { yAvg, uAvg, vAvg, stdDevY });
+    return new QuadrantColor(quadrant, new double[]{yAvg, uAvg, vAvg, stdDevY});
   }
 
-  private void startBackgroundThread () {
+  private void startBackgroundThread() {
     mBackgroundThread = new HandlerThread("CameraBackground");
     mBackgroundThread.start();
     mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
@@ -225,7 +231,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
   /**
    * Stops the background thread and its {@link Handler}.
    */
-  private void stopBackgroundThread () {
+  private void stopBackgroundThread() {
     try {
       if (mBackgroundThread != null) {
         mBackgroundThread.quitSafely();
@@ -241,7 +247,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
   /**
    * Tries to open a {@link CameraDevice}. The result is listened by `mStateCallback`.
    */
-  public void activateCamera () {
+  public void activateCamera() {
     CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
 
     try {
@@ -261,11 +267,11 @@ public class FibriCheckerImpl2 extends FibriChecker {
       }
       Log.i(TAG, "Hardwarelevel: " + hardwareLevel);
 
-      Size mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
-      mPreviewSize = chooseVideoSize(map.getOutputSizes(SurfaceTexture.class));
+      Size mVideoSize = CameraUtils.Companion.getSmallestSize(map.getOutputSizes(MediaRecorder.class));
+      mPreviewSize = CameraUtils.Companion.getSmallestSize(map.getOutputSizes(SurfaceTexture.class));
       cameraResolution = mVideoSize.toString();
 
-      Log.i(TAG, "Chosen video/preview size: " + mVideoSize.toString() + "/" + mPreviewSize.toString());
+      Log.i(TAG, "Chosen video/preview size: " + mVideoSize + "/" + mPreviewSize.toString());
       mImageReader = ImageReader.newInstance(mVideoSize.getWidth(), mVideoSize.getHeight(), ImageFormat.YUV_420_888, 4);
       mImageReader.setOnImageAvailableListener(mOnImageAvailableListener, mBackgroundHandler);
       manager.openCamera(cameraId, mStateCallback, mBackgroundHandler);
@@ -279,7 +285,8 @@ public class FibriCheckerImpl2 extends FibriChecker {
     }
   }
 
-  @Override public void closeCamera () {
+  @Override
+  public void closeCamera() {
     try {
       mCameraOpenCloseLock.acquire();
       closePreviewSession();
@@ -297,7 +304,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
   /**
    * Start the camera preview.
    */
-  private void startPreview () {
+  private void startPreview() {
     if (null == mCameraDevice || !mTextureView.isAvailable() || null == mPreviewSize) {
       return;
     }
@@ -319,19 +326,45 @@ public class FibriCheckerImpl2 extends FibriChecker {
       mCaptureRequest.addTarget(mImageSurface);
       mCaptureRequest.addTarget(textureSurface);
 
-      mCameraDevice.createCaptureSession(Arrays.asList(mImageSurface, textureSurface), new CameraCaptureSession.StateCallback() {
-        @Override public void onConfigured (@NonNull CameraCaptureSession cameraCaptureSession) {
+      CameraCaptureSession.StateCallback sessionCallback = new CameraCaptureSession.StateCallback() {
+        @Override
+        public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
           mPreviewSession = cameraCaptureSession;
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            cameraSettings.setHdrProfile(mOutputConfig.getDynamicRangeProfile());
+          }
           updatePreview();
         }
 
-        @Override public void onConfigureFailed (@NonNull CameraCaptureSession cameraCaptureSession) {
+        @Override
+        public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
           Log.e(TAG, "configure failed");
         }
-      }, null);
+      };
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        mOutputConfig = new OutputConfiguration(mImageSurface);
+        OutputConfiguration textureOutputConfig = new OutputConfiguration(textureSurface);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && cameraSettings.getInternal_hdrMode() == HdrMode.Off) {
+          mOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
+          textureOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
+        }
+
+        Executor executor = context.getMainExecutor();
+        mCameraDevice.createCaptureSession(new SessionConfiguration(
+            SessionConfiguration.SESSION_REGULAR,
+            Arrays.asList(mOutputConfig, textureOutputConfig),
+            executor,
+            sessionCallback
+        ));
+      } else {
+        mCameraDevice.createCaptureSession(Arrays.asList(mImageSurface, textureSurface), sessionCallback, null);
+      }
 
       applyCameraSettings();
-    } catch (SecurityException | IllegalStateException | CameraAccessException | NullPointerException e) {
+    } catch (SecurityException | IllegalStateException | CameraAccessException |
+             NullPointerException e) {
       Log.e(TAG, e.toString());
     }
   }
@@ -339,7 +372,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
   /**
    * Update the camera preview. {@link #startPreview()} needs to be called in advance.
    */
-  private void updatePreview () {
+  private void updatePreview() {
 
     if (null == mCameraDevice) {
       return;
@@ -356,18 +389,19 @@ public class FibriCheckerImpl2 extends FibriChecker {
     }
   }
 
-  @Override public void onFrameReceived (final Quadrant quadrantData, final double[] yuvData, final long timestamp) {
-    ((Activity)context).runOnUiThread(() -> handleStates(quadrantData, yuvData, getMotionData(), timestamp));
+  @Override
+  public void onFrameReceived(final Quadrant quadrantData, final double[] yuvData, final long timestamp) {
+    ((Activity) context).runOnUiThread(() -> handleStates(quadrantData, yuvData, getMotionData(), timestamp));
   }
 
-  private void closePreviewSession () {
+  private void closePreviewSession() {
     if (mPreviewSession != null) {
       mPreviewSession.close();
       mPreviewSession = null;
     }
   }
 
-  private void updateCameraValues (CaptureResult result) {
+  private void updateCameraValues(CaptureResult result) {
     if (!isAdvancedCamera2Implementation) {
       return;
     }
@@ -457,29 +491,39 @@ public class FibriCheckerImpl2 extends FibriChecker {
       // Choose the sizes for camera preview and video recording
       CameraCharacteristics chars = manager.getCameraCharacteristics(cameraId);
       return CameraSettingsInfo.Companion.from(chars);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       return null;
     }
   }
 
+  @Override
+  protected void clearResources() {
+    ((Application) context.getApplicationContext()).unregisterActivityLifecycleCallbacks(mActivityLifecycleCallbacks);
+    super.clearResources();
+  }
+
   private Application.ActivityLifecycleCallbacks createLifecycleListener() {
     return new EmptyActivityLifecycleCallbacks() {
-      @Override public void onActivityPaused (@NonNull Activity activity) {
+      @Override
+      public void onActivityPaused(@NonNull Activity activity) {
+        if (activity != context) return;
         Log.d(TAG, "closing camera reason: activity paused");
         closeCamera();
         stopBackgroundThread();
       }
 
-      @Override public void onActivityDestroyed (@NonNull Activity activity) {
+      @Override
+      public void onActivityDestroyed(@NonNull Activity activity) {
+        if (activity != context) return;
         clearResources();
       }
     };
   }
 
-  private TextureView.SurfaceTextureListener createSurfaceTextureListener () {
+  private TextureView.SurfaceTextureListener createSurfaceTextureListener() {
     return new EmptySurfaceTextureListener() {
-      @Override public void onSurfaceTextureAvailable (@NonNull SurfaceTexture surfaceTexture, int width, int height) {
+      @Override
+      public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surfaceTexture, int width, int height) {
         activateCamera();
       }
     };
@@ -487,19 +531,22 @@ public class FibriCheckerImpl2 extends FibriChecker {
 
   private CameraDevice.StateCallback createStateCallback() {
     return new CameraDevice.StateCallback() {
-      @Override public void onOpened (@NonNull CameraDevice cameraDevice) {
+      @Override
+      public void onOpened(@NonNull CameraDevice cameraDevice) {
         mCameraDevice = cameraDevice;
         startPreview();
         mCameraOpenCloseLock.release();
       }
 
-      @Override public void onDisconnected (@NonNull CameraDevice cameraDevice) {
+      @Override
+      public void onDisconnected(@NonNull CameraDevice cameraDevice) {
         mCameraOpenCloseLock.release();
         cameraDevice.close();
         mCameraDevice = null;
       }
 
-      @Override public void onError (@NonNull CameraDevice cameraDevice, int error) {
+      @Override
+      public void onError(@NonNull CameraDevice cameraDevice, int error) {
         mCameraOpenCloseLock.release();
         cameraDevice.close();
         mCameraDevice = null;
@@ -522,7 +569,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
   private CameraCaptureSession.CaptureCallback createCaptureCallback() {
     return new CameraCaptureSession.CaptureCallback() {
       @Override
-      public void onCaptureCompleted (@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
+      public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
         updateCameraValues(result);
       }
     };

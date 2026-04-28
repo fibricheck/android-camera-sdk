@@ -229,6 +229,18 @@
             android:valueTo="2000"
             app:layout_constraintTop_toBottomOf="@id/textExposureTime" />
 
+        <com.qompium.fibricheckexample_kotlin.StateButton
+            android:id="@+id/hdrState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="start"
+            app:items="Auto, Off"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sliderExposureTime" />
+
         <Switch
             android:id="@+id/switchLogExposure"
             android:layout_width="wrap_content"
@@ -236,7 +248,7 @@
             android:layout_marginEnd="16dp"
             android:text="Log Exposure"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sliderExposureTime" />
+            app:layout_constraintTop_toBottomOf="@id/hdrState" />
 
         <Switch
             android:id="@+id/switchLogWhiteBalance"
@@ -255,6 +267,15 @@
             android:text="Log Focus"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/switchLogWhiteBalance" />
+
+        <Switch
+            android:id="@+id/switchLogHdr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Log HDR"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/switchLogFocus" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

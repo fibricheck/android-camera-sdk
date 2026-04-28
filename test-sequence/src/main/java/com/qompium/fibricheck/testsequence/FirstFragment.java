@@ -4,6 +4,8 @@ import android.Manifest;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,12 +21,19 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.qompium.fibricheck.camerasdk.FibriChecker;
 import com.qompium.fibricheck.camerasdk.listeners.FibriListener;
+import com.qompium.fibricheck.camerasdk.measurement.MeasurementCameraSettings;
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementData;
 import com.qompium.fibricheck.testsequence.databinding.FragmentFirstBinding;
 
 import java.util.List;
+import java.util.Map;
 
 public class FirstFragment extends Fragment implements TestSequenceManager.TestSequenceListener {
 
@@ -44,15 +53,19 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
     private ScrollView scrollSteps;
     private ImageButton buttonRestart;
     private Button buttonProceed;
+    private Button buttonSkip;
+    private Button buttonViewSettings;
+    private MeasurementCameraSettings lastCameraSettings;
 
     @Override
     public View onCreateView(
-            LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+        @NonNull LayoutInflater inflater, ViewGroup container,
+        Bundle savedInstanceState) {
         binding = FragmentFirstBinding.inflate(inflater, container, false);
 
         testSequenceManager = new TestSequenceManager();
         testSequenceManager.setListener(this);
+        container.setKeepScreenOn(true);
 
         registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
             if (isGranted) {
@@ -102,6 +115,11 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         } else if (step == TestSequenceManager.STEP_PULSE_TIMEOUT) {
             fibriChecker.fingerDetectionExpiryTime = -1; // No timeout - wait for user to place finger
             fibriChecker.pulseDetectionExpiryTime = 1000; // 1 second for quick pulse timeout test
+        } else if (step == TestSequenceManager.STEP_CALIBRATION
+                || step == TestSequenceManager.STEP_MOVEMENT_DETECTED
+                || step == TestSequenceManager.STEP_RECORDING_START) {
+            fibriChecker.fingerDetectionExpiryTime = -1; // No timeout - wait for user to place finger
+            fibriChecker.pulseDetectionExpiryTime = 0; // Skip pulse detection immediately
         } else {
             // No timeout - wait for user to place finger
             fibriChecker.fingerDetectionExpiryTime = -1;
@@ -148,6 +166,10 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                         setStatusMessage("Finger detected - verifying data stream...", StatusType.SUCCESS);
                         return;
                     }
+                    if (step == TestSequenceManager.STEP_MOVEMENT_DETECTED) {
+                        setStatusMessage("Finger detected - waiting for recording to start...", StatusType.INFO);
+                        return;
+                    }
                     setStatusMessage("Finger detected", StatusType.SUCCESS);
                 });
             }
@@ -164,12 +186,13 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                     }
 
                     if (step == TestSequenceManager.STEP_FINGER_REMOVED) {
+                        // Advance first — onStepChanged for step 10 sets "Waiting for recording
+                        // to start...", so we must not call setStatusMessage afterwards.
                         testSequenceManager.onEvent("onFingerRemoved");
-                        setStatusMessage("Finger removed detected - place finger back", StatusType.SUCCESS);
                         return;
                     }
 
-                    if (step >= TestSequenceManager.STEP_PLACE_FINGER && step <= TestSequenceManager.STEP_RECORDING) {
+                    if (step >= TestSequenceManager.STEP_PLACE_FINGER) {
                         setStatusMessage("Finger removed - place finger back", StatusType.WARNING);
                     }
                 });
@@ -180,6 +203,12 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                 requireActivity().runOnUiThread(() -> {
                     updateDebugEvent("onCalibrationReady");
                     testSequenceManager.onEvent("onCalibrationReady");
+                    int step = getCurrentStepNumber();
+                    if (step == TestSequenceManager.STEP_MOVEMENT_DETECTED) {
+                        // Recording is about to start — keep the step-specific status visible.
+                        setStatusMessage("Calibrating - recording starting soon...", StatusType.INFO);
+                        return;
+                    }
                     setStatusMessage("Calibration complete", StatusType.SUCCESS);
                 });
             }
@@ -209,12 +238,20 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
             public void onMeasurementFinished(long timestamp) {
                 requireActivity().runOnUiThread(() -> {
                     updateDebugEvent("onMeasurementFinished");
-                    // Complete step 9 (Recording in Progress) first if still on it
                     int step = getCurrentStepNumber();
+
+                    if (step == TestSequenceManager.STEP_FINGER_REMOVED) {
+                        stopAndFail("Recording finished before finger was removed - retry and lift finger sooner");
+                        return;
+                    }
+                    if (step == TestSequenceManager.STEP_MOVEMENT_DETECTED) {
+                        stopAndFail("Recording finished before movement was detected - retry and shake sooner");
+                        return;
+                    }
+                    // Advance STEP_RECORDING (12) if still on it before completing STEP_RECORDING_FINISHED (13)
                     if (step == TestSequenceManager.STEP_RECORDING) {
                         testSequenceManager.onEvent("onTimeRemaining");
                     }
-                    // Then complete step 10 (Recording Finished)
                     testSequenceManager.onEvent("onMeasurementFinished");
                     setStatusMessage("Recording finished", StatusType.SUCCESS);
                 });
@@ -224,6 +261,14 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
             public void onMeasurementStart(long timestamp) {
                 requireActivity().runOnUiThread(() -> {
                     updateDebugEvent("onMeasurementStart");
+                    int step = getCurrentStepNumber();
+                    if (step == TestSequenceManager.STEP_MOVEMENT_DETECTED) {
+                        if (textCurrentStepInstruction != null) {
+                            textCurrentStepInstruction.setText("Recording in progress — shake the device now!");
+                        }
+                        setStatusMessage("Recording started - shake the device now!", StatusType.SUCCESS);
+                        return;
+                    }
                     testSequenceManager.onEvent("onMeasurementStart");
                     setStatusMessage("Recording started", StatusType.SUCCESS);
                 });
@@ -235,8 +280,8 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                     updateDebugEvent("onFingerDetectionTimeExpired");
                     int step = getCurrentStepNumber();
 
-                    if (step >= TestSequenceManager.STEP_RECORDING_FINISHED) {
-                        Log.d(TAG, "Ignoring finger timeout on step " + step + " (post-recording)");
+                    if (step >= TestSequenceManager.STEP_RECORDING) {
+                        Log.d(TAG, "Ignoring finger timeout on step " + step + " (recording in progress)");
                         return;
                     }
                     if (step == TestSequenceManager.STEP_FINGER_TIMEOUT) {
@@ -245,7 +290,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                         return;
                     }
                     if (step == TestSequenceManager.STEP_PULSE_TIMEOUT) {
-                        Log.d(TAG, "Ignoring finger timeout on step 3");
+                        Log.d(TAG, "Ignoring finger timeout on step " + step);
                         return;
                     }
                     stopAndFail("Finger detection timed out");
@@ -274,8 +319,8 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                     updateDebugEvent("onPulseDetectionTimeExpired");
                     int step = getCurrentStepNumber();
 
-                    if (step >= TestSequenceManager.STEP_RECORDING_FINISHED) {
-                        Log.d(TAG, "Ignoring pulse timeout on step " + step + " (post-recording)");
+                    if (step >= TestSequenceManager.STEP_RECORDING) {
+                        Log.d(TAG, "Ignoring pulse timeout on step " + step + " (recording in progress)");
                         return;
                     }
 
@@ -294,8 +339,10 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                     updateDebugEvent("onMovementDetected");
                     int step = getCurrentStepNumber();
 
-                    if (step >= TestSequenceManager.STEP_RECORDING_FINISHED) {
-                        Log.d(TAG, "Ignoring movement on step " + step + " (post-recording)");
+                    // Shaking generates many events. Once step 10 is done, all subsequent steps
+                    // (STEP_RECORDING_START=11 and beyond) must be protected from lingering shake
+                    // events so they can never be failed by movement from step 10.
+                    if (step >= TestSequenceManager.STEP_RECORDING_START) {
                         return;
                     }
 
@@ -314,10 +361,31 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                 requireActivity().runOnUiThread(() -> {
                     updateDebugEvent("onMeasurementProcessed",
                             "HR=" + String.format("%.0f", measurementData.heartrate));
+                    // Ignore early completions — can happen if sampleTime is too short and the
+                    // recording finishes before the user reaches the validation step.
+                    if (getCurrentStepNumber() < TestSequenceManager.STEP_PROCESSING) {
+                        Log.w(TAG, "onMeasurementProcessed fired too early on step " + getCurrentStepNumber() + " — ignoring");
+                        showCameraPlaceholder(true);
+                        return;
+                    }
                     testSequenceManager.onEvent("onMeasurementProcessed");
-                    double hr = measurementData.heartrate;
-                    setStatusMessage("Complete - HR: " + String.format("%.0f", hr) + " BPM", StatusType.SUCCESS);
                     showCameraPlaceholder(true);
+
+                    String validationError = validateMeasurement(measurementData);
+                    if (validationError != null) {
+                        stopAndFail("Validation failed: " + validationError);
+                    } else {
+                        testSequenceManager.onEvent("onMeasurementValidated");
+                        lastCameraSettings = measurementData.cameraSettings;
+                        if (buttonViewSettings != null) buttonViewSettings.setVisibility(View.VISIBLE);
+                        setStatusMessage(
+                                "exposure_mode: " + lastCameraSettings.getExposureMode() + "\n" +
+                                "focus_mode: " + lastCameraSettings.getFocusMode() + "\n" +
+                                "hdr_mode: " + lastCameraSettings.getHdrMode() + "\n" +
+                                "tonemap_mode: " + lastCameraSettings.getTonemapMode() + "\n" +
+                                "hdr_profile: " + lastCameraSettings.getHdrProfile(),
+                                StatusType.SUCCESS);
+                    }
                 });
             }
 
@@ -327,7 +395,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                     updateDebugEvent("onMeasurementError", message);
                     int step = getCurrentStepNumber();
 
-                    if (step >= TestSequenceManager.STEP_RECORDING_FINISHED) {
+                    if (step >= TestSequenceManager.STEP_RECORDING) {
                         Log.w(TAG, "Error received during step " + step + ": " + message);
                         setStatusMessage("Warning: " + message, StatusType.WARNING);
                         return;
@@ -336,6 +404,27 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                 });
             }
         });
+    }
+
+    private String validateMeasurement(MeasurementData data) {
+        if (data == null) return "Measurement is null";
+        if (data.quadrants == null || data.quadrants.isEmpty()) return "quadrants is missing or empty";
+        if (data.time == null || data.time.isEmpty()) return "time is missing or empty";
+        if (data.measurementTimestamp == null) return "measurement_timestamp is missing";
+
+        if (data.technical_details == null) return "technical_details is missing";
+        Object cameraHdr = data.technical_details.get("camera_hdr");
+        if (!(cameraHdr instanceof String) || ((String) cameraHdr).isEmpty()) return "technical_details.camera_hdr is missing or empty";
+
+        if (data.cameraSettings == null) return "camera_settings is missing";
+        if (data.cameraSettings.getExposureMode() == null || data.cameraSettings.getExposureMode().isEmpty()) return "camera_settings.exposure_mode is missing or empty";
+        if (data.cameraSettings.getHdrProfile() == null || data.cameraSettings.getHdrProfile().isEmpty()) return "camera_settings.hdr_profile is missing or empty";
+        if (data.cameraSettings.getHdrMode() == null || data.cameraSettings.getHdrMode().isEmpty()) return "camera_settings.hdr_mode is missing or empty";
+        if (data.cameraSettings.getFocusMode() == null || data.cameraSettings.getFocusMode().isEmpty()) return "camera_settings.focus_mode is missing or empty";
+        if (data.cameraSettings.getFocus() == null || data.cameraSettings.getFocus().isEmpty()) return "camera_settings.focus is missing or empty";
+        if (data.cameraSettings.getWhiteBalance() == null || data.cameraSettings.getWhiteBalance().isEmpty()) return "camera_settings.white_balance is missing or empty";
+
+        return null;
     }
 
     private void stopAndFail(String reason) {
@@ -449,6 +538,9 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
     }
 
     private void startMeasurement() {
+        lastCameraSettings = null;
+        if (buttonViewSettings != null) buttonViewSettings.setVisibility(View.GONE);
+
         // Advance the step so initMeasurement() uses correct timeout values
         testSequenceManager.start();
         testSequenceManager.onEvent("START");
@@ -497,9 +589,13 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         scrollSteps = view.findViewById(R.id.scroll_steps);
         buttonRestart = view.findViewById(R.id.button_restart);
         buttonProceed = view.findViewById(R.id.button_proceed);
+        buttonSkip = view.findViewById(R.id.button_skip);
+        buttonViewSettings = view.findViewById(R.id.button_view_settings);
 
         buttonRestart.setOnClickListener(v -> resetSequence());
         buttonProceed.setOnClickListener(v -> startMeasurement());
+        buttonSkip.setOnClickListener(v -> skipCurrentStep());
+        buttonViewSettings.setOnClickListener(v -> showCameraSettingsDialog());
 
         updateStepsListUI(testSequenceManager.getSteps());
     }
@@ -515,6 +611,21 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         }
         if (textCurrentStepInstruction != null) {
             textCurrentStepInstruction.setText(currentStep.getInstruction());
+        }
+
+        if (buttonSkip != null) {
+            int stepNumber = currentStep.getStepNumber();
+            boolean showSkip = stepNumber == TestSequenceManager.STEP_PULSE;
+            buttonSkip.setVisibility(showSkip ? View.VISIBLE : View.GONE);
+        }
+
+        if (currentStep.getStepNumber() == TestSequenceManager.STEP_MOVEMENT_DETECTED) {
+            // The finger was just removed (step 9), so the user must place it back first.
+            // Overwrite the generic instruction with a phase-specific one.
+            if (textCurrentStepInstruction != null) {
+                textCurrentStepInstruction.setText("Place finger on camera — waiting for recording to start");
+            }
+            setStatusMessage("Waiting for recording to start...", StatusType.INFO);
         }
 
         scrollToCurrentStep(currentStepIndex);
@@ -553,7 +664,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
             textCurrentStepInstruction.setText("All steps completed successfully!");
         }
         setStatusMessage("All tests passed!", StatusType.SUCCESS);
-        setProceedButtonState("START", true);
+        setProceedButtonState("RESTART", true);
         buttonProceed.setOnClickListener(v -> startMeasurement());
     }
 
@@ -571,6 +682,8 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
 
     private void resetSequence() {
         testSequenceManager.reset();
+        lastCameraSettings = null;
+        if (buttonViewSettings != null) buttonViewSettings.setVisibility(View.GONE);
         if (fibriChecker != null) {
             fibriChecker.stop();
             fibriChecker = null;
@@ -597,11 +710,116 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         showCameraPlaceholder(true);
     }
 
+    private void skipCurrentStep() {
+        if (fibriChecker != null) {
+            fibriChecker.stop();
+            fibriChecker = null;
+        }
+        if (buttonSkip != null) buttonSkip.setVisibility(View.GONE);
+        if (cardCurrentStep != null) cardCurrentStep.setCardBackgroundColor(Color.parseColor("#E6F4F1"));
+        testSequenceManager.skipCurrentStep();
+        proceedToNextStep();
+    }
+
+    private void showCameraSettingsDialog() {
+        if (lastCameraSettings == null || getContext() == null) return;
+
+        Gson gson = new GsonBuilder().serializeNulls().create();
+        int dp = (int) getResources().getDisplayMetrics().density;
+
+        LinearLayout container = new LinearLayout(getContext());
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setPadding(16 * dp, 8 * dp, 16 * dp, 8 * dp);
+
+        JsonObject obj = gson.toJsonTree(lastCameraSettings).getAsJsonObject();
+        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+            JsonElement val = entry.getValue();
+            if (val.isJsonArray()) {
+                addSettingsCollapsableRow(container, entry.getKey(), val.getAsJsonArray(), gson, dp);
+            } else {
+                addSettingsScalarRow(container, entry.getKey(), val.isJsonNull() ? "null" : val.getAsString(), dp);
+            }
+        }
+
+        ScrollView scrollView = new ScrollView(getContext());
+        scrollView.addView(container);
+
+        new android.app.AlertDialog.Builder(getContext())
+                .setTitle("Camera Settings")
+                .setView(scrollView)
+                .setPositiveButton("Close", null)
+                .show();
+    }
+
+    private void addSettingsScalarRow(LinearLayout parent, String key, String value, int dp) {
+        TextView tv = new TextView(getContext());
+        tv.setPadding(0, 6 * dp, 0, 6 * dp);
+        tv.setTextSize(13f);
+        String label = key + ": ";
+        SpannableString span = new SpannableString(label + value);
+        span.setSpan(new StyleSpan(Typeface.BOLD), 0, label.length(), 0);
+        tv.setText(span);
+        parent.addView(tv);
+        addSettingsDivider(parent);
+    }
+
+    private void addSettingsCollapsableRow(LinearLayout parent, String key, JsonArray values, Gson gson, int dp) {
+        TextView indicator = new TextView(getContext());
+        indicator.setText("▶");
+        indicator.setTextColor(Color.parseColor("#1E8D95"));
+        indicator.setTextSize(12f);
+        indicator.setPadding(0, 0, 6 * dp, 0);
+
+        TextView header = new TextView(getContext());
+        header.setTextSize(13f);
+        String label = key + ": ";
+        String full = label + "[" + values.size() + " entries]";
+        SpannableString span = new SpannableString(full);
+        span.setSpan(new StyleSpan(Typeface.BOLD), 0, label.length(), 0);
+        header.setText(span);
+        header.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+
+        LinearLayout headerRow = new LinearLayout(getContext());
+        headerRow.setOrientation(LinearLayout.HORIZONTAL);
+        headerRow.setPadding(0, 6 * dp, 0, 6 * dp);
+        headerRow.addView(indicator);
+        headerRow.addView(header);
+
+        TextView body = new TextView(getContext());
+        body.setText(gson.toJson(values));
+        body.setTypeface(Typeface.MONOSPACE);
+        body.setTextSize(11f);
+        body.setPadding(16 * dp, 4 * dp, 0, 6 * dp);
+        body.setVisibility(View.GONE);
+
+        headerRow.setOnClickListener(v -> {
+            if (body.getVisibility() == View.GONE) {
+                body.setVisibility(View.VISIBLE);
+                indicator.setText("▼");
+            } else {
+                body.setVisibility(View.GONE);
+                indicator.setText("▶");
+            }
+        });
+
+        parent.addView(headerRow);
+        parent.addView(body);
+        addSettingsDivider(parent);
+    }
+
+    private void addSettingsDivider(LinearLayout parent) {
+        View divider = new View(getContext());
+        divider.setBackgroundColor(Color.parseColor("#E0E0E0"));
+        parent.addView(divider, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
+    }
+
     private void retryCurrentStep() {
         if (fibriChecker != null) {
             fibriChecker.stop();
             fibriChecker = null;
         }
+        lastCameraSettings = null;
+        if (buttonViewSettings != null) buttonViewSettings.setVisibility(View.GONE);
 
         testSequenceManager.retryCurrentStep();
         clearStatusMessage();

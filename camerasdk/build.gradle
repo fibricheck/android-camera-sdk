@@ -21,13 +21,13 @@ android {
     }
 
     defaultConfig {
-        minSdk 19
-        targetSdk 35
+        minSdk 22
+        targetSdk 36
 
         consumerProguardFiles "consumer-rules.pro"
 
         aarMetadata {
-            minCompileSdk = 19
+            minCompileSdk = 22
         }
 
         buildConfigField "String", "RELEASE_DATE", "\"${sdkRelease.releaseDate}\""
@@ -69,8 +69,8 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/fibricheck/android-camera-sdk")
             credentials {
-                username = project.findProperty("gpr.user")  ?: System.getenv("GH_USERNAME")
-                password = project.findProperty("gpr.key")  ?: System.getenv("GH_TOKEN")
+                username = project.findProperty("gpr.user") ?: System.getenv("GH_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("GH_TOKEN")
             }
         }
     }
@@ -78,12 +78,12 @@ publishing {
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.13.2'
-    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.core:core-ktx:1.15.0'
 
     testImplementation 'junit:junit:4.13.2'
 }
 
-tasks.withType(Test) {
+tasks.withType(Test).configureEach {
     testLogging {
         events "passed", "skipped", "failed"
     }

@@ -113,6 +113,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Skip Button (shown only on certain steps) -->
+    <Button
+        android:id="@+id/button_skip"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="SKIP"
+        android:textSize="16sp"
+        android:textColor="#1E8D95"
+        android:visibility="gone"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        app:strokeColor="#1E8D95"
+        app:layout_constraintTop_toBottomOf="@id/button_proceed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- View Camera Settings Button (shown after measurement completes) -->
+    <Button
+        android:id="@+id/button_view_settings"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="VIEW CAMERA SETTINGS"
+        android:textSize="16sp"
+        android:textColor="#1E8D95"
+        android:visibility="gone"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        app:strokeColor="#1E8D95"
+        app:layout_constraintTop_toBottomOf="@id/button_skip"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Steps List Header -->
     <TextView
         android:id="@+id/text_steps_header"
@@ -123,7 +155,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="#616161"
-        app:layout_constraintTop_toBottomOf="@id/button_proceed"
+        app:layout_constraintTop_toBottomOf="@id/button_view_settings"
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Steps List ScrollView -->
@@ -145,29 +177,5 @@
 
     </ScrollView>
 
-    <!-- Hidden TextViews for backward compatibility -->
-    <TextView
-        android:id="@+id/textview_first"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/textView_overview2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/textView_overview"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
