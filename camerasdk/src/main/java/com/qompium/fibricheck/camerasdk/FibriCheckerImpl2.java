@@ -87,6 +87,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
   private ImageReader mImageReader;
 
   private final CameraCaptureSession.CaptureCallback mCaptureCallback;
+  private final Application.ActivityLifecycleCallbacks mActivityLifecycleCallbacks;
 
   public FibriCheckerImpl2(ViewGroup viewGroup, Context context, FibriBuilder builder) {
     super(viewGroup, context, builder);
@@ -94,7 +95,8 @@ public class FibriCheckerImpl2 extends FibriChecker {
     mTextureView = new TextureView(context);
     viewGroup.addView(mTextureView);
 
-    ((Application) context.getApplicationContext()).registerActivityLifecycleCallbacks(createLifecycleListener());
+    mActivityLifecycleCallbacks = createLifecycleListener();
+    ((Application) context.getApplicationContext()).registerActivityLifecycleCallbacks(mActivityLifecycleCallbacks);
 
     this.mSurfaceTextureListener = createSurfaceTextureListener();
     this.mStateCallback = createStateCallback();
@@ -492,6 +494,12 @@ public class FibriCheckerImpl2 extends FibriChecker {
     } catch (Exception e) {
       return null;
     }
+  }
+
+  @Override
+  protected void clearResources() {
+    ((Application) context.getApplicationContext()).unregisterActivityLifecycleCallbacks(mActivityLifecycleCallbacks);
+    super.clearResources();
   }
 
   private Application.ActivityLifecycleCallbacks createLifecycleListener() {
