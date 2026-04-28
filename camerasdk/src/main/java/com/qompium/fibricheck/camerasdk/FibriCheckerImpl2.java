@@ -506,6 +506,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
     return new EmptyActivityLifecycleCallbacks() {
       @Override
       public void onActivityPaused(@NonNull Activity activity) {
+        if (activity != context) return;
         Log.d(TAG, "closing camera reason: activity paused");
         closeCamera();
         stopBackgroundThread();
@@ -513,6 +514,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
 
       @Override
       public void onActivityDestroyed(@NonNull Activity activity) {
+        if (activity != context) return;
         clearResources();
       }
     };
