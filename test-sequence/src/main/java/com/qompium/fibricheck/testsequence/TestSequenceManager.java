@@ -5,7 +5,6 @@ import java.util.List;
 
 public class TestSequenceManager {
 
-    // Step indices (1-based to match step numbers)
     public static final int STEP_START = 1;
     public static final int STEP_FINGER_TIMEOUT = 2;
     public static final int STEP_PULSE_TIMEOUT = 3;
@@ -20,6 +19,7 @@ public class TestSequenceManager {
     public static final int STEP_RECORDING = 12;
     public static final int STEP_RECORDING_FINISHED = 13;
     public static final int STEP_PROCESSING = 14;
+    public static final int STEP_MEASUREMENT_VALIDATION = 15;
 
     public interface TestSequenceListener {
         void onStepChanged(int currentStepIndex, TestStep currentStep);
@@ -76,11 +76,11 @@ public class TestSequenceManager {
                 "onFingerRemoved"));
 
         steps.add(new TestStep(STEP_MOVEMENT_DETECTED, "Test Movement Detection",
-                "While keeping your finger on the camera, shake the phone gently",
+                "While keeping your finger on the camera, shake the phone gently. This can only be triggered while recording is in progress.",
                 "onMovementDetected"));
 
-        steps.add(new TestStep(STEP_RECORDING_START, "Recording Started",
-                "Recording has begun!",
+        steps.add(new TestStep(STEP_RECORDING_START, "Test Recording Started",
+                "Waiting for recording to start...",
                 "onMeasurementStart"));
 
         steps.add(new TestStep(STEP_RECORDING, "Recording in Progress",
@@ -88,12 +88,16 @@ public class TestSequenceManager {
                 "onTimeRemaining"));
 
         steps.add(new TestStep(STEP_RECORDING_FINISHED, "Recording Finished",
-                "Recording complete!",
+                "Waiting for recording to finish...",
                 "onMeasurementFinished"));
 
         steps.add(new TestStep(STEP_PROCESSING, "Processing",
                 "Processing measurement data...",
                 "onMeasurementProcessed"));
+
+        steps.add(new TestStep(STEP_MEASUREMENT_VALIDATION, "Validate Measurement",
+                "Validating: quadrants, time, technical_details.camera_hdr, camera_settings.exposure_mode, camera_settings.hdr_profile, camera_settings.hdr_mode, camera_settings.focus_mode, camera_settings.focus, camera_settings.white_balance",
+                "onMeasurementValidated"));
     }
 
     public void setListener(TestSequenceListener listener) {
@@ -145,6 +149,10 @@ public class TestSequenceManager {
         }
     }
 
+    public void skipCurrentStep() {
+        completeCurrentStep();
+    }
+
     public void retryCurrentStep() {
         if (currentStepIndex < 0 || currentStepIndex >= steps.size()) {
             return;
@@ -161,10 +169,7 @@ public class TestSequenceManager {
             return;
         }
 
-        // Mark current step as completed
         steps.get(currentStepIndex).setStatus(TestStep.Status.COMPLETED);
-
-        // Move to next step
         currentStepIndex++;
 
         if (currentStepIndex < steps.size()) {
@@ -172,7 +177,6 @@ public class TestSequenceManager {
             notifyStepsUpdated();
             notifyStepChanged();
         } else {
-            // Sequence completed
             notifyStepsUpdated();
             if (listener != null) {
                 listener.onSequenceCompleted();

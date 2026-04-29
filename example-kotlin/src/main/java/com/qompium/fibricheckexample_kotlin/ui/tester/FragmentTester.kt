@@ -20,6 +20,7 @@ import com.qompium.fibricheck.camerasdk.measurement.MeasurementData
 import com.qompium.fibricheck.camerasdk.measurement.Vec3f
 import com.qompium.fibricheck.camerasdk.models.CameraSettingMode
 import com.qompium.fibricheck.camerasdk.models.CameraSettingsInput
+import com.qompium.fibricheck.camerasdk.models.HdrMode
 import com.qompium.fibricheck.camerasdk.models.WhiteBalanceMode
 import com.qompium.fibricheckexample_kotlin.databinding.FragmentTesterBinding
 import org.json.JSONObject
@@ -188,9 +189,7 @@ class FragmentTester : Fragment() {
             CameraSettingMode.Locked, 0, 0,
             WhiteBalanceMode.Auto, Vec3f(), 6504,
             CameraSettingMode.Auto, 0f,
-            true,
-            true,
-            true
+            HdrMode.Auto,
         ))
 
         fibriChecker.setFibriListener(object : FibriListener() {

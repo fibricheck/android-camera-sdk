@@ -34,7 +34,8 @@ public class TestSequenceManagerTest {
                 "onMeasurementStart",
                 "onTimeRemaining",
                 "onMeasurementFinished",
-                "onMeasurementProcessed"
+                "onMeasurementProcessed",
+                "onMeasurementValidated"
         };
 
         List<TestStep> steps = manager.getSteps();
@@ -150,7 +151,8 @@ public class TestSequenceManagerTest {
                 "onMeasurementStart",
                 "onTimeRemaining",
                 "onMeasurementFinished",
-                "onMeasurementProcessed"
+                "onMeasurementProcessed",
+                "onMeasurementValidated"
         };
 
         manager.start();
@@ -181,6 +183,7 @@ public class TestSequenceManagerTest {
                 { "onMeasurementStart", "onTimeRemaining" },
                 { "onTimeRemaining", "onMeasurementFinished" },
                 { "onMeasurementFinished", "onMeasurementProcessed" },
+                { "onMeasurementProcessed", "onMeasurementValidated" },
         };
 
         manager.start();
@@ -193,7 +196,7 @@ public class TestSequenceManagerTest {
             assertEquals(TestStep.Status.CURRENT, currentStep.getStatus());
         }
 
-        manager.onEvent("onMeasurementProcessed");
+        manager.onEvent("onMeasurementValidated");
         assertEquals(manager.getSteps().size(), manager.getCurrentStepIndex());
     }
 

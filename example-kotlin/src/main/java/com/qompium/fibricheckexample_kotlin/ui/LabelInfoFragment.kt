@@ -32,22 +32,19 @@ class LabelInfoFragment : Fragment() {
         "${text[0].uppercaseChar()}${text.substring(1 .. firstCapitalIndex)} ${toCapitalCase(text.substring(firstCapitalIndex + 1))}"
     }
   }
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-  }
 
-  override fun onCreateView(
+    override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
     savedInstanceState: Bundle?
-  ): View? {
+  ): View {
     // Inflate the layout for this fragment
     val binding = FragmentLabelInfoBinding.inflate(inflater, container, false)
 
     val labelInfo = FibriChecker.getLabel()
 
-    labelInfo.forEach { key, value ->
+    labelInfo.forEach { (key, value) ->
       val text = TextView(context)
-      text.text = "${LabelInfoFragment.toCapitalCase(key)}: $value"
+      text.text = "${toCapitalCase(key)}: $value"
       binding.labelContainer.addView(text)
     }
 

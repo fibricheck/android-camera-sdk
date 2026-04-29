@@ -58,6 +58,23 @@ Once the dependency is correctly added, the SDK is available in your code.
 import com.qompium.fibricheck.camerasdk.*;
 ```
 
+## Running the example apps
+
+Enable **USB debugging** on your phone: Settings → About phone → tap Build number 7 times → Developer options → USB Debugging. Then connect your phone via USB and approve the connection prompt.
+
+```bash
+# Check your device is detected
+adb devices
+
+# Install the Kotlin example app and launch it
+./gradlew :example-kotlin:installDebug && adb shell am start -n com.qompium.fibricheckexample/.MainActivity
+
+# Install the test sequence app and launch it
+./gradlew :test-sequence:installDebug && adb shell am start -n com.qompium.fibricheck.testsequence/.MainActivity
+```
+
+Alternatively, open the project in Android Studio, select your device from the device dropdown, and press Run (▶).
+
 ## Running Tests
 
 ```bash
@@ -76,17 +93,52 @@ import com.qompium.fibricheck.camerasdk.*;
 This project uses [git-cliff](https://git-cliff.org/) to generate changelogs following the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ```bash
-# Update CHANGELOG.md
+# Update CHANGELOG.md (after prod tag exists)
 git-cliff --output CHANGELOG.md
 
-# Preview unreleased changes
+# Preview unreleased changes without a tag
 git-cliff --unreleased
+
+# Generate changelog labelled with a specific version (e.g. before the prod tag exists)
+git-cliff --tag v1.1.0 --output CHANGELOG.md
 ```
 
 ## Releasing a new version
 To release a new version, follow the [git convention](https://www.conventionalcommits.org/en/v1.0.0/#summary) guidelines.
 When a new PR to the `main` branch is merged, it will trigger the release process.
 Development releases will be build on PR merged to the `dev` branch
+
+## Logged Data Structure
+When a `log` flag is enabled on a `CameraSettingsInput` and its corresponding mode is set to `auto`, the measurement result will include a `camera_settings` object containing the relevant log.
+
+The log lists only add a new entry when the value differs from the previous one (or exceeds 0.001 for floating-point values). This avoids storing redundant data for values that remain stable across many frames.
+
+The general structure of a log is:
+```
+[[<value>, <frame index>], ...]
+```
+
+**Example — focus distance:**
+```json
+[[0.0, 0], [0.1, 13], [0.5, 40]]
+```
+- Frame 0: focus distance is `0.0`
+- Frame 13: changes to `0.1`
+- Frame 40: changes to `0.5`, then remains constant for the rest of the recording
+
+**White balance** is the exception, it uses three values (`r`, `g`, `b`) per entry:
+```
+[[<r>, <g>, <b>, <frame index>], ...]
+```
+
+**Data types per field:**
+| Field | Structure | Notes |
+|---|---|---|
+| `iso` | `[[int, int]]` | |
+| `exposure_time` | `[[long, int]]` | |
+| `focus` | `[[float, int]]` | |
+| `white_balance` | `[[float, float, float, int]]` | |
+| `hdr` | `[[int, int]]` | 1 = on, 0 = off |
 
 ## License
 This SDK is proprietary. See `LICENCE` for more information.
