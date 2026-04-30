@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2026-04-24
+## [1.1.0] - 2026-04-30
 
 ### Added
 - Camera settings and log (FCRN-2108,FCRN-2109) ([45d6709](https://github.com/fibricheck/android-camera-sdk/commit/45d67090cde66e9f1118810e0964a89a0c0c67b0))
@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added log info to readme (FCS-84) ([c240737](https://github.com/fibricheck/android-camera-sdk/commit/c2407376a9d4a7ba6fdeea3591dd3e4e9d677143))
 - Updated defaults (FCS-85) ([86faf6a](https://github.com/fibricheck/android-camera-sdk/commit/86faf6a061899a0b1906143e56c75234a63bb408))
 - Updated hdr & focus logging + sequence tester (FCS-85) ([b688022](https://github.com/fibricheck/android-camera-sdk/commit/b6880228bef486b9274d6dbf23a90d67e1b439aa))
+- Updated Release workflow ([48adfaa](https://github.com/fibricheck/android-camera-sdk/commit/48adfaae8f1456b555e5ac6430ddeec25c35771e))
 
 ### Fixed
 - Clear listeners before making new ones (FB-788) ([3395100](https://github.com/fibricheck/android-camera-sdk/commit/3395100cd44bf44a5404b7497f2bd2ee09cd2ae8))
@@ -31,6 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dont add white balance if empty (FCRN-2108) ([fd77248](https://github.com/fibricheck/android-camera-sdk/commit/fd77248eecfb01e2bc47312ca3a3f452cbb0809c))
 - Pass GH config in workflow ([71c19fa](https://github.com/fibricheck/android-camera-sdk/commit/71c19fa5f64ec5f536624d14fe087c2e7b4f9183))
 - FCS-78 fix wrong IFU URL ([9fd3b74](https://github.com/fibricheck/android-camera-sdk/commit/9fd3b74643b3b00d8e6a0bb47e86dc14af7b7412))
+- Memory leak in activity lifecycle (FCS-87) ([e059d45](https://github.com/fibricheck/android-camera-sdk/commit/e059d456114e79fa357117f06bb117e627d96de2))
+- Guard activity lifecycle callbacks (FCS-88) ([c86b682](https://github.com/fibricheck/android-camera-sdk/commit/c86b6821a85b223d80aee6e60b38f40b5407776e))
+- Ci build error for cliff ([b3e60f6](https://github.com/fibricheck/android-camera-sdk/commit/b3e60f64a4d4954b091d3afef49697bb9c852028))
 
 ### Build
 - Updated pipelines, added dev pipeline (FB-788) ([14e92de](https://github.com/fibricheck/android-camera-sdk/commit/14e92de2f0bccbac6a48d1c86454d5b7d22b7396))
