@@ -1,4 +1,4 @@
-name: Dev Release
+name: Deploy Development
 
 on:
   workflow_dispatch:
@@ -7,9 +7,6 @@ on:
         description: "Run without making changes"
         type: boolean
         default: false
-  push:
-    branches:
-      - dev
 
 permissions:
   contents: write

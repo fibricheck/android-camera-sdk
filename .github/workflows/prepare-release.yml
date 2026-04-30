@@ -1,0 +1,61 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g. 1.2.0)"
+        required: true
+        type: string
+      target_branch:
+        description: "Branch to open the PR against (e.g. main, v1.2.3)"
+        required: false
+        default: "main"
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.target_branch }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: --tag v${{ inputs.version }} --output CHANGELOG.md
+
+      - name: Update sdk-release.json
+        run: |
+          jq --arg version "${{ inputs.version }}" \
+             --arg date "$(date -u +%Y-%m-%d)" \
+             '.version = $version | .releaseDate = $date' \
+             sdk-release.json > sdk-release.json.tmp
+          mv sdk-release.json.tmp sdk-release.json
+
+      - name: Create release branch and PR
+        run: |
+          BRANCH="chore/release-v${{ inputs.version }}"
+          git checkout -b "$BRANCH"
+          git add CHANGELOG.md sdk-release.json
+          git commit -m "chore: changelog update for v${{ inputs.version }}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "chore(release): v${{ inputs.version }}" \
+            --body "Updates the changelog for **v${{ inputs.version }}**. Merging this PR into \`${{ inputs.target_branch }}\` will trigger the release workflow." \
+            --base "${{ inputs.target_branch }}" \
+            --head "$BRANCH"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

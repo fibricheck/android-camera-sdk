@@ -1,4 +1,4 @@
-name: Release
+name: Deploy Production
 
 on:
   workflow_dispatch:
@@ -7,10 +7,6 @@ on:
         description: "Run without making changes"
         type: boolean
         default: false
-  push:
-    branches:
-      - main
-      - master
 
 permissions:
   contents: write
