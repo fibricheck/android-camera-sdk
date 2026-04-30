@@ -54,7 +54,7 @@ jobs:
           git push origin "$BRANCH"
           gh pr create \
             --title "chore(release): v${{ inputs.version }}" \
-            --body "Updates the changelog for **v${{ inputs.version }}**. Merging this PR into \`${{ inputs.target_branch }}\` will trigger the release workflow." \
+            --body "Updates the changelog and release metadata for **v${{ inputs.version }}**. After merging, you can trigger the release manually via the Deploy workflow." \
             --base "${{ inputs.target_branch }}" \
             --head "$BRANCH"
         env:
