@@ -96,7 +96,7 @@ public class TestSequenceManager {
                 "onMeasurementProcessed"));
 
         steps.add(new TestStep(STEP_MEASUREMENT_VALIDATION, "Validate Measurement",
-                "Validating: quadrants, time, technical_details.camera_hdr, camera_settings.exposure_mode, camera_settings.hdr_profile, camera_settings.hdr_mode, camera_settings.focus_mode, camera_settings.focus, camera_settings.white_balance",
+                "Validating: quadrants, time, skippedMovementDetection, technical_details.camera_hdr/camera_hardware_level/camera_resolution, camera_settings.exposure_mode/hdr_profile/hdr_mode. On full/level3 devices also: focus_mode, focus, white_balance",
                 "onMeasurementValidated"));
     }
 
