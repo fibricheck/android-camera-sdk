@@ -119,6 +119,10 @@ public abstract class FibriChecker implements CameraListener {
     return LabelInfo.Companion.getLabel();
   }
 
+  public static @NotNull String sdkVersion() {
+    return LabelInfo.Companion.getLabel().get("version");
+  }
+
   private void init() {
     // Values calculated in MathLab to get a LP/HP/BP/Notch-filter
     firFilter = new FirFilter(new double[]{1.0, 0.0, 0.0, 0.0}, new double[]{1.0, 1.0, 1.0, 1.0});
@@ -258,6 +262,7 @@ public abstract class FibriChecker implements CameraListener {
       case DETECTING_FINGER:
         if (fingerDetectionExpiryTime == 0 || event == Event.FINGER_DETECTED
             || event == Event.FINGER_DETECTION_TIME_EXPIRED) {
+          if (fingerDetectionExpiryTime == 0) skippedFingerDetection = true;
           state = State.DETECTING_PULSE;
           break;
         }

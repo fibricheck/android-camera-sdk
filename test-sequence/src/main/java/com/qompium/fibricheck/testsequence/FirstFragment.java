@@ -56,6 +56,10 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
     private Button buttonSkip;
     private Button buttonViewSettings;
     private MeasurementCameraSettings lastCameraSettings;
+    private boolean isAccEnabled = false;
+    private boolean isGyroEnabled = false;
+    private boolean isGravEnabled = false;
+    private boolean isRotationEnabled = false;
 
     @Override
     public View onCreateView(
@@ -105,7 +109,16 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
 
         fibriChecker = new FibriChecker.FibriBuilder(cameraContainer.getContext(), cameraContainer).build();
 
+        // Adjust settings
         fibriChecker.sampleTime = 10;
+        // fibriChecker.movementDetectionEnabled = true;
+        // fibriChecker.fingerDetectionExpiryTime = 0;
+        // fibriChecker.pulseDetectionExpiryTime = 0;
+       
+        isAccEnabled = fibriChecker.accEnabled;
+        isGyroEnabled = fibriChecker.gyroEnabled;
+        isGravEnabled = fibriChecker.gravEnabled;
+        isRotationEnabled = fibriChecker.rotationEnabled;
 
         // vary timeouts based on current step
         int step = getCurrentStepNumber();
@@ -412,17 +425,45 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         if (data.time == null || data.time.isEmpty()) return "time is missing or empty";
         if (data.measurementTimestamp == null) return "measurement_timestamp is missing";
 
+        if (data.skippedFingerDetection)
+            return "skippedFingerDetection is true — finger detection timed out during this measurement";
+        if (data.skippedPulseDetection)
+            return "skippedPulseDetection is true — pulse detection timed out during this measurement";
+        if (data.skippedMovementDetection)
+            return "skippedMovementDetection is true — movement detection was not enabled during this measurement";
+
+        if (isAccEnabled && (data.acc == null || data.acc.x == null || data.acc.x.isEmpty()))
+            return "acc data is missing or empty — accelerometer was enabled but produced no data";
+        if (isGyroEnabled && (data.gyro == null || data.gyro.x == null || data.gyro.x.isEmpty()))
+            return "gyro data is missing or empty — gyroscope was enabled but produced no data";
+        if (isGravEnabled && (data.grav == null || data.grav.x == null || data.grav.x.isEmpty()))
+            return "grav data is missing or empty — gravitation was enabled but produced no data";
+        if (isRotationEnabled && (data.rotation == null || data.rotation.x == null || data.rotation.x.isEmpty()))
+            return "rotation data is missing or empty — rotation was enabled but produced no data";
+
         if (data.technical_details == null) return "technical_details is missing";
         Object cameraHdr = data.technical_details.get("camera_hdr");
         if (!(cameraHdr instanceof String) || ((String) cameraHdr).isEmpty()) return "technical_details.camera_hdr is missing or empty";
+        Object cameraHardwareLevelObj = data.technical_details.get("camera_hardware_level");
+        if (!(cameraHardwareLevelObj instanceof String) || ((String) cameraHardwareLevelObj).isEmpty()) return "technical_details.camera_hardware_level is missing or empty";
+        Object cameraResolution = data.technical_details.get("camera_resolution");
+        if (!(cameraResolution instanceof String) || ((String) cameraResolution).isEmpty()) return "technical_details.camera_resolution is missing or empty";
 
         if (data.cameraSettings == null) return "camera_settings is missing";
         if (data.cameraSettings.getExposureMode() == null || data.cameraSettings.getExposureMode().isEmpty()) return "camera_settings.exposure_mode is missing or empty";
         if (data.cameraSettings.getHdrProfile() == null || data.cameraSettings.getHdrProfile().isEmpty()) return "camera_settings.hdr_profile is missing or empty";
         if (data.cameraSettings.getHdrMode() == null || data.cameraSettings.getHdrMode().isEmpty()) return "camera_settings.hdr_mode is missing or empty";
-        if (data.cameraSettings.getFocusMode() == null || data.cameraSettings.getFocusMode().isEmpty()) return "camera_settings.focus_mode is missing or empty";
-        if (data.cameraSettings.getFocus() == null || data.cameraSettings.getFocus().isEmpty()) return "camera_settings.focus is missing or empty";
-        if (data.cameraSettings.getWhiteBalance() == null || data.cameraSettings.getWhiteBalance().isEmpty()) return "camera_settings.white_balance is missing or empty";
+
+        String cameraHardwareLevel = (String) cameraHardwareLevelObj;
+        boolean isAdvancedCamera2 = cameraHardwareLevel != null
+                && !cameraHardwareLevel.equals("camera2 - limited")
+                && !cameraHardwareLevel.equals("camera2 - legacy");
+
+        if (isAdvancedCamera2) {
+            if (data.cameraSettings.getFocusMode() == null || data.cameraSettings.getFocusMode().isEmpty()) return "camera_settings.focus_mode is missing or empty";
+            if (data.cameraSettings.getFocus() == null || data.cameraSettings.getFocus().isEmpty()) return "camera_settings.focus is missing or empty";
+            if (data.cameraSettings.getWhiteBalance() == null || data.cameraSettings.getWhiteBalance().isEmpty()) return "camera_settings.white_balance is missing or empty";
+        }
 
         return null;
     }
@@ -524,6 +565,28 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         Log.d(TAG, "Event: " + eventName + (extra != null ? " - " + extra : ""));
     }
 
+    private void populateLabelInfo(View view) {
+        Map<String, String> label = FibriChecker.getLabel();
+
+        TextView componentName = view.findViewById(R.id.text_label_component_name);
+        if (componentName != null) componentName.setText(label.get("componentName"));
+
+        TextView ce = view.findViewById(R.id.text_label_ce);
+        if (ce != null) ce.setText(label.get("ceLabel"));
+
+        TextView releaseDate = view.findViewById(R.id.text_label_release_date);
+        if (releaseDate != null) releaseDate.setText(label.get("releaseDate"));
+
+        TextView udi = view.findViewById(R.id.text_label_udi);
+        if (udi != null) udi.setText(label.get("udi"));
+
+        TextView manufacturer = view.findViewById(R.id.text_label_manufacturer);
+        if (manufacturer != null) manufacturer.setText(label.get("manufacturer"));
+
+        TextView ifu = view.findViewById(R.id.text_label_ifu);
+        if (ifu != null) ifu.setText(label.get("ifu"));
+    }
+
     private void clearStatusMessage() {
         if (textStatusMessage != null) {
             textStatusMessage.setVisibility(View.GONE);
@@ -597,6 +660,8 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         buttonSkip.setOnClickListener(v -> skipCurrentStep());
         buttonViewSettings.setOnClickListener(v -> showCameraSettingsDialog());
 
+        populateLabelInfo(view);
+
         updateStepsListUI(testSequenceManager.getSteps());
     }
 
@@ -620,10 +685,15 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         }
 
         if (currentStep.getStepNumber() == TestSequenceManager.STEP_MOVEMENT_DETECTED) {
+            if (fibriChecker != null && !fibriChecker.movementDetectionEnabled) {
+                setStatusMessage("Movement detection disabled — skipping step", StatusType.INFO);
+                testSequenceManager.skipCurrentStep();
+                return;
+            }
             // The finger was just removed (step 9), so the user must place it back first.
             // Overwrite the generic instruction with a phase-specific one.
             if (textCurrentStepInstruction != null) {
-                textCurrentStepInstruction.setText("Place finger on camera — waiting for recording to start");
+                textCurrentStepInstruction.setText("Please wait for recording to start before shaking the device!");
             }
             setStatusMessage("Waiting for recording to start...", StatusType.INFO);
         }

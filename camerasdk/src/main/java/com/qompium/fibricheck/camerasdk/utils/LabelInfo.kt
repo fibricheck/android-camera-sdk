@@ -16,6 +16,7 @@ class LabelInfo {
 
             return mapOf(
                 "componentName" to "FibriCheck Camera SDK Android $version",
+                "version" to version,
                 "udi" to buildUdi(version),
                 "ceLabel" to CE_LABEL,
                 "manufacturer" to MANUFACTURER,
