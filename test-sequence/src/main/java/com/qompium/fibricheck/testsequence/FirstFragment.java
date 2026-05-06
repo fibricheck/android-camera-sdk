@@ -56,10 +56,10 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
     private Button buttonSkip;
     private Button buttonViewSettings;
     private MeasurementCameraSettings lastCameraSettings;
-    private boolean mAccEnabled = false;
-    private boolean mGyroEnabled = false;
-    private boolean mGravEnabled = false;
-    private boolean mRotationEnabled = false;
+    private boolean isAccEnabled = false;
+    private boolean isGyroEnabled = false;
+    private boolean isGravEnabled = false;
+    private boolean isRotationEnabled = false;
 
     @Override
     public View onCreateView(
@@ -109,11 +109,16 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
 
         fibriChecker = new FibriChecker.FibriBuilder(cameraContainer.getContext(), cameraContainer).build();
 
-        mAccEnabled = fibriChecker.accEnabled;
-        mGyroEnabled = fibriChecker.gyroEnabled;
-        mGravEnabled = fibriChecker.gravEnabled;
-        mRotationEnabled = fibriChecker.rotationEnabled;
+        // Adjust settings
         fibriChecker.sampleTime = 10;
+        // fibriChecker.movementDetectionEnabled = true;
+        // fibriChecker.fingerDetectionExpiryTime = 0;
+        // fibriChecker.pulseDetectionExpiryTime = 0;
+       
+        isAccEnabled = fibriChecker.accEnabled;
+        isGyroEnabled = fibriChecker.gyroEnabled;
+        isGravEnabled = fibriChecker.gravEnabled;
+        isRotationEnabled = fibriChecker.rotationEnabled;
 
         // vary timeouts based on current step
         int step = getCurrentStepNumber();
@@ -427,13 +432,13 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         if (data.skippedMovementDetection)
             return "skippedMovementDetection is true — movement detection was not enabled during this measurement";
 
-        if (mAccEnabled && (data.acc == null || data.acc.x == null || data.acc.x.isEmpty()))
+        if (isAccEnabled && (data.acc == null || data.acc.x == null || data.acc.x.isEmpty()))
             return "acc data is missing or empty — accelerometer was enabled but produced no data";
-        if (mGyroEnabled && (data.gyro == null || data.gyro.x == null || data.gyro.x.isEmpty()))
+        if (isGyroEnabled && (data.gyro == null || data.gyro.x == null || data.gyro.x.isEmpty()))
             return "gyro data is missing or empty — gyroscope was enabled but produced no data";
-        if (mGravEnabled && (data.grav == null || data.grav.x == null || data.grav.x.isEmpty()))
+        if (isGravEnabled && (data.grav == null || data.grav.x == null || data.grav.x.isEmpty()))
             return "grav data is missing or empty — gravitation was enabled but produced no data";
-        if (mRotationEnabled && (data.rotation == null || data.rotation.x == null || data.rotation.x.isEmpty()))
+        if (isRotationEnabled && (data.rotation == null || data.rotation.x == null || data.rotation.x.isEmpty()))
             return "rotation data is missing or empty — rotation was enabled but produced no data";
 
         if (data.technical_details == null) return "technical_details is missing";
@@ -560,6 +565,28 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         Log.d(TAG, "Event: " + eventName + (extra != null ? " - " + extra : ""));
     }
 
+    private void populateLabelInfo(View view) {
+        Map<String, String> label = FibriChecker.getLabel();
+
+        TextView componentName = view.findViewById(R.id.text_label_component_name);
+        if (componentName != null) componentName.setText(label.get("componentName"));
+
+        TextView ce = view.findViewById(R.id.text_label_ce);
+        if (ce != null) ce.setText(label.get("ceLabel"));
+
+        TextView releaseDate = view.findViewById(R.id.text_label_release_date);
+        if (releaseDate != null) releaseDate.setText(label.get("releaseDate"));
+
+        TextView udi = view.findViewById(R.id.text_label_udi);
+        if (udi != null) udi.setText(label.get("udi"));
+
+        TextView manufacturer = view.findViewById(R.id.text_label_manufacturer);
+        if (manufacturer != null) manufacturer.setText(label.get("manufacturer"));
+
+        TextView ifu = view.findViewById(R.id.text_label_ifu);
+        if (ifu != null) ifu.setText(label.get("ifu"));
+    }
+
     private void clearStatusMessage() {
         if (textStatusMessage != null) {
             textStatusMessage.setVisibility(View.GONE);
@@ -633,6 +660,8 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         buttonSkip.setOnClickListener(v -> skipCurrentStep());
         buttonViewSettings.setOnClickListener(v -> showCameraSettingsDialog());
 
+        populateLabelInfo(view);
+
         updateStepsListUI(testSequenceManager.getSteps());
     }
 
@@ -651,14 +680,12 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
 
         if (buttonSkip != null) {
             int stepNumber = currentStep.getStepNumber();
-            boolean showSkip = stepNumber == TestSequenceManager.STEP_PULSE
-                    || stepNumber == TestSequenceManager.STEP_FINGER_TIMEOUT
-                    || stepNumber == TestSequenceManager.STEP_PULSE_TIMEOUT;
+            boolean showSkip = stepNumber == TestSequenceManager.STEP_PULSE;
             buttonSkip.setVisibility(showSkip ? View.VISIBLE : View.GONE);
         }
 
         if (currentStep.getStepNumber() == TestSequenceManager.STEP_MOVEMENT_DETECTED) {
-            if (!mMovementDetectionEnabled) {
+            if (fibriChecker != null && !fibriChecker.movementDetectionEnabled) {
                 setStatusMessage("Movement detection disabled — skipping step", StatusType.INFO);
                 testSequenceManager.skipCurrentStep();
                 return;

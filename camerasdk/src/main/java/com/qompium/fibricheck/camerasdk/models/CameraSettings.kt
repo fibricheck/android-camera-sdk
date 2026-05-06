@@ -194,7 +194,7 @@ class CameraSettings(
             isoLog.ifEmpty { null },
             exposureTimeLog.ifEmpty { null },
             whiteBalanceMode,
-            whiteBalanceLog,
+            whiteBalanceLog.ifEmpty { null },
             internal_focusMode.name.lowercase(),
             focusLog.ifEmpty { null },
             internal_hdrMode.name.lowercase(),

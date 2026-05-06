@@ -123,11 +123,11 @@ Follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/
 
 ### Prepare Release
 
-1. Go to **Actions → Prepare Release → Run workflow**, enter the version (e.g. `1.2.0`) and the `target_branch` (default: `main`). This will be the branch the PR targeted w/ the updated version & release dates
+1. Go to **Actions → Prepare Release → Run workflow**, enter the version (e.g. `1.2.0`) and the `target_branch` (default: `main`).
 2. The workflow updates `CHANGELOG.md` and `sdk-release.json` (version + today's date), then opens a PR against the target branch.
 3. Review and merge the PR.
 
-> If the PR sits for more than a day before deploying, retrigger Prepare Release to refresh the date — the Deploy workflows validate that `sdk-release.json` contains today's date.
+> If the PR sits for more than a day before deploying, retrigger Prepare Release to refresh the date — the Deploy Dev & Prod workflows validate that `sdk-release.json` contains today's date.
 
 ### Production deploy
 
