@@ -36,4 +36,10 @@ class CameraUtilsSizeTest {
         // 4000*10=40000 vs 100*100=10000 → 100x100 is smaller
         assertEquals(Size(100, 100), CameraUtils.getSmallestSize(sizes))
     }
+
+    @Test
+    fun `getSmallestSize returns smallest in a randomize list`() {
+        val sizes = arrayOf(Size(640, 480), Size(1280, 720), Size(192, 144), Size(720, 1280), Size(1920, 1080))
+        assertEquals(Size(192, 144), CameraUtils.getSmallestSize(sizes))
+    }
 }
