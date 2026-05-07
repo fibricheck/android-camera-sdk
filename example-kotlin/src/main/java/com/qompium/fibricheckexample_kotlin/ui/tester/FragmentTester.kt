@@ -183,8 +183,8 @@ class FragmentTester : Fragment() {
         fibriChecker = FibriBuilder(viewGroup.context, binding.cameraFinder).build()
 
         fibriChecker.sampleTime = 20
-        fibriChecker.fingerDetectionExpiryTime = 10000
-        fibriChecker.pulseDetectionExpiryTime = 10000
+        fibriChecker.fingerDetectionExpiryTime = 10
+        fibriChecker.pulseDetectionExpiryTime = 10
         fibriChecker.setCameraSettings(CameraSettingsInput(
             CameraSettingMode.Locked, 0, 0,
             WhiteBalanceMode.Auto, Vec3f(), 6504,

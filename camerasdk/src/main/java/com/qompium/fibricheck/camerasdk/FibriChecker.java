@@ -437,7 +437,7 @@ public abstract class FibriChecker implements CameraListener {
 
   private void checkPulseDetectionTimer() {
     if (pulseDetectionExpiryTime > 0
-        && (SystemClock.uptimeMillis() - pulseDetectionStartTime) > pulseDetectionExpiryTime) {
+        && (SystemClock.uptimeMillis() - pulseDetectionStartTime) > pulseDetectionExpiryTime * 1000L) {
       skippedPulseDetection = true;
       event = Event.PULSE_DETECTION_TIME_EXPIRED;
       fibriListener.onPulseDetectionTimeExpired();
@@ -446,7 +446,7 @@ public abstract class FibriChecker implements CameraListener {
 
   private void checkFingerDetectionTimer() {
     if (fingerDetectionExpiryTime > 0
-        && (SystemClock.uptimeMillis() - fingerDetectionStartTime) > fingerDetectionExpiryTime) {
+        && (SystemClock.uptimeMillis() - fingerDetectionStartTime) > fingerDetectionExpiryTime * 1000L) {
       skippedFingerDetection = true;
       event = Event.FINGER_DETECTION_TIME_EXPIRED;
       fibriListener.onFingerDetectionTimeExpired();
@@ -603,7 +603,7 @@ public abstract class FibriChecker implements CameraListener {
     protected int quadrantCols = 4;
 
     private int sampleTime = 60;
-    private int pulseDetectionExpiryTime = 10000;
+    private int pulseDetectionExpiryTime = 10;
     private int upperMovementLimit = 12;
     private int lowerMovementLimit = 8;
     private int fingerDetectionExpiryTime = -1;
@@ -693,12 +693,12 @@ public abstract class FibriChecker implements CameraListener {
      * <p>
      * Default value = 10 seconds
      *
-     * @param seconds Time to expire the finger detection
+     * @param seconds Time to expire the pulse detection
      * @return FibriBuilder
      */
-    public FibriBuilder pulseDetectionExpiryTime(float seconds) {
+    public FibriBuilder pulseDetectionExpiryTime(int seconds) {
 
-      this.pulseDetectionExpiryTime = (int) (seconds * 1000);
+       this.pulseDetectionExpiryTime = seconds;
       return this;
     }
 
@@ -713,9 +713,9 @@ public abstract class FibriChecker implements CameraListener {
      * @param seconds Time to expire the finger detection
      * @return FibriBuilder
      */
-    public FibriBuilder fingerDetectionExpiryTime(float seconds) {
+    public FibriBuilder fingerDetectionExpiryTime(int seconds) {
 
-      this.fingerDetectionExpiryTime = (int) (seconds * 1000);
+      this.fingerDetectionExpiryTime = seconds;
       return this;
     }
 

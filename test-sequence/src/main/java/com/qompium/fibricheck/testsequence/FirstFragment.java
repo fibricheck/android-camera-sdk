@@ -123,21 +123,21 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         // vary timeouts based on current step
         int step = getCurrentStepNumber();
         if (step == TestSequenceManager.STEP_FINGER_TIMEOUT) {
-            fibriChecker.fingerDetectionExpiryTime = 3000;
-            fibriChecker.pulseDetectionExpiryTime = 10000;
+            fibriChecker.fingerDetectionExpiryTime = 3;
+            fibriChecker.pulseDetectionExpiryTime = 10;
         } else if (step == TestSequenceManager.STEP_PULSE_TIMEOUT) {
             fibriChecker.fingerDetectionExpiryTime = -1; // No timeout - wait for user to place finger
-            fibriChecker.pulseDetectionExpiryTime = 1000; // 1 second for quick pulse timeout test
+            fibriChecker.pulseDetectionExpiryTime = 1; // 1 second for quick pulse timeout test
         } else if (step == TestSequenceManager.STEP_CALIBRATION
                 || step == TestSequenceManager.STEP_MOVEMENT_DETECTED
                 || step == TestSequenceManager.STEP_RECORDING_START) {
             fibriChecker.fingerDetectionExpiryTime = -1; // No timeout - wait for user to place finger
-            fibriChecker.pulseDetectionExpiryTime = 0; // Skip pulse detection immediately
+            fibriChecker.pulseDetectionExpiryTime = -1; // No timeout - finger is already on camera
         } else {
             // No timeout - wait for user to place finger
             fibriChecker.fingerDetectionExpiryTime = -1;
             // 30 seconds for pulse detection, this can take a while
-            fibriChecker.pulseDetectionExpiryTime = 30000;
+            fibriChecker.pulseDetectionExpiryTime = 30;
         }
 
         Log.d(TAG, "initMeasurement: step=" + step +
@@ -153,6 +153,12 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                         updateDebugEvent("onSampleReady");
                         testSequenceManager.onEvent("onSampleReady");
                         setStatusMessage("Camera data stream active", StatusType.SUCCESS);
+                        // When pulse detection is skipped, onHeartBeat and onPulseDetected
+                        // won't fire — skip both steps so onCalibrationReady lands on step 8.
+                        if (fibriChecker != null && fibriChecker.pulseDetectionExpiryTime == 0) {
+                            testSequenceManager.skipCurrentStep(); // heartbeat
+                            testSequenceManager.skipCurrentStep(); // pulse
+                        }
                     });
                 }
             }
@@ -221,6 +227,12 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                         // Recording is about to start — keep the step-specific status visible.
                         setStatusMessage("Calibrating - recording starting soon...", StatusType.INFO);
                         return;
+                    }
+                    // When finger detection is disabled, onFingerRemoved won't fire. Skip step 9
+                    // now so onMeasurementStart (enqueued next) lands on recordingStart.
+                    // Step 10 (movementDetected) is handled automatically by onStepChanged.
+                    if (fibriChecker != null && fibriChecker.fingerDetectionExpiryTime == 0) {
+                        testSequenceManager.skipCurrentStep(); // fingerRemoved
                     }
                     setStatusMessage("Calibration complete", StatusType.SUCCESS);
                 });
@@ -391,13 +403,14 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                         testSequenceManager.onEvent("onMeasurementValidated");
                         lastCameraSettings = measurementData.cameraSettings;
                         if (buttonViewSettings != null) buttonViewSettings.setVisibility(View.VISIBLE);
+                        Log.d(TAG, "skippedFingerDetection=" + measurementData.skippedFingerDetection
+                                + ", skippedPulseDetection=" + measurementData.skippedPulseDetection
+                                + ", skippedMovementDetection=" + measurementData.skippedMovementDetection);
                         setStatusMessage(
-                                "exposure_mode: " + lastCameraSettings.getExposureMode() + "\n" +
-                                "focus_mode: " + lastCameraSettings.getFocusMode() + "\n" +
-                                "hdr_mode: " + lastCameraSettings.getHdrMode() + "\n" +
-                                "tonemap_mode: " + lastCameraSettings.getTonemapMode() + "\n" +
-                                "hdr_profile: " + lastCameraSettings.getHdrProfile(),
-                                StatusType.SUCCESS);
+                                "skippedFingerDetection: " + measurementData.skippedFingerDetection + "\n" +
+                                "skippedPulseDetection: " + measurementData.skippedPulseDetection + "\n" +
+                                "skippedMovementDetection: " + measurementData.skippedMovementDetection,
+                                StatusType.TEXT);
                     }
                 });
             }
@@ -424,13 +437,6 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         if (data.quadrants == null || data.quadrants.isEmpty()) return "quadrants is missing or empty";
         if (data.time == null || data.time.isEmpty()) return "time is missing or empty";
         if (data.measurementTimestamp == null) return "measurement_timestamp is missing";
-
-        if (data.skippedFingerDetection)
-            return "skippedFingerDetection is true — finger detection timed out during this measurement";
-        if (data.skippedPulseDetection)
-            return "skippedPulseDetection is true — pulse detection timed out during this measurement";
-        if (data.skippedMovementDetection)
-            return "skippedMovementDetection is true — movement detection was not enabled during this measurement";
 
         if (isAccEnabled && (data.acc == null || data.acc.x == null || data.acc.x.isEmpty()))
             return "acc data is missing or empty — accelerometer was enabled but produced no data";
@@ -494,6 +500,24 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
     private void proceedToNextStep() {
         // Reinitialize and restart
         initMeasurement();
+
+        int currentStep = getCurrentStepNumber();
+        if (currentStep == TestSequenceManager.STEP_FINGER_TIMEOUT && fibriChecker.fingerDetectionExpiryTime == 0) {
+            setStatusMessage("Finger detection disabled — skipping step", StatusType.INFO);
+            skipCurrentStep();
+            return;
+        }
+        if (currentStep == TestSequenceManager.STEP_PULSE_TIMEOUT && fibriChecker.pulseDetectionExpiryTime == 0) {
+            setStatusMessage("Pulse detection disabled — skipping step", StatusType.INFO);
+            skipCurrentStep();
+            return;
+        }
+        if (currentStep == TestSequenceManager.STEP_PLACE_FINGER && fibriChecker.fingerDetectionExpiryTime == 0) {
+            setStatusMessage("Finger detection disabled — skipping step", StatusType.INFO);
+            skipCurrentStep();
+            return;
+        }
+
         showCameraPlaceholder(false);
         fibriChecker.start();
 
@@ -509,7 +533,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
     }
 
     private enum StatusType {
-        SUCCESS, WARNING, ERROR, INFO
+        SUCCESS, WARNING, ERROR, INFO, TEXT
     }
 
     private void setStatusMessage(String message, StatusType type) {
@@ -522,29 +546,34 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
 
         switch (type) {
             case SUCCESS:
-                icon = "✓";
+                icon = "✓ ";
                 bgColor = Color.parseColor("#E6F4F1");
                 textColor = Color.parseColor("#0F676D");
                 break;
             case WARNING:
-                icon = "⚠";
+                icon = "⚠ ";
                 bgColor = Color.parseColor("#FFF3E0");
                 textColor = Color.parseColor("#E65100");
                 break;
             case ERROR:
-                icon = "✗";
+                icon = "✗ ";
                 bgColor = Color.parseColor("#FFEBEE");
                 textColor = Color.parseColor("#C62828");
                 break;
+            case TEXT:
+                icon = "";
+                bgColor = Color.parseColor("#E6F4F1");
+                textColor = Color.parseColor("#1E8D95");
+                break;
             case INFO:
             default:
-                icon = "●";
+                icon = "● ";
                 bgColor = Color.parseColor("#E6F4F1");
                 textColor = Color.parseColor("#1E8D95");
                 break;
         }
 
-        textStatusMessage.setText(icon + " " + message);
+        textStatusMessage.setText(icon + message);
         textStatusMessage.setBackgroundColor(bgColor);
         textStatusMessage.setTextColor(textColor);
         textStatusMessage.setVisibility(View.VISIBLE);
@@ -614,12 +643,28 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         }
         initMeasurement();
 
+        int step = getCurrentStepNumber();
+        if (step == TestSequenceManager.STEP_FINGER_TIMEOUT && fibriChecker.fingerDetectionExpiryTime == 0) {
+            setStatusMessage("Finger detection disabled — skipping step", StatusType.INFO);
+            skipCurrentStep();
+            return;
+        }
+        if (step == TestSequenceManager.STEP_PULSE_TIMEOUT && fibriChecker.pulseDetectionExpiryTime == 0) {
+            setStatusMessage("Pulse detection disabled — skipping step", StatusType.INFO);
+            skipCurrentStep();
+            return;
+        }
+        if (step == TestSequenceManager.STEP_PLACE_FINGER && fibriChecker.fingerDetectionExpiryTime == 0) {
+            setStatusMessage("Finger detection disabled — skipping step", StatusType.INFO);
+            skipCurrentStep();
+            return;
+        }
+
         showCameraPlaceholder(false);
         fibriChecker.start();
         setProceedButtonState("STOP", true);
         buttonProceed.setOnClickListener(v -> stopMeasurement());
 
-        int step = getCurrentStepNumber();
         if (step == TestSequenceManager.STEP_FINGER_TIMEOUT) {
             setStatusMessage("Do NOT place finger - waiting for timeout", StatusType.INFO);
         }
