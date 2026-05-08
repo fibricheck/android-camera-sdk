@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2026-04-30
+## [1.1.0] - 2026-05-08
 
 ### Added
 - Camera settings and log (FCRN-2108,FCRN-2109) ([45d6709](https://github.com/fibricheck/android-camera-sdk/commit/45d67090cde66e9f1118810e0964a89a0c0c67b0))
@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated defaults (FCS-85) ([86faf6a](https://github.com/fibricheck/android-camera-sdk/commit/86faf6a061899a0b1906143e56c75234a63bb408))
 - Updated hdr & focus logging + sequence tester (FCS-85) ([b688022](https://github.com/fibricheck/android-camera-sdk/commit/b6880228bef486b9274d6dbf23a90d67e1b439aa))
 - Updated Release workflow ([48adfaa](https://github.com/fibricheck/android-camera-sdk/commit/48adfaae8f1456b555e5ac6430ddeec25c35771e))
+- Unit tests for camera utils ([70add89](https://github.com/fibricheck/android-camera-sdk/commit/70add899da5ae71bcc2907b9ece8063d1d7511de))
+- Extra LabelInfo validation for sequence tester ([6205a35](https://github.com/fibricheck/android-camera-sdk/commit/6205a3526b8eaa4d6649b85fabd9a372e91a124d))
+- Background test ([78620e2](https://github.com/fibricheck/android-camera-sdk/commit/78620e2ca78f26c3319adc0083834e47120cac0d))
+- PR comments & reporting ([ff7ebba](https://github.com/fibricheck/android-camera-sdk/commit/ff7ebba3b854836aeb08508056b6d13f835f0c1d))
 
 ### Fixed
 - Clear listeners before making new ones (FB-788) ([3395100](https://github.com/fibricheck/android-camera-sdk/commit/3395100cd44bf44a5404b7497f2bd2ee09cd2ae8))
@@ -35,6 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Memory leak in activity lifecycle (FCS-87) ([e059d45](https://github.com/fibricheck/android-camera-sdk/commit/e059d456114e79fa357117f06bb117e627d96de2))
 - Guard activity lifecycle callbacks (FCS-88) ([c86b682](https://github.com/fibricheck/android-camera-sdk/commit/c86b6821a85b223d80aee6e60b38f40b5407776e))
 - Ci build error for cliff ([b3e60f6](https://github.com/fibricheck/android-camera-sdk/commit/b3e60f64a4d4954b091d3afef49697bb9c852028))
+- Handle skips & limited camera 2 implementations ([b8b4180](https://github.com/fibricheck/android-camera-sdk/commit/b8b4180d7ba6c7f8ec9b75b423650c62c75ee7e5))
+- PR comments for size testing ([b8b81ec](https://github.com/fibricheck/android-camera-sdk/commit/b8b81ecb65f3e8201104641ccaf8505db4a4c30c))
+- Expiry ts in seconds, not ms (FCS-89) ([c28bf06](https://github.com/fibricheck/android-camera-sdk/commit/c28bf06b157624de746e29c9035953194d4ef939))
 
 ### Build
 - Updated pipelines, added dev pipeline (FB-788) ([14e92de](https://github.com/fibricheck/android-camera-sdk/commit/14e92de2f0bccbac6a48d1c86454d5b7d22b7396))
