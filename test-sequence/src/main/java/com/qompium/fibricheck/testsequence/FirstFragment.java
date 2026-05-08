@@ -56,6 +56,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
     private Button buttonSkip;
     private Button buttonViewSettings;
     private MeasurementCameraSettings lastCameraSettings;
+    private boolean pendingBackgroundingConfirm = false;
     private boolean isAccEnabled = false;
     private boolean isGyroEnabled = false;
     private boolean isGravEnabled = false;
@@ -128,6 +129,9 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         } else if (step == TestSequenceManager.STEP_PULSE_TIMEOUT) {
             fibriChecker.fingerDetectionExpiryTime = -1; // No timeout - wait for user to place finger
             fibriChecker.pulseDetectionExpiryTime = 1; // 1 second for quick pulse timeout test
+        } else if (step == TestSequenceManager.STEP_BACKGROUNDING) {
+            fibriChecker.fingerDetectionExpiryTime = -1; // No timeout - SDK must survive backgrounding
+            fibriChecker.pulseDetectionExpiryTime = -1;
         } else if (step == TestSequenceManager.STEP_CALIBRATION
                 || step == TestSequenceManager.STEP_MOVEMENT_DETECTED
                 || step == TestSequenceManager.STEP_RECORDING_START) {
@@ -176,6 +180,11 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
 
                     if (step == TestSequenceManager.STEP_PULSE_TIMEOUT) {
                         setStatusMessage("Finger detected - waiting for pulse timeout...", StatusType.INFO);
+                        return;
+                    }
+
+                    if (step == TestSequenceManager.STEP_BACKGROUNDING) {
+                        setStatusMessage("Finger detected - now press the Home button to background the app", StatusType.INFO);
                         return;
                     }
 
@@ -314,7 +323,8 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                         autoProceedAfterTimeout("Finger timeout test passed!");
                         return;
                     }
-                    if (step == TestSequenceManager.STEP_PULSE_TIMEOUT) {
+                    if (step == TestSequenceManager.STEP_PULSE_TIMEOUT
+                            || step == TestSequenceManager.STEP_BACKGROUNDING) {
                         Log.d(TAG, "Ignoring finger timeout on step " + step);
                         return;
                     }
@@ -352,6 +362,10 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                     if (step == TestSequenceManager.STEP_PULSE_TIMEOUT) {
                         testSequenceManager.onEvent("onPulseDetectionTimeExpired");
                         autoProceedAfterTimeout("Pulse timeout test passed!");
+                        return;
+                    }
+                    if (step == TestSequenceManager.STEP_BACKGROUNDING) {
+                        Log.d(TAG, "Ignoring pulse timeout on step " + step);
                         return;
                     }
                     stopAndFail("Pulse detection timed out - try holding more steady");
@@ -1025,6 +1039,40 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
 
             layoutStepsList.addView(itemView);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (getCurrentStepNumber() == TestSequenceManager.STEP_BACKGROUNDING) {
+            pendingBackgroundingConfirm = true;
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (pendingBackgroundingConfirm) {
+            pendingBackgroundingConfirm = false;
+            if (getCurrentStepNumber() == TestSequenceManager.STEP_BACKGROUNDING) {
+                if (fibriChecker != null) {
+                    setStatusMessage("Back from background! SDK still active. Tap CONFIRM to proceed.", StatusType.SUCCESS);
+                } else {
+                    setStatusMessage("Back from background, but SDK is no longer running.", StatusType.ERROR);
+                }
+                setProceedButtonState("CONFIRM", true);
+                buttonProceed.setOnClickListener(v -> confirmBackgroundingTest());
+            }
+        }
+    }
+
+    private void confirmBackgroundingTest() {
+        if (fibriChecker != null) {
+            fibriChecker.stop();
+            fibriChecker = null;
+        }
+        testSequenceManager.onEvent("onBackgroundingVerified");
+        autoProceedAfterTimeout("Backgrounding test passed!");
     }
 
     @Override
