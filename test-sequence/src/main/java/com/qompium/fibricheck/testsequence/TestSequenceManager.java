@@ -8,18 +8,19 @@ public class TestSequenceManager {
     public static final int STEP_START = 1;
     public static final int STEP_FINGER_TIMEOUT = 2;
     public static final int STEP_PULSE_TIMEOUT = 3;
-    public static final int STEP_PLACE_FINGER = 4;
-    public static final int STEP_SAMPLE_READY = 5;
-    public static final int STEP_HEARTBEAT = 6;
-    public static final int STEP_PULSE = 7;
-    public static final int STEP_CALIBRATION = 8;
-    public static final int STEP_FINGER_REMOVED = 9;
-    public static final int STEP_MOVEMENT_DETECTED = 10;
-    public static final int STEP_RECORDING_START = 11;
-    public static final int STEP_RECORDING = 12;
-    public static final int STEP_RECORDING_FINISHED = 13;
-    public static final int STEP_PROCESSING = 14;
-    public static final int STEP_MEASUREMENT_VALIDATION = 15;
+    public static final int STEP_BACKGROUNDING = 4;
+    public static final int STEP_PLACE_FINGER = 5;
+    public static final int STEP_SAMPLE_READY = 6;
+    public static final int STEP_HEARTBEAT = 7;
+    public static final int STEP_PULSE = 8;
+    public static final int STEP_CALIBRATION = 9;
+    public static final int STEP_FINGER_REMOVED = 10;
+    public static final int STEP_MOVEMENT_DETECTED = 11;
+    public static final int STEP_RECORDING_START = 12;
+    public static final int STEP_RECORDING = 13;
+    public static final int STEP_RECORDING_FINISHED = 14;
+    public static final int STEP_PROCESSING = 15;
+    public static final int STEP_MEASUREMENT_VALIDATION = 16;
 
     public interface TestSequenceListener {
         void onStepChanged(int currentStepIndex, TestStep currentStep);
@@ -50,6 +51,10 @@ public class TestSequenceManager {
         steps.add(new TestStep(STEP_PULSE_TIMEOUT, "Test Pulse Timeout",
                 "Place finger loosely - wait for pulse timeout",
                 "onPulseDetectionTimeExpired"));
+
+        steps.add(new TestStep(STEP_BACKGROUNDING, "Test Backgrounding",
+                "Place finger on camera, then press the Home button to background the app. Return to this app and tap CONFIRM.",
+                "onBackgroundingVerified"));
 
         steps.add(new TestStep(STEP_PLACE_FINGER, "Place Finger",
                 "Now cover the camera firmly with your finger",

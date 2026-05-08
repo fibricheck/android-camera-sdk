@@ -162,8 +162,8 @@ public class FirstFragment extends Fragment {
         fibriChecker = new FibriChecker.FibriBuilder(viewGroup.getContext(), viewGroup).build();
 
         fibriChecker.sampleTime = 20;
-        fibriChecker.fingerDetectionExpiryTime = 10000;
-        fibriChecker.pulseDetectionExpiryTime = 10000;
+        fibriChecker.fingerDetectionExpiryTime = 10;
+        fibriChecker.pulseDetectionExpiryTime = 10;
 
         fibriChecker.setFibriListener(new FibriListener() {
 
