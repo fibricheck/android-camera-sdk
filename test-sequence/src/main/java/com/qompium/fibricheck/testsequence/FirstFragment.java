@@ -1052,18 +1052,20 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
     @Override
     public void onResume() {
         super.onResume();
-        if (pendingBackgroundingConfirm) {
-            pendingBackgroundingConfirm = false;
-            if (getCurrentStepNumber() == TestSequenceManager.STEP_BACKGROUNDING) {
-                if (fibriChecker != null) {
-                    setStatusMessage("Back from background! SDK still active. Tap CONFIRM to proceed.", StatusType.SUCCESS);
-                } else {
-                    setStatusMessage("Back from background, but SDK is no longer running.", StatusType.ERROR);
-                }
-                setProceedButtonState("CONFIRM", true);
-                buttonProceed.setOnClickListener(v -> confirmBackgroundingTest());
-            }
+        if (!pendingBackgroundingConfirm) {
+            return;
         }
+        pendingBackgroundingConfirm = false;
+        if (getCurrentStepNumber() != TestSequenceManager.STEP_BACKGROUNDING) {
+            return;
+        }
+        if (fibriChecker == null) {
+            stopAndFail("SDK stopped during backgrounding");
+            return;
+        }
+        setStatusMessage("Back from background! SDK still active. Tap CONFIRM to proceed.", StatusType.SUCCESS);
+        setProceedButtonState("CONFIRM", true);
+        buttonProceed.setOnClickListener(v -> confirmBackgroundingTest());
     }
 
     private void confirmBackgroundingTest() {
