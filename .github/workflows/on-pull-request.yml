@@ -1,0 +1,67 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [ main, master, dev ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "17"
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # Build SDK (includes tests) and verify example app compiles
+      - name: Build and test
+        run: ./gradlew clean :camerasdk:build :example-kotlin:assembleDebug
+
+      - name: Report QA Required Test Results
+        if: always()
+        run: |
+          python3 - <<'EOF'
+          import xml.etree.ElementTree as ET
+          import os, glob
+
+          xml_files = glob.glob('camerasdk/build/test-results/**/TEST-*CameraUtilsSizeTest.xml', recursive=True)
+          if not xml_files:
+              print("No test result file found for CameraUtilsSizeTest — skipping summary")
+              exit(0)
+
+          root = ET.parse(xml_files[0]).getroot()
+          total    = int(root.get('tests', 0))
+          failures = int(root.get('failures', 0))
+          errors   = int(root.get('errors', 0))
+          skipped  = int(root.get('skipped', 0))
+          passed   = total - failures - errors - skipped
+          elapsed  = root.get('time', '?')
+
+          lines = ['## Camera Utils — Smallest Size Tests', '']
+          lines += ['| Test | Result | Time |', '|------|:------:|-----:|']
+          for tc in root.findall('testcase'):
+              name = tc.get('name', '?')
+              t    = tc.get('time', '-')
+              if tc.find('failure') is not None or tc.find('error') is not None:
+                  icon = '❌'
+              elif tc.find('skipped') is not None:
+                  icon = '⏭️'
+              else:
+                  icon = '✅'
+              lines.append(f'| {name} | {icon} | {t}s |')
+
+          overall = '✅' if failures + errors == 0 else '❌'
+          lines += ['', f'{overall} **{passed}/{total} passed** in {elapsed}s']
+
+          summary = '\n'.join(lines) + '\n'
+          print(summary)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
+              f.write(summary)
+          EOF

@@ -26,13 +26,11 @@ repositories {
 
 The dependency can then be added:
 
-<!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    implementation 'com.qompium.fibricheck:camerasdk:1.0.2'
+    implementation 'com.qompium.fibricheck:camerasdk:x.y.z'
 }
 ```
-<!-- x-release-please-end -->
 
 ### Add the dependency using JitPack
 [JitPack](https://jitpack.io) is a package repository for Git and allows to add dependencies without having to authenticate (as with the GitHub package registry):
@@ -47,13 +45,11 @@ allprojects {
 ```
 
 Add the dependency in the following way:
-<!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-        implementation 'com.github.fibricheck:android-camera-sdk:v1.0.2'
+        implementation 'com.github.fibricheck:android-camera-sdk:x.y.z'
 }
 ```
-<!-- x-release-please-end -->
 
 ### In your code
 Once the dependency is correctly added, the SDK is available in your code.
@@ -61,6 +57,125 @@ Once the dependency is correctly added, the SDK is available in your code.
 ```java
 import com.qompium.fibricheck.camerasdk.*;
 ```
+
+## Running the example apps
+
+Enable **USB debugging** on your phone: Settings → About phone → tap Build number 7 times → Developer options → USB Debugging. Then connect your phone via USB and approve the connection prompt.
+
+```bash
+# Check your device is detected
+adb devices
+
+# Install the Kotlin example app and launch it
+./gradlew :example-kotlin:installDebug && adb shell am start -n com.qompium.fibricheckexample/.MainActivity
+
+# Install the test sequence app and launch it
+./gradlew :test-sequence:installDebug && adb shell am start -n com.qompium.fibricheck.testsequence/.MainActivity
+```
+
+Alternatively, open the project in Android Studio, select your device from the device dropdown, and press Run (▶).
+
+## Running Tests
+
+```bash
+# All tests (SDK + test sequence)
+./gradlew test
+
+# SDK tests only
+./gradlew :camerasdk:test
+
+# Test sequence tests only
+./gradlew :test-sequence:test
+```
+
+## Generate changelog
+
+This project uses [git-cliff](https://git-cliff.org/) to generate changelogs following the [Keep a Changelog](https://keepachangelog.com/) format.
+
+```bash
+# Update CHANGELOG.md (after prod tag exists)
+git-cliff --output CHANGELOG.md
+
+# Preview unreleased changes without a tag
+git-cliff --unreleased
+
+# Generate changelog labelled with a specific version (e.g. before the prod tag exists)
+git-cliff --tag v1.1.0 --output CHANGELOG.md
+```
+
+## Releasing a new version
+
+Follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) guidelines when writing commit messages — this is what `git-cliff` uses to group entries in the changelog.
+
+### Branch strategy
+
+- **Feature work**: feature branch → PR to `main` (or a version branch like `v1.2.3` when working on multiple versions in parallel)
+- **No permanent `dev` branch** — all releases are triggered manually via GitHub Actions
+
+### Workflows
+
+| Workflow | Trigger | Allowed branches | Tag format |
+|---|---|---|---|
+| **Prepare Release** | Manual | any | — |
+| **Deploy Snapshot** | Manual | any | `vX.Y.Z-snapshot.<hash>` |
+| **Deploy Development** | Manual | `main`, `v*.*.*` | `vX.Y.Z-dev.N` |
+| **Deploy Production** | Manual | `main` only | `vX.Y.Z` |
+
+### Prepare Release
+
+1. Go to **Actions → Prepare Release → Run workflow**, enter the version (e.g. `1.2.0`) and the `target_branch` (default: `main`).
+2. The workflow updates `CHANGELOG.md` and `sdk-release.json` (version + today's date), then opens a PR against the target branch.
+3. Review and merge the PR.
+
+> If the PR sits for more than a day before deploying, retrigger Prepare Release to refresh the date — the Deploy Dev & Prod workflows validate that `sdk-release.json` contains today's date.
+
+### Production deploy
+
+After merging the Prepare Release PR, go to **Actions → Deploy Production → Run workflow** from `main`.
+
+> The git tag (e.g. `v1.2.0`) and GitHub release are created automatically — do not create tags manually.
+
+### Development deploy
+
+After merging the Prepare Release PR, go to **Actions → Deploy Development → Run workflow** from `main` or a version branch (e.g. `v1.2.3`).
+
+> The git tag (e.g. `v1.2.0`) and GitHub release are created automatically — do not create tags manually.
+
+### Snapshot deploy
+
+Go to **Actions → Deploy Snapshot → Run workflow** from any branch. No Prepare Release step needed — snapshots skip the date validation.
+
+## Logged Data Structure
+When a `log` flag is enabled on a `CameraSettingsInput` and its corresponding mode is set to `auto`, the measurement result will include a `camera_settings` object containing the relevant log.
+
+The log lists only add a new entry when the value differs from the previous one (or exceeds 0.001 for floating-point values). This avoids storing redundant data for values that remain stable across many frames.
+
+The general structure of a log is:
+```
+[[<value>, <frame index>], ...]
+```
+
+**Example — focus distance:**
+```json
+[[0.0, 0], [0.1, 13], [0.5, 40]]
+```
+- Frame 0: focus distance is `0.0`
+- Frame 13: changes to `0.1`
+- Frame 40: changes to `0.5`, then remains constant for the rest of the recording
+
+**White balance** is the exception, it uses three values (`r`, `g`, `b`) per entry:
+```
+[[<r>, <g>, <b>, <frame index>], ...]
+```
+
+**Data types per field:**
+| Field | Structure | Notes |
+|---|---|---|
+| `iso` | `[[int, int]]` | |
+| `exposure_time` | `[[long, int]]` | |
+| `focus` | `[[float, int]]` | |
+| `white_balance` | `[[float, float, float, int]]` | |
+| `hdr` | `[[int, int]]` | 1 = on, 0 = off |
 
 ## License
 This SDK is proprietary. See `LICENCE` for more information.

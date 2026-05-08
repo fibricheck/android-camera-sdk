@@ -162,8 +162,8 @@ public class FirstFragment extends Fragment {
         fibriChecker = new FibriChecker.FibriBuilder(viewGroup.getContext(), viewGroup).build();
 
         fibriChecker.sampleTime = 20;
-        fibriChecker.fingerDetectionExpiryTime = 10000;
-        fibriChecker.pulseDetectionExpiryTime = 10000;
+        fibriChecker.fingerDetectionExpiryTime = 10;
+        fibriChecker.pulseDetectionExpiryTime = 10;
 
         fibriChecker.setFibriListener(new FibriListener() {
 
@@ -191,11 +191,11 @@ public class FirstFragment extends Fragment {
                 logEvent("onTimeRemaining", false);
             }
 
-            @Override public void onMeasurementFinished() {
+            @Override public void onMeasurementFinished(long timestamp) {
                 logEvent("onMeasurementFinished", true);
             }
 
-            @Override public void onMeasurementStart() {
+            @Override public void onMeasurementStart(long timestamp) {
                 logEvent("onMeasurementStart", true);
             }
 

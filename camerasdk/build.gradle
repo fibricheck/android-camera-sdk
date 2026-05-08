@@ -1,20 +1,37 @@
+import groovy.json.JsonSlurper
+
 plugins {
     id 'com.android.library'
     id 'maven-publish'
+    id 'org.jetbrains.kotlin.android'
 }
 
+// Read version and release date from sdk-release.json
+def sdkRelease = new JsonSlurper().parse(file("${rootDir}/sdk-release.json"))
+
 group 'com.qompium.fibricheck'
-version '1.0.2' // x-release-please-version
+version sdkRelease.version
 
 android {
     namespace 'com.qompium.fibricheck.camerasdk'
-    compileSdk 33
+    compileSdk 35
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
-        minSdk 19
-        targetSdk 33
+        minSdk 22
+        targetSdk 36
 
         consumerProguardFiles "consumer-rules.pro"
+
+        aarMetadata {
+            minCompileSdk = 22
+        }
+
+        buildConfigField "String", "RELEASE_DATE", "\"${sdkRelease.releaseDate}\""
+        buildConfigField "String", "SDK_VERSION", "\"${project.version}\""
     }
 
     buildTypes {
@@ -24,34 +41,51 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
 }
 
-afterEvaluate{
-    publishing {
-        publications {
-            release(MavenPublication) {
+publishing {
+    publications {
+        release(MavenPublication) {
+            afterEvaluate {
                 from components.release
             }
         }
+    }
 
-        repositories {
-            maven {
-                name = "GitHubPackages"
-                url = uri("https://maven.pkg.github.com/fibricheck/android-camera-sdk")
-                credentials {
-                    username = project.findProperty("gpr.user")  ?: System.getenv("GH_USERNAME")
-                    password = project.findProperty("gpr.key")  ?: System.getenv("GH_TOKEN")
-                }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/fibricheck/android-camera-sdk")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GH_USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("GH_TOKEN")
             }
         }
     }
 }
 
 dependencies {
-    implementation 'com.google.code.gson:gson:+'
+    implementation 'com.google.code.gson:gson:2.13.2'
+    implementation 'androidx.core:core-ktx:1.15.0'
+
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.13'
 }
 
+tasks.withType(Test).configureEach {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}

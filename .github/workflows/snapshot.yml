@@ -1,0 +1,21 @@
+name: Deploy Snapshot
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Run without making changes"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    uses: ./.github/workflows/publish.yml
+    with:
+      type: snapshot
+      dry_run: ${{ inputs.dry_run || false }}
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_tester"
+        android:title="@string/title_tester" />
+
+    <item
+        android:id="@+id/navigation_camera"
+        android:title="@string/title_camera_test" />
+
+    <item
+        android:id="@+id/navigation_label"
+        android:title="@string/title_label_info" />
+</menu>

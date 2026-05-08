@@ -6,7 +6,7 @@ public class QuadrantColor {
 
   public double[] yuvData;
 
-  public QuadrantColor (Quadrant quadrant, double[] yuvData) {
+  public QuadrantColor(Quadrant quadrant, double[] yuvData) {
 
     this.quadrant = quadrant;
     this.yuvData = yuvData;

@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Fibricheck Example</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="next">Start</string>
+    <string name="hello_first_fragment">Measurement</string>
+    <string name="title_tester">Tester</string>
+    <string name="title_camera_test">Camera Test</string>
+    <string name="title_label_info">Label Info</string>
+</resources>

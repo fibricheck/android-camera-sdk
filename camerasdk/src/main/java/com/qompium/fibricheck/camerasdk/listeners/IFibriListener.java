@@ -4,31 +4,31 @@ import com.qompium.fibricheck.camerasdk.measurement.MeasurementData;
 
 public interface IFibriListener {
 
-  void onFingerDetected ();
+  void onFingerDetected();
 
-  void onFingerRemoved (double y, double v, double stdDevY);
+  void onFingerRemoved(double y, double v, double stdDevY);
 
-  void onHeartBeat (int value);
+  void onHeartBeat(int value);
 
-  void onPulseDetectionTimeExpired ();
+  void onPulseDetectionTimeExpired();
 
-  void onPulseDetected ();
+  void onPulseDetected();
 
-  void onFingerDetectionTimeExpired ();
+  void onFingerDetectionTimeExpired();
 
-  void onMeasurementFinished ();
+  void onMeasurementFinished(long timestamp);
 
-  void onTimeRemaining (int seconds);
+  void onTimeRemaining(int seconds);
 
-  void onMeasurementProcessed (MeasurementData measurementData);
+  void onMeasurementProcessed(MeasurementData measurementData);
 
-  void onMeasurementError (String message);
+  void onMeasurementError(String message);
 
-  void onMeasurementStart ();
+  void onMeasurementStart(long timestamp);
 
-  void onMovementDetected ();
+  void onMovementDetected();
 
-  void onSampleReady (double ppg, double raw);
+  void onSampleReady(double ppg, double raw);
 
-  void onCalibrationReady ();
+  void onCalibrationReady();
 }
