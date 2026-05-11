@@ -56,7 +56,7 @@ jobs:
           {
             echo "Updates the changelog and release metadata for **v${{ inputs.version }}**. After merging, you can trigger the release manually via the Deploy workflow."
             echo ""
-            git cliff --tag v${{ inputs.version }} --unreleased --strip all
+            git-cliff --tag v${{ inputs.version }} --unreleased --strip all
           } > pr_body.md
 
           gh pr create \
