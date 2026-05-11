@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2026-05-08
+## [1.1.0] - 2026-05-11
 
 ### Added
 - Camera settings and log (FCRN-2108,FCRN-2109) ([45d6709](https://github.com/fibricheck/android-camera-sdk/commit/45d67090cde66e9f1118810e0964a89a0c0c67b0))
@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extra LabelInfo validation for sequence tester ([6205a35](https://github.com/fibricheck/android-camera-sdk/commit/6205a3526b8eaa4d6649b85fabd9a372e91a124d))
 - Background test ([78620e2](https://github.com/fibricheck/android-camera-sdk/commit/78620e2ca78f26c3319adc0083834e47120cac0d))
 - PR comments & reporting ([ff7ebba](https://github.com/fibricheck/android-camera-sdk/commit/ff7ebba3b854836aeb08508056b6d13f835f0c1d))
+- Bump publish workflow ([df667cc](https://github.com/fibricheck/android-camera-sdk/commit/df667cc829c2f3811f6434a7b325c0ff8fcf456a))
 
 ### Fixed
 - Clear listeners before making new ones (FB-788) ([3395100](https://github.com/fibricheck/android-camera-sdk/commit/3395100cd44bf44a5404b7497f2bd2ee09cd2ae8))
