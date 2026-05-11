@@ -46,7 +46,7 @@ jobs:
 
       - name: Create release
         id: sdk-release
-        uses: fibricheck/actions-general/sdk-release@v4
+        uses: fibricheck/actions-general/sdk-release@v5
         with:
           token: ${{ secrets.token }}
           type: ${{ inputs.type }}
