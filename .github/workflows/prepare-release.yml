@@ -37,6 +37,13 @@ jobs:
           config: cliff.toml
           args: --tag v${{ inputs.version }} --output CHANGELOG.md
 
+      - name: Generate release notes
+        id: release-notes
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --tag v${{ inputs.version }} --unreleased --strip all
+
       - name: Update sdk-release.json
         run: |
           jq --arg version "${{ inputs.version }}" \
@@ -56,7 +63,7 @@ jobs:
           {
             echo "Updates the changelog and release metadata for **v${{ inputs.version }}**. After merging, you can trigger the release manually via the Deploy workflow."
             echo ""
-            git cliff --tag v${{ inputs.version }} --unreleased --strip all
+            echo "${{ steps.release-notes.outputs.content }}"
           } > pr_body.md
 
           gh pr create \
