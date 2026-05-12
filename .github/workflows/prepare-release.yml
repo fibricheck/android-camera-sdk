@@ -32,10 +32,17 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Generate changelog
-        uses: orhun/git-cliff-action@v4
+        uses: orhun/git-cliff-action@f50e11560dce63f7c33227798f90b924471a88b5 # v4.8.0
         with:
           config: cliff.toml
           args: --tag v${{ inputs.version }} --output CHANGELOG.md
+
+      - name: Generate release notes
+        id: release-notes
+        uses: orhun/git-cliff-action@f50e11560dce63f7c33227798f90b924471a88b5 # v4.8.0
+        with:
+          config: cliff.toml
+          args: --tag v${{ inputs.version }} --unreleased --strip all
 
       - name: Update sdk-release.json
         run: |
@@ -47,15 +54,23 @@ jobs:
 
       - name: Create release branch and PR
         run: |
-          BRANCH="chore/release-v${{ inputs.version }}"
+          BRANCH="chore/release-v${{ inputs.version }}-$(date -u +%Y-%m-%d)"
           git checkout -b "$BRANCH"
           git add CHANGELOG.md sdk-release.json
-          git commit -m "chore: changelog update for v${{ inputs.version }}"
+          git commit -m "chore: Release v${{ inputs.version }}"
           git push origin "$BRANCH"
+
+          {
+            echo "Updates the changelog and release metadata for **v${{ inputs.version }}**. After merging, you can trigger the release manually via the Deploy workflow."
+            echo ""
+            echo "${{ steps.release-notes.outputs.content }}"
+          } > pr_body.md
+
           gh pr create \
             --title "chore(release): v${{ inputs.version }}" \
-            --body "Updates the changelog and release metadata for **v${{ inputs.version }}**. After merging, you can trigger the release manually via the Deploy workflow." \
+            --body-file pr_body.md \
             --base "${{ inputs.target_branch }}" \
-            --head "$BRANCH"
+            --head "$BRANCH" \
+          || echo "PR already exists, skipping creation"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
