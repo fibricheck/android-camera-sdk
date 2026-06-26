@@ -326,6 +326,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
       mCaptureRequest.addTarget(mImageSurface);
       mCaptureRequest.addTarget(textureSurface);
 
+      final CaptureRequest.Builder sessionCaptureRequest = mCaptureRequest;
       CameraCaptureSession.StateCallback sessionCallback = new CameraCaptureSession.StateCallback() {
         @Override
         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
@@ -333,7 +334,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             cameraSettings.setHdrProfile(mOutputConfig.getDynamicRangeProfile());
           }
-          updatePreview();
+          updatePreview(sessionCaptureRequest);
         }
 
         @Override
@@ -372,17 +373,14 @@ public class FibriCheckerImpl2 extends FibriChecker {
   /**
    * Update the camera preview. {@link #startPreview()} needs to be called in advance.
    */
-  private void updatePreview() {
+  private void updatePreview(CaptureRequest.Builder captureRequestBuilder) {
 
     if (null == mCameraDevice) {
       return;
     }
     try {
-      //setUpCaptureRequestBuilder(mPreviewBuilder);
-      HandlerThread thread = new HandlerThread("CameraPreview");
-      thread.start();
-      mPreviewSession.setRepeatingRequest(mCaptureRequest.build(), mCaptureCallback, mBackgroundHandler);
-    } catch (CameraAccessException e) {
+      mPreviewSession.setRepeatingRequest(captureRequestBuilder.build(), mCaptureCallback, mBackgroundHandler);
+    } catch (CameraAccessException | IllegalArgumentException e) {
       Log.e(TAG, e.toString());
     } catch (IllegalStateException | NullPointerException e) {
       Log.e(TAG, e.toString());
