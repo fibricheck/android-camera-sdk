@@ -205,11 +205,11 @@ public class FibriCheckerImpl2 extends FibriChecker {
 
       long sigmaY = 0;
       for (int i = 0; i < 256; i++) {
-        sigmaY += (long) (histY[i] * Math.pow(i - yAvg, 2));
+        double d = i - yAvg;
+        sigmaY += (long) (histY[i] * d * d);
       }
       stdDevY = Math.sqrt(sigmaY / frameSize);
 
-      //Log.e("std", String.format("%f, %f, %f", yAvg, vAvg, stdDevY));
     } catch (NullPointerException e) {
       Log.e(TAG, "NPE while calculating YUV average");
       return null;
@@ -217,6 +217,11 @@ public class FibriCheckerImpl2 extends FibriChecker {
       if (yuvImage != null) {
         yuvImage.close();
       }
+    }
+
+    if (yAvg < 2.0) {
+      Log.w(TAG, "Dropping blank camera frame (yAvg=" + yAvg + ")");
+      return null;
     }
 
     return new QuadrantColor(quadrant, new double[]{yAvg, uAvg, vAvg, stdDevY});
@@ -265,7 +270,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
           && hardwareLevel > CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED) {
         isAdvancedCamera2Implementation = true;
       }
-      Log.i(TAG, "Hardwarelevel: " + hardwareLevel);
+      Log.i(TAG, "Hardwarelevel: " + hardwareLevel + ", advancedCamera2=" + isAdvancedCamera2Implementation);
 
       Size mVideoSize = CameraUtils.Companion.getSmallestSize(map.getOutputSizes(MediaRecorder.class));
       mPreviewSize = CameraUtils.Companion.getSmallestSize(map.getOutputSizes(SurfaceTexture.class));
@@ -347,9 +352,16 @@ public class FibriCheckerImpl2 extends FibriChecker {
         mOutputConfig = new OutputConfiguration(mImageSurface);
         OutputConfiguration textureOutputConfig = new OutputConfiguration(textureSurface);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && cameraSettings.getInternal_hdrMode() == HdrMode.Off) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            && cameraSettings.getInternal_hdrMode() == HdrMode.Off
+            && supportsReliableDynamicRangeProfiles()) {
           mOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
           textureOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
+          Log.d(TAG, "Requesting STANDARD dynamic range profile for image and preview surfaces");
+        } else {
+          Log.d(TAG, "Using default dynamic range profile. sdk=" + Build.VERSION.SDK_INT
+              + ", hdrMode=" + cameraSettings.getInternal_hdrMode()
+              + ", reliableDynamicRange=" + supportsReliableDynamicRangeProfiles());
         }
 
         Executor executor = context.getMainExecutor();
@@ -417,25 +429,38 @@ public class FibriCheckerImpl2 extends FibriChecker {
     applyExposure();
     applyWhiteBalance();
     applyFocus();
+    applyHdrMode();
     applyRequest();
+  }
+
+  private boolean supportsReliableDynamicRangeProfiles() {
+    return hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+        && hardwareLevel > CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED;
   }
 
   private void applyExposure() {
     if (cameraSettings.isAutoExposure()) {
       mCaptureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
-      mCaptureRequest.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
+      mCaptureRequest.set(CaptureRequest.CONTROL_AE_LOCK, false);
+      mCaptureRequest.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE);
       mCaptureRequest.set(CaptureRequest.SENSOR_SENSITIVITY, null);
       mCaptureRequest.set(CaptureRequest.SENSOR_EXPOSURE_TIME, null);
       Log.d(TAG, "Exposure Auto");
       return;
     }
 
-    mCaptureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);
     if (!isAdvancedCamera2Implementation) {
+      mCaptureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
       mCaptureRequest.set(CaptureRequest.CONTROL_AE_LOCK, true);
+      mCaptureRequest.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE);
+      mCaptureRequest.set(CaptureRequest.SENSOR_SENSITIVITY, null);
+      mCaptureRequest.set(CaptureRequest.SENSOR_EXPOSURE_TIME, null);
+      Log.d(TAG, "Exposure Locked (AE lock, limited device)");
       return;
     }
 
+    mCaptureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);
+    mCaptureRequest.set(CaptureRequest.CONTROL_AE_LOCK, false);
     Log.d(TAG, "Exposure Locked ISO: " + cameraSettings.getIso() + ", Time: " + cameraSettings.getExposureTime());
     mCaptureRequest.set(CaptureRequest.SENSOR_SENSITIVITY, cameraSettings.getIso());
     mCaptureRequest.set(CaptureRequest.SENSOR_EXPOSURE_TIME, cameraSettings.getExposureTime());
@@ -470,6 +495,16 @@ public class FibriCheckerImpl2 extends FibriChecker {
     mCaptureRequest.set(CaptureRequest.LENS_FOCUS_DISTANCE, cameraSettings.getFocus());
     mCaptureRequest.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE);
     Log.d(TAG, "Focus Locked " + cameraSettings.getFocus());
+  }
+
+  private void applyHdrMode() {
+    if (cameraSettings.getInternal_hdrMode() == HdrMode.Off) {
+      mCaptureRequest.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+      mCaptureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CameraMetadata.CONTROL_SCENE_MODE_DISABLED);
+      Log.d(TAG, "HDR Off");
+    } else {
+      Log.d(TAG, "HDR Auto");
+    }
   }
 
   private void applyRequest() {
