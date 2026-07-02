@@ -14,7 +14,6 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
-import android.hardware.camera2.params.DynamicRangeProfiles;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
 import android.hardware.camera2.params.StreamConfigurationMap;
@@ -352,17 +351,9 @@ public class FibriCheckerImpl2 extends FibriChecker {
         mOutputConfig = new OutputConfiguration(mImageSurface);
         OutputConfiguration textureOutputConfig = new OutputConfiguration(textureSurface);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-            && cameraSettings.getInternal_hdrMode() == HdrMode.Off
-            && supportsReliableDynamicRangeProfiles()) {
-          mOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
-          textureOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
-          Log.d(TAG, "Requesting STANDARD dynamic range profile for image and preview surfaces");
-        } else {
-          Log.d(TAG, "Using default dynamic range profile. sdk=" + Build.VERSION.SDK_INT
-              + ", hdrMode=" + cameraSettings.getInternal_hdrMode()
-              + ", reliableDynamicRange=" + supportsReliableDynamicRangeProfiles());
-        }
+        Log.d(TAG, "Using default dynamic range profile. sdk=" + Build.VERSION.SDK_INT
+            + ", hdrMode=" + cameraSettings.getInternal_hdrMode()
+            + ", advanced=" + isAdvancedCamera2Implementation);
 
         Executor executor = context.getMainExecutor();
         mCameraDevice.createCaptureSession(new SessionConfiguration(
@@ -431,11 +422,6 @@ public class FibriCheckerImpl2 extends FibriChecker {
     applyFocus();
     applyHdrMode();
     applyRequest();
-  }
-
-  private boolean supportsReliableDynamicRangeProfiles() {
-    return hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-        && hardwareLevel > CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED;
   }
 
   private void applyExposure() {
@@ -510,7 +496,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
   private void applyRequest() {
     try {
       mPreviewSession.setRepeatingRequest(mCaptureRequest.build(), mCaptureCallback, mBackgroundHandler);
-    } catch (CameraAccessException | NullPointerException e) {
+    } catch (CameraAccessException | IllegalStateException | NullPointerException e) {
       Log.e(TAG, e.toString());
     }
   }
