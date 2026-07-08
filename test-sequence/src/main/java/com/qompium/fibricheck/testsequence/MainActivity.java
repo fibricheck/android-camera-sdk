@@ -5,6 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import androidx.cardview.widget.CardView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.navigation.NavController;
@@ -53,6 +55,17 @@ public class MainActivity extends AppCompatActivity {
 
     public CardView getCameraPreviewCard() {
         return findViewById(R.id.card_camera_preview);
+    }
+
+    public PpgGraphView getPpgGraphView() {
+        return findViewById(R.id.view_ppg_graph);
+    }
+
+    public void showPpgGraph(boolean show) {
+        View card = findViewById(R.id.card_ppg_graph);
+        if (card != null) {
+            card.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
     }
 
     @Override
