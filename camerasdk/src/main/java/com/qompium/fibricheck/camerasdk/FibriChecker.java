@@ -416,7 +416,7 @@ public abstract class FibriChecker implements CameraListener {
     double sum = 0;
 
     for (float datum : data) {
-      sum += Math.pow(datum, 2);
+      sum += (double) datum * datum;
     }
 
     return Math.sqrt(sum);

@@ -14,7 +14,6 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
-import android.hardware.camera2.params.DynamicRangeProfiles;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
 import android.hardware.camera2.params.StreamConfigurationMap;
@@ -205,11 +204,11 @@ public class FibriCheckerImpl2 extends FibriChecker {
 
       long sigmaY = 0;
       for (int i = 0; i < 256; i++) {
-        sigmaY += (long) (histY[i] * Math.pow(i - yAvg, 2));
+        double d = i - yAvg;
+        sigmaY += (long) (histY[i] * d * d);
       }
       stdDevY = Math.sqrt(sigmaY / frameSize);
 
-      //Log.e("std", String.format("%f, %f, %f", yAvg, vAvg, stdDevY));
     } catch (NullPointerException e) {
       Log.e(TAG, "NPE while calculating YUV average");
       return null;
@@ -217,6 +216,11 @@ public class FibriCheckerImpl2 extends FibriChecker {
       if (yuvImage != null) {
         yuvImage.close();
       }
+    }
+
+    if (yAvg < 2.0) {
+      Log.w(TAG, "Dropping blank camera frame (yAvg=" + yAvg + ")");
+      return null;
     }
 
     return new QuadrantColor(quadrant, new double[]{yAvg, uAvg, vAvg, stdDevY});
@@ -265,7 +269,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
           && hardwareLevel > CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED) {
         isAdvancedCamera2Implementation = true;
       }
-      Log.i(TAG, "Hardwarelevel: " + hardwareLevel);
+      Log.i(TAG, "Hardwarelevel: " + hardwareLevel + ", advancedCamera2=" + isAdvancedCamera2Implementation);
 
       Size mVideoSize = CameraUtils.Companion.getSmallestSize(map.getOutputSizes(MediaRecorder.class));
       mPreviewSize = CameraUtils.Companion.getSmallestSize(map.getOutputSizes(SurfaceTexture.class));
@@ -326,6 +330,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
       mCaptureRequest.addTarget(mImageSurface);
       mCaptureRequest.addTarget(textureSurface);
 
+      final CaptureRequest.Builder sessionCaptureRequest = mCaptureRequest;
       CameraCaptureSession.StateCallback sessionCallback = new CameraCaptureSession.StateCallback() {
         @Override
         public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
@@ -333,7 +338,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
           if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             cameraSettings.setHdrProfile(mOutputConfig.getDynamicRangeProfile());
           }
-          updatePreview();
+          updatePreview(sessionCaptureRequest);
         }
 
         @Override
@@ -346,10 +351,9 @@ public class FibriCheckerImpl2 extends FibriChecker {
         mOutputConfig = new OutputConfiguration(mImageSurface);
         OutputConfiguration textureOutputConfig = new OutputConfiguration(textureSurface);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && cameraSettings.getInternal_hdrMode() == HdrMode.Off) {
-          mOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
-          textureOutputConfig.setDynamicRangeProfile(DynamicRangeProfiles.STANDARD);
-        }
+        Log.d(TAG, "Using default dynamic range profile. sdk=" + Build.VERSION.SDK_INT
+            + ", hdrMode=" + cameraSettings.getInternal_hdrMode()
+            + ", advanced=" + isAdvancedCamera2Implementation);
 
         Executor executor = context.getMainExecutor();
         mCameraDevice.createCaptureSession(new SessionConfiguration(
@@ -372,17 +376,14 @@ public class FibriCheckerImpl2 extends FibriChecker {
   /**
    * Update the camera preview. {@link #startPreview()} needs to be called in advance.
    */
-  private void updatePreview() {
+  private void updatePreview(CaptureRequest.Builder captureRequestBuilder) {
 
     if (null == mCameraDevice) {
       return;
     }
     try {
-      //setUpCaptureRequestBuilder(mPreviewBuilder);
-      HandlerThread thread = new HandlerThread("CameraPreview");
-      thread.start();
-      mPreviewSession.setRepeatingRequest(mCaptureRequest.build(), mCaptureCallback, mBackgroundHandler);
-    } catch (CameraAccessException e) {
+      mPreviewSession.setRepeatingRequest(captureRequestBuilder.build(), mCaptureCallback, mBackgroundHandler);
+    } catch (CameraAccessException | IllegalArgumentException e) {
       Log.e(TAG, e.toString());
     } catch (IllegalStateException | NullPointerException e) {
       Log.e(TAG, e.toString());
@@ -419,25 +420,33 @@ public class FibriCheckerImpl2 extends FibriChecker {
     applyExposure();
     applyWhiteBalance();
     applyFocus();
+    applyHdrMode();
     applyRequest();
   }
 
   private void applyExposure() {
     if (cameraSettings.isAutoExposure()) {
       mCaptureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
-      mCaptureRequest.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
+      mCaptureRequest.set(CaptureRequest.CONTROL_AE_LOCK, false);
+      mCaptureRequest.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE);
       mCaptureRequest.set(CaptureRequest.SENSOR_SENSITIVITY, null);
       mCaptureRequest.set(CaptureRequest.SENSOR_EXPOSURE_TIME, null);
       Log.d(TAG, "Exposure Auto");
       return;
     }
 
-    mCaptureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);
     if (!isAdvancedCamera2Implementation) {
+      mCaptureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
       mCaptureRequest.set(CaptureRequest.CONTROL_AE_LOCK, true);
+      mCaptureRequest.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE);
+      mCaptureRequest.set(CaptureRequest.SENSOR_SENSITIVITY, null);
+      mCaptureRequest.set(CaptureRequest.SENSOR_EXPOSURE_TIME, null);
+      Log.d(TAG, "Exposure Locked (AE lock, limited device)");
       return;
     }
 
+    mCaptureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF);
+    mCaptureRequest.set(CaptureRequest.CONTROL_AE_LOCK, false);
     Log.d(TAG, "Exposure Locked ISO: " + cameraSettings.getIso() + ", Time: " + cameraSettings.getExposureTime());
     mCaptureRequest.set(CaptureRequest.SENSOR_SENSITIVITY, cameraSettings.getIso());
     mCaptureRequest.set(CaptureRequest.SENSOR_EXPOSURE_TIME, cameraSettings.getExposureTime());
@@ -474,10 +483,20 @@ public class FibriCheckerImpl2 extends FibriChecker {
     Log.d(TAG, "Focus Locked " + cameraSettings.getFocus());
   }
 
+  private void applyHdrMode() {
+    if (cameraSettings.getInternal_hdrMode() == HdrMode.Off) {
+      mCaptureRequest.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+      mCaptureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CameraMetadata.CONTROL_SCENE_MODE_DISABLED);
+      Log.d(TAG, "HDR Off");
+    } else {
+      Log.d(TAG, "HDR Auto");
+    }
+  }
+
   private void applyRequest() {
     try {
       mPreviewSession.setRepeatingRequest(mCaptureRequest.build(), mCaptureCallback, mBackgroundHandler);
-    } catch (CameraAccessException | NullPointerException e) {
+    } catch (CameraAccessException | IllegalStateException | NullPointerException e) {
       Log.e(TAG, e.toString());
     }
   }
