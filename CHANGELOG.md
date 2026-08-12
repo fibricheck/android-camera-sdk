@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-08-12
+
+### Fix
+- Remove explicit dynamic range disabling ([ed3de5a](https://github.com/fibricheck/android-camera-sdk/commit/ed3de5a5dd60b4080b556cf1cc6cbc91991c0b77))
+
+### Fixed
+- Start preview race condition (FCS-92) ([83130ef](https://github.com/fibricheck/android-camera-sdk/commit/83130ef01589bf834be67ac19d7ae93463615d07))
+- Limited Camera2 HDR fix (FCS-93) ([5bb00ab](https://github.com/fibricheck/android-camera-sdk/commit/5bb00abf44b9b53f99262a124af0655960239aa9))
+- Ppg graph for test sequence ([9b01a79](https://github.com/fibricheck/android-camera-sdk/commit/9b01a791b94f8d11ad70cbdfe79993bd2c287be1))
+
 ## [1.1.0] - 2026-05-12
 
 ### Added
@@ -31,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump publish workflow ([df667cc](https://github.com/fibricheck/android-camera-sdk/commit/df667cc829c2f3811f6434a7b325c0ff8fcf456a))
 - Update Release process ([6362afc](https://github.com/fibricheck/android-camera-sdk/commit/6362afcaec1efc788730644258fb581e37b3bf89))
 - Hard link git-cliff ([8f5183d](https://github.com/fibricheck/android-camera-sdk/commit/8f5183ddce1aba5ad1a79b2227bb637dc66b8876))
+- Release v1.1.0 ([c265d09](https://github.com/fibricheck/android-camera-sdk/commit/c265d099f5e1126fea2c359bbab737b39d6dbac6))
 
 ### Fixed
 - Clear listeners before making new ones (FB-788) ([3395100](https://github.com/fibricheck/android-camera-sdk/commit/3395100cd44bf44a5404b7497f2bd2ee09cd2ae8))
