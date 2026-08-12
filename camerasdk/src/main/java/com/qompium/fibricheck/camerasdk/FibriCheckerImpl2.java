@@ -122,7 +122,7 @@ public class FibriCheckerImpl2 extends FibriChecker {
     double stdDevY;
     int[] histY = new int[256];
 
-    Quadrant quadrant = new Quadrant();
+    Quadrant quadrant = new Quadrant(quadrantRows, quadrantCols);
     int[][][] quadrantDataArray = new int[quadrantRows][quadrantCols][3];
 
     try {

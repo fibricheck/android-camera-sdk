@@ -240,7 +240,7 @@ public abstract class FibriChecker implements CameraListener {
   }
 
   protected void startMeasurement(long startTimestamp) {
-    measurementData = new MeasurementData();
+    measurementData = new MeasurementData(quadrantRows, quadrantCols);
     measurementStartTime = startTimestamp;
     measurementData.measurementTimestamp = System.currentTimeMillis();
     attempts++;
@@ -654,6 +654,10 @@ public abstract class FibriChecker implements CameraListener {
     }
 
     public FibriBuilder quadrantSize(int rows, int cols) {
+
+      if (rows <= 0 || cols <= 0) {
+        throw new IllegalArgumentException("Quadrant rows and columns must be greater than zero");
+      }
 
       this.quadrantRows = rows;
       this.quadrantCols = cols;

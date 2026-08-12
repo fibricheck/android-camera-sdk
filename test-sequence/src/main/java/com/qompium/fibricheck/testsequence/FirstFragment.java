@@ -1,9 +1,16 @@
 package com.qompium.fibricheck.testsequence;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.Log;
@@ -15,10 +22,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.FileProvider;
+import androidx.core.content.pm.PackageInfoCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.gson.Gson;
@@ -32,7 +42,15 @@ import com.qompium.fibricheck.camerasdk.measurement.MeasurementCameraSettings;
 import com.qompium.fibricheck.camerasdk.measurement.MeasurementData;
 import com.qompium.fibricheck.testsequence.databinding.FragmentFirstBinding;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class FirstFragment extends Fragment implements TestSequenceManager.TestSequenceListener {
@@ -55,7 +73,9 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
     private Button buttonProceed;
     private Button buttonSkip;
     private Button buttonViewSettings;
+    private Button buttonShareMeasurement;
     private MeasurementCameraSettings lastCameraSettings;
+    private MeasurementData lastMeasurementData;
     private boolean pendingBackgroundingConfirm = false;
     private boolean isAccEnabled = false;
     private boolean isGyroEnabled = false;
@@ -108,10 +128,12 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
     private void initMeasurement() {
         ViewGroup cameraContainer = getCameraContainer();
 
-        fibriChecker = new FibriChecker.FibriBuilder(cameraContainer.getContext(), cameraContainer).build();
+        fibriChecker = new FibriChecker.FibriBuilder(cameraContainer.getContext(), cameraContainer)
+                .quadrantSize(2, 2)
+                .build();
 
         // Adjust settings
-        fibriChecker.sampleTime = 10;
+        fibriChecker.sampleTime = 35;
         // fibriChecker.movementDetectionEnabled = true;
         // fibriChecker.fingerDetectionExpiryTime = 0;
         // fibriChecker.pulseDetectionExpiryTime = 0;
@@ -415,6 +437,10 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                     }
                     testSequenceManager.onEvent("onMeasurementProcessed");
                     showCameraPlaceholder(true);
+                    lastMeasurementData = measurementData;
+                    if (buttonShareMeasurement != null) {
+                        buttonShareMeasurement.setVisibility(View.VISIBLE);
+                    }
 
                     String validationError = validateMeasurement(measurementData);
                     if (validationError != null) {
@@ -659,7 +685,9 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
 
     private void startMeasurement() {
         lastCameraSettings = null;
+        lastMeasurementData = null;
         if (buttonViewSettings != null) buttonViewSettings.setVisibility(View.GONE);
+        if (buttonShareMeasurement != null) buttonShareMeasurement.setVisibility(View.GONE);
 
         // Advance the step so initMeasurement() uses correct timeout values
         testSequenceManager.start();
@@ -728,11 +756,13 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         buttonProceed = view.findViewById(R.id.button_proceed);
         buttonSkip = view.findViewById(R.id.button_skip);
         buttonViewSettings = view.findViewById(R.id.button_view_settings);
+        buttonShareMeasurement = view.findViewById(R.id.button_share_measurement);
 
         buttonRestart.setOnClickListener(v -> resetSequence());
         buttonProceed.setOnClickListener(v -> startMeasurement());
         buttonSkip.setOnClickListener(v -> skipCurrentStep());
         buttonViewSettings.setOnClickListener(v -> showCameraSettingsDialog());
+        buttonShareMeasurement.setOnClickListener(v -> shareMeasurementJson());
 
         populateLabelInfo(view);
 
@@ -827,7 +857,9 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
     private void resetSequence() {
         testSequenceManager.reset();
         lastCameraSettings = null;
+        lastMeasurementData = null;
         if (buttonViewSettings != null) buttonViewSettings.setVisibility(View.GONE);
+        if (buttonShareMeasurement != null) buttonShareMeasurement.setVisibility(View.GONE);
         if (fibriChecker != null) {
             fibriChecker.stop();
             fibriChecker = null;
@@ -964,7 +996,9 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
             fibriChecker = null;
         }
         lastCameraSettings = null;
+        lastMeasurementData = null;
         if (buttonViewSettings != null) buttonViewSettings.setVisibility(View.GONE);
+        if (buttonShareMeasurement != null) buttonShareMeasurement.setVisibility(View.GONE);
         hideGraph();
         testSequenceManager.retryCurrentStep();
         clearStatusMessage();
@@ -991,6 +1025,87 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
             return;
         }
         setStatusMessage("Retrying... Place finger firmly on camera", StatusType.INFO);
+    }
+
+    private void shareMeasurementJson() {
+        MeasurementData measurementData = lastMeasurementData;
+        if (measurementData == null || getContext() == null) return;
+
+        PackageInfo packageInfo;
+        try {
+            packageInfo = requireContext().getPackageManager()
+                    .getPackageInfo(requireContext().getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException exception) {
+            showShareError("Could not read app version information");
+            return;
+        }
+
+        buttonShareMeasurement.setEnabled(false);
+        File documentsDirectory = requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+        if (documentsDirectory == null) documentsDirectory = requireContext().getFilesDir();
+
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ROOT).format(new Date());
+        File outputFile = new File(documentsDirectory, "measurement_" + timestamp + ".json");
+
+        new Thread(() -> {
+            try {
+                if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs()) {
+                    throw new IOException("Could not create the documents directory");
+                }
+                Gson gson = new Gson();
+                JsonObject payload = gson.toJsonTree(measurementData).getAsJsonObject();
+
+                JsonObject app = new JsonObject();
+                app.addProperty("name", "mobile-spot-check");
+                app.addProperty("build", PackageInfoCompat.getLongVersionCode(packageInfo));
+                app.addProperty("version", packageInfo.versionName);
+                app.addProperty("camera_sdk_version", FibriChecker.sdkVersion());
+                payload.add("app", app);
+
+                JsonObject device = new JsonObject();
+                device.addProperty("os", Build.VERSION.RELEASE);
+                device.addProperty("model", Build.MODEL);
+                device.addProperty("manufacturer", Build.MANUFACTURER);
+                device.addProperty("type", "android");
+                payload.add("device", device);
+
+                try (OutputStreamWriter writer = new OutputStreamWriter(
+                        new FileOutputStream(outputFile), StandardCharsets.UTF_8)) {
+                    gson.toJson(payload, writer);
+                }
+                openMeasurementShareSheet(outputFile);
+            } catch (IOException exception) {
+                Log.e(TAG, "Failed to save measurement JSON", exception);
+                showShareError("Could not create measurement file: " + exception.getMessage());
+            }
+        }).start();
+    }
+
+    private void openMeasurementShareSheet(File measurementFile) {
+        if (getActivity() == null) return;
+        requireActivity().runOnUiThread(() -> {
+            if (buttonShareMeasurement != null) buttonShareMeasurement.setEnabled(true);
+            if (getContext() == null) return;
+
+            Uri contentUri = FileProvider.getUriForFile(
+                    requireContext(),
+                    requireContext().getPackageName() + ".fileprovider",
+                    measurementFile);
+            Intent shareIntent = new Intent(Intent.ACTION_SEND)
+                    .setType("application/json")
+                    .putExtra(Intent.EXTRA_STREAM, contentUri)
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            shareIntent.setClipData(ClipData.newRawUri("Measurement JSON", contentUri));
+            startActivity(Intent.createChooser(shareIntent, "Share measurement JSON"));
+        });
+    }
+
+    private void showShareError(String message) {
+        if (getActivity() == null) return;
+        requireActivity().runOnUiThread(() -> {
+            if (buttonShareMeasurement != null) buttonShareMeasurement.setEnabled(true);
+            if (getContext() != null) Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        });
     }
 
     @Override
