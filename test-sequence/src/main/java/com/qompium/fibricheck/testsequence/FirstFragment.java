@@ -152,8 +152,14 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
 
             @Override
             public void onSampleReady(final double ppg, double raw) {
-                if (getCurrentStepNumber() == TestSequenceManager.STEP_SAMPLE_READY) {
-                    requireActivity().runOnUiThread(() -> {
+                requireActivity().runOnUiThread(() -> {
+                    MainActivity act = (MainActivity) getActivity();
+                    if (act != null) {
+                        act.showPpgGraph(true);
+                        PpgGraphView graph = act.getPpgGraphView();
+                        if (graph != null) graph.addSample(ppg);
+                    }
+                    if (getCurrentStepNumber() == TestSequenceManager.STEP_SAMPLE_READY) {
                         updateDebugEvent("onSampleReady");
                         testSequenceManager.onEvent("onSampleReady");
                         setStatusMessage("Camera data stream active", StatusType.SUCCESS);
@@ -163,8 +169,8 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
                             testSequenceManager.skipCurrentStep(); // heartbeat
                             testSequenceManager.skipCurrentStep(); // pulse
                         }
-                    });
-                }
+                    }
+                });
             }
 
             @Override
@@ -630,6 +636,14 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         if (ifu != null) ifu.setText(label.get("ifu"));
     }
 
+    private void hideGraph() {
+        MainActivity activity = (MainActivity) getActivity();
+        if (activity == null) return;
+        activity.showPpgGraph(false);
+        PpgGraphView graph = activity.getPpgGraphView();
+        if (graph != null) graph.clear();
+    }
+
     private void clearStatusMessage() {
         if (textStatusMessage != null) {
             textStatusMessage.setVisibility(View.GONE);
@@ -691,6 +705,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
             fibriChecker.stop();
             fibriChecker = null;
         }
+        hideGraph();
         showCameraPlaceholder(true);
         setStatusMessage("Measurement stopped", StatusType.WARNING);
         setProceedButtonState("START", true);
@@ -817,6 +832,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
             fibriChecker.stop();
             fibriChecker = null;
         }
+        hideGraph();
         if (cardCurrentStep != null) {
             cardCurrentStep.setCardBackgroundColor(Color.parseColor("#E6F4F1"));
         }
@@ -949,7 +965,7 @@ public class FirstFragment extends Fragment implements TestSequenceManager.TestS
         }
         lastCameraSettings = null;
         if (buttonViewSettings != null) buttonViewSettings.setVisibility(View.GONE);
-
+        hideGraph();
         testSequenceManager.retryCurrentStep();
         clearStatusMessage();
 

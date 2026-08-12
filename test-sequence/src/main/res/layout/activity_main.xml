@@ -22,6 +22,26 @@
 
     <include layout="@layout/content_main" />
 
+    <!-- PPG Graph, floats just above the camera preview card during measurement -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_ppg_graph"
+        android:layout_width="120dp"
+        android:layout_height="80dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="144dp"
+        android:visibility="gone"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#1A2634">
+
+        <com.qompium.fibricheck.testsequence.PpgGraphView
+            android:id="@+id/view_ppg_graph"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.cardview.widget.CardView>
+
     <!-- Small Camera Preview (replaces FAB) -->
     <androidx.cardview.widget.CardView
         android:id="@+id/card_camera_preview"
