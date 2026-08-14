@@ -231,6 +231,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Share Measurement Button (shown after measurement processing) -->
+    <Button
+        android:id="@+id/button_share_measurement"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="SHARE MEASUREMENT JSON"
+        android:textSize="16sp"
+        android:textColor="#1E8D95"
+        android:visibility="gone"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        app:strokeColor="#1E8D95"
+        app:layout_constraintTop_toBottomOf="@id/button_view_settings"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <!-- Steps List Header -->
     <TextView
         android:id="@+id/text_steps_header"
@@ -241,7 +257,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="#616161"
-        app:layout_constraintTop_toBottomOf="@id/button_view_settings"
+        app:layout_constraintTop_toBottomOf="@id/button_share_measurement"
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Steps List ScrollView -->

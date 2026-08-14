@@ -1,8 +1,5 @@
 package com.qompium.fibricheck.camerasdk.measurement;
 
-import static com.qompium.fibricheck.camerasdk.measurement.Quadrant.QUADRANT_COLS;
-import static com.qompium.fibricheck.camerasdk.measurement.Quadrant.QUADRANT_ROWS;
-
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -11,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MeasurementData implements Serializable {
+  private final transient int quadrantRows;
+  private final transient int quadrantCols;
+
   @SerializedName("heartrate")
   public double heartrate;
 
@@ -54,6 +54,13 @@ public class MeasurementData implements Serializable {
   public MeasurementCameraSettings cameraSettings;
 
   public MeasurementData() {
+    this(Quadrant.QUADRANT_ROWS, Quadrant.QUADRANT_COLS);
+  }
+
+  public MeasurementData(int quadrantRows, int quadrantCols) {
+
+    this.quadrantRows = quadrantRows;
+    this.quadrantCols = quadrantCols;
 
     this.technical_details = new HashMap<>();
     this.time = new ArrayList<>();
@@ -62,15 +69,15 @@ public class MeasurementData implements Serializable {
     this.rotation = new MotionData();
     this.gyro = new MotionData();
 
-    initQuadrants();
+    initQuadrants(quadrantRows, quadrantCols);
   }
 
-  private void initQuadrants() {
+  private void initQuadrants(int quadrantRows, int quadrantCols) {
 
     quadrants = new ArrayList<>();
-    for (int i = 0; i < QUADRANT_ROWS; i++) {
+    for (int i = 0; i < quadrantRows; i++) {
       quadrants.add(i, new ArrayList<>());
-      for (int j = 0; j < QUADRANT_COLS; j++) {
+      for (int j = 0; j < quadrantCols; j++) {
         quadrants.get(i).add(j, new YuvList());
       }
     }
@@ -78,9 +85,9 @@ public class MeasurementData implements Serializable {
 
   public void addQuadrant(Quadrant quadrant) {
 
-    for (int i = 0; i < QUADRANT_ROWS; i++) {
-      for (int j = 0; j < QUADRANT_COLS; j++) {
-        quadrants.get(i).get(j).addYUV(quadrant.getYuv(i, j));
+    for (int row = 0; row < quadrantRows; row++) {
+      for (int col = 0; col < quadrantCols; col++) {
+        quadrants.get(row).get(col).addYUV(quadrant.getYuv(row, col));
       }
     }
   }
