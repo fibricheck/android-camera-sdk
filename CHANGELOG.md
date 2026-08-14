@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.1] - 2026-08-12
+## [1.1.1] - 2026-08-14
+
+### Added
+- JSON output added to test sequence ([94fb9a5](https://github.com/fibricheck/android-camera-sdk/commit/94fb9a5ce3bd85b5aaa25f8e082d0c9de0b30f26))
+
+### Changed
+- Release v1.1.1 ([a25bf2b](https://github.com/fibricheck/android-camera-sdk/commit/a25bf2bb4b2752281bfabe3c3208fdb0d615f004))
 
 ### Fix
 - Remove explicit dynamic range disabling ([ed3de5a](https://github.com/fibricheck/android-camera-sdk/commit/ed3de5a5dd60b4080b556cf1cc6cbc91991c0b77))
